@@ -1,5 +1,6 @@
 import DoughnutChart from "../components/DoughnutChart";
 import  React  from "react";
+import Layout from "../adminLayout";
 const Dashboard = () => {
     const clientData = {
         labels: ["Nouveaux", "Anciens"],
@@ -7,9 +8,8 @@ const Dashboard = () => {
           {
             label: "Info",
             data: [55, 45],
-            backgroundColor: ["rgb(54, 162, 235, 0.2)", "rgb(153, 102, 255, 0.2)"],
-            borderColor: ["rgb(54, 162, 235)", "rgb(153, 102, 255)"],
-            borderWidth: 1,
+            backgroundColor: ["rgb(22, 91, 170)", "rgb(161, 85, 185)"],
+           
           },
         ],
       };
@@ -20,16 +20,15 @@ const Dashboard = () => {
           {
             label: "Info",
             data: [70, 30],
-            backgroundColor: ["rgb(54, 162, 235, 0.2)", "rgb(153, 102, 255, 0.2)"],
-            borderColor: ["rgb(54, 162, 235)", "rgb(153, 102, 255)"],
-            borderWidth: 1,
+            backgroundColor: ["rgb(22, 91, 170)", "rgb(161, 85, 185)"],
+            
           },
         ],
       };
     
       return (
-       <div>
-    
+        <Layout activePage="dashboard"> 
+       
             <div className="flex items-center p-4"> {/* Select box for months */}
               <div className="mr-4"> {/* Margin right for spacing */}
                 <p className="text-m text-gray-600 mb-2 text-lg font-semibold"> mois :</p> 
@@ -37,7 +36,7 @@ const Dashboard = () => {
               <br/>
               <br/>
               <div>
-                <select className="border border-gray-300 bg-white text-gray-900 rounded-md px-2 py-1 w-40 border border-indigo-500/75 border-2">
+                <select className=" border-gray-300 bg-white text-gray-900 rounded-md px-2 py-1 w-40 border-indigo-500/75 border-2">
                   <option value="january">Janvier</option>
                   <option value="february">Février</option>
                   <option value="march">Mars</option>
@@ -56,36 +55,36 @@ const Dashboard = () => {
             </div>
     
             <div className="flex flex-grow p-4 pl-16 "> {/* Main content area */}
-              <div className="grid grid-cols-2 gap-8"> {/* Grid for charts */}
-                <div className="bg-white p-4 rounded-md shadow-lg h-80">
-                <h3 className="text-lg font-semibold mb-4">
-                <span className="text-zinc-500">Client</span> <br/>
-                <span className="text-blue-950 text-4xl">200</span> <br/>
-                <span className="text-slate-600">nombre total des clients</span>
+              <div className="grid grid-cols-2 gap-20"> {/* Grid for charts */}
+                <div className="bg-white p-4 rounded-md shadow-lg h-80 w-80">
+                <h3>
+                <span className="text-zinc-500 font-semibold ">Client</span> <br/>
+                <span className="text-blue-950 text-4xl font-semibold ">200</span> <br/>
+                <span className="text-slate-600 ">nombre total des clients</span>
                 </h3>
-                  <div className="border-t border-gray-800 p-3 "></div>
-                  <div className="h-40">
-                  <DoughnutChart chartData={clientData} />
+                  <div className="border-t border-gray-800  p-1.5"></div>                
+                  <div className="h-60 ">
+                  <DoughnutChart chartData={clientData} preload/>
                   </div>
                 </div>
-                <div className="bg-white p-4 rounded-md h-80 shadow-lg pl-16">
-                <h3 className="text-lg font-semibold mb-4 ">
-                <span className="text-zinc-500">abonnement</span> <br/>
-                <span className="text-blue-950 text-4xl">600</span> <br/>
+                <div className="bg-white p-4 rounded-md shadow-lg h-80 w-80">
+                <h3>
+                <span className="text-zinc-500 font-semibold ">abonnement</span> <br/>
+                <span className="text-blue-950 text-4xl font-semibold ">600</span> <br/>
                 <span className="text-slate-600">nombre total d'abonnements</span>
                 </h3>
-                  <div className="border-t border-gray-800 p-3 "></div>
-                  <div className="h-40">
-                  <DoughnutChart chartData={totalData} />
+                  <div className="border-t border-gray-800 p-1.5 "></div>
+                  <div className="h-60">
+                  <DoughnutChart chartData={totalData} preload />
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-       
+          
+       </Layout>
       );
     }
-    
+
 export default Dashboard
 
 

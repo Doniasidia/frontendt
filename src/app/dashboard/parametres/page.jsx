@@ -1,8 +1,9 @@
+import Layout from "@/app/adminLayout"
 const Parametres = () => {
     return(
-<div>
+<Layout activePage="parametres"> 
   parametres
-</div>
+</Layout>
     )
 }
 export default Parametres

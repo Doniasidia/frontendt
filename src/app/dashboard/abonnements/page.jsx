@@ -1,8 +1,8 @@
-
+import Layout from "@/app/adminLayout";
 const Abonnements = () => {
     return(
         
-        <div> abonnements content here </div>
+        <Layout activePage="abonnements">  abonnements content here </Layout>
    
 );
 }

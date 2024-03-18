@@ -17,8 +17,29 @@ export default function DoughnutChart({ chartData }) {
         type: "doughnut",
         data: chartData,
         options: {
-          // responsive: true
+          plugins: {
+            legend: {
+              position: "right",
+              labels: {
+                boxWidth: 10,
+                font: {
+                  size: 12
+                }
+                
+              }
+            }
+          },
+          aspectRatio: 1.5, // Aspect ratio for maintaining the doughnut shape
+          cutout: '45%', // Adjust the cutout to make the doughnut smaller
+          layout: {
+            padding: 30
+          
+          }
         },
+          
+        
+            
+          
       });
       chartRef.current.chart = newChart;
     }
