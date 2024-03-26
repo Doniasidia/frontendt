@@ -1,6 +1,9 @@
-import DoughnutChart from "../components/DoughnutChart";
+//Admin/dashboard
+import DoughnutChart from "../../components/DoughnutChart";
+
 import  React  from "react";
 import Layout from "../adminLayout";
+
 const Dashboard = () => {
     const clientData = {
         labels: ["Nouveaux", "Anciens"],
@@ -8,7 +11,7 @@ const Dashboard = () => {
           {
             label: "Info",
             data: [55, 45],
-            backgroundColor: ["rgb(22, 91, 170)", "rgb(161, 85, 185)"],
+            backgroundColor: ["rgb(22, 91, 170)", "rgb(90, 228, 168)"],
            
           },
         ],
@@ -20,7 +23,7 @@ const Dashboard = () => {
           {
             label: "Info",
             data: [70, 30],
-            backgroundColor: ["rgb(22, 91, 170)", "rgb(161, 85, 185)"],
+            backgroundColor: ["rgb(22, 91, 170)", "rgb(90, 228, 168)"],
             
           },
         ],
@@ -30,13 +33,13 @@ const Dashboard = () => {
         <Layout activePage="dashboard"> 
        
             <div className="flex items-center p-4"> {/* Select box for months */}
-              <div className="mr-4"> {/* Margin right for spacing */}
-                <p className="text-m text-gray-600 mb-2 text-lg font-semibold"> mois :</p> 
+              <div className="mr-12"> {/* Margin right for spacing */}
+                
               </div>
               <br/>
               <br/>
               <div>
-                <select className=" border-gray-300 bg-white text-gray-900 rounded-md px-2 py-1 w-40 border-indigo-500/75 border-2">
+                <select className=" border-blue-400 bg-white text-gray-900 rounded-md px-2 py-1 w-60 border-blue-500/75 border-2">
                   <option value="january">Janvier</option>
                   <option value="february">Février</option>
                   <option value="march">Mars</option>
@@ -62,9 +65,9 @@ const Dashboard = () => {
                 <span className="text-blue-950 text-4xl font-semibold ">200</span> <br/>
                 <span className="text-slate-600 ">nombre total des clients</span>
                 </h3>
-                  <div className="border-t border-gray-800  p-1.5"></div>                
-                  <div className="h-60 ">
-                  <DoughnutChart chartData={clientData} preload/>
+                  <div className="border-t border-gray-400 p-1.5 "></div>                
+                  <div className="h-60">
+                  <DoughnutChart chartData={clientData} />
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-md shadow-lg h-80 w-80">
@@ -73,19 +76,16 @@ const Dashboard = () => {
                 <span className="text-blue-950 text-4xl font-semibold ">600</span> <br/>
                 <span className="text-slate-600">nombre total d'abonnements</span>
                 </h3>
-                  <div className="border-t border-gray-800 p-1.5 "></div>
+                  <div className="border-t border-gray-400 p-1.5 "></div>
                   <div className="h-60">
-                  <DoughnutChart chartData={totalData} preload />
+                  <DoughnutChart chartData={totalData} />
                   </div>
                 </div>
               </div>
             </div>
           
-       </Layout>
-      );
+       </Layout>
+      );
     }
 
-export default Dashboard
-
-
-
+export default Dashboard

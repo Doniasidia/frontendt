@@ -1,11 +1,9 @@
 import React from "react";
 import Layout from "./layout";
-import Dashboard from "./Dashboard";
-import Clients from "./Clients";
-import Subscriptions from "./Subscriptions";
-import Settings from "./Settings";
-import Abonnements from "./dashboard/abonnements/page";
-import Parametres from "./dashboard/parametres/page";
+import Dashboard from "./admin/dashboard/page";
+import Clients from "./admin/clients/page";
+import Abonnements from "./admin/abonnements/page";
+import Parametres from "./admin/parametres/page";
 
 const App = () => {
   // Determine which page is currently active
