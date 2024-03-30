@@ -3,30 +3,26 @@ import axios from 'axios';
 import { useState } from 'react';
 
 const Login = () => {
-  const [email, setemail] = useState('');
+  const [email, setEmail] = useState(''); // Corrected variable name to setEmail
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loginStatus, setLoginStatus] = useState('login');
   const [forgotPassword, setForgotPassword] = useState(false);
   const [recoveryInfo, setRecoveryInfo] = useState('');
-  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    e.preventDefault();
     try {
-      // Make an HTTP POST request to your backend API for login
       const response = await axios.post('http://localhost:5000/api/auth/login', {
-        email: email,
+        email: email, // Corrected variable name to email
         password: password,
       });
-      // If login is successful, redirect the user to the dashboard or another page
       console.log('Login successful!', response.data);
-      // Redirect the user to the dashboard or another page
-    } catch {
-      // Login failed (without displaying a specific message)
-      console.log('Login failed!');
-      setLoginStatus('failed'); // Update login status to indicate failure (optional)
+      // Here, you can handle the successful login response, such as redirecting the user to another page
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError('Email ou mot de passe incorrect');
+      setLoginStatus('error');
     }
   };
 
@@ -53,24 +49,20 @@ const Login = () => {
       <div className="flex-1 max-w-md h-full flex flex-col justify-center items-center errorImg">
         {!forgotPassword && (
           <form onSubmit={handleSubmit} className="px-4 pt-6 pb-8 mb-4" noValidate>
-    <h2 className={`text-center text-2xl mb-6 font-bold ${loginStatus === 'error' && 'text-red-500'}`}>
-  {loginStatus === 'login' ? 'Connexion' : loginStatus === 'error' ? 'Erreur' : 'Connexion réussie'}
-</h2>
-
-            
+            <h2 className={`text-center text-2xl mb-6 font-bold ${loginStatus === 'error' && 'text-red-500'}`}>
+              {loginStatus === 'login' ? 'Connexion' : loginStatus === 'error' ? 'Erreur' : 'Connexion réussie'}
+            </h2>
             <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-  Email ou numéro de téléphone:
-</label>
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email"> {/* Changed htmlFor to email */}
+                Email:
+              </label>
               <input
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
-                  error && 'border-red-500'
-                }`}
-                id="email"
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${error && 'border-red-500'}`}
+                id="email" // Changed id to email
                 type="text"
                 value={email}
-                onChange={(e) => setemail(e.target.value)}
-                placeholder="Email ou numéro de téléphone"
+                onChange={(e) => setEmail(e.target.value)} // Corrected function name to setEmail
+                placeholder="Email"
                 required
               />
             </div>
@@ -79,9 +71,7 @@ const Login = () => {
                 Mot de passe:
               </label>
               <input
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${
-                  error && 'border-red-500'
-                }`}
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${error && 'border-red-500'}`}
                 id="password"
                 type="password"
                 value={password}
@@ -100,14 +90,13 @@ const Login = () => {
               </button>
             </div>
             {loginStatus === 'login' && (
-  <p className="text-center mt-4">
-    Vous n'avez pas un compte ?{' '}
-    <a href="#" className="text-blue-500 hover:text-blue-700">
-      S'inscrire
-    </a>
-  </p>
-)}
-
+              <p className="text-center mt-4">
+                Vous n'avez pas un compte ?{' '}
+                <a href="#" className="text-blue-500 hover:text-blue-700">
+                  S'inscrire
+                </a>
+              </p>
+            )}
             {loginStatus === 'error' && <p className="text-center mt-4"><a href="#" onClick={handleForgotPasswordClick} className="text-blue-500 hover:text-blue-700">Mot de passe oublié ?</a></p>}
           </form>
         )}
