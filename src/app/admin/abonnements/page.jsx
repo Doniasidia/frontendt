@@ -1,4 +1,4 @@
-import Layout from "@/app/adminLayout";
+import Layout from '../adminLayout'
 const Abonnements = () => {
     return(
         
