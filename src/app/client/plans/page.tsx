@@ -1,3 +1,4 @@
+//client/Plans 
 "use client";
 import React, { useState, ChangeEvent, useEffect } from "react";
 import Image from 'next/image'
@@ -11,7 +12,11 @@ const TdStyle = {
   TdStyle: 'text-dark border-b border-l border-transparent border-[#E8E8E8] bg-sky-100 dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium',
   TdButton: 'inline-block px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium',
 };
-
+interface InputProps {
+  value: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  isValid: boolean;
+}
 
 interface Plan {
   id: number;
@@ -49,6 +54,14 @@ const Plans = () => {
   const isEmptyduration = !duration ;
   const isEmptynbrseance = !nbrseance ;
   const isEmptyradio = !enligne ;
+  // Assuming isValid is based on form fields being filled correctly
+  const isValidname = name.trim() !== '' ;
+  const isValidtype =type.trim() !== '' ;
+  const isValidamount = !isNaN(parseFloat(amount));
+  const isValidduration =!isNaN(parseFloat(duration)) ;
+  const isValidnbrseance = !isNaN(parseFloat(nbrseance));
+
+
 
 
 
@@ -104,7 +117,13 @@ const Plans = () => {
           setPlans(updatedPlans);
         }
       }
-      
+      else if (action === 'delete') {
+        // Supprimer l'entrée de la base de données
+        await axios.delete(`http://localhost:5000/api/plans/${planId}`);
+        
+        // Mettre à jour l'état local pour supprimer l'élément de la liste des plans
+        setPlans(prevPlans => prevPlans.filter(plan => plan.id !== planId));
+      }
     } catch (error) {
       console.error('Error handling action:', error);
     }
@@ -135,7 +154,7 @@ const Plans = () => {
     setDuration('');
     setNbrseance('');
     setFormSubmitted(false);
-    // Reset form validation states 
+    // Reset form validation states as well if needed
     setFormValid(true);
    
    
@@ -159,7 +178,7 @@ const Plans = () => {
           type,
           amount: parseInt(amount),
           duration: parseInt(duration),
-          nbrseance: parseInt(duration),
+          nbrseance: parseInt(nbrseance),
           enligne: payes ? 'oui' : 'non',
         });
         
@@ -180,7 +199,7 @@ const Plans = () => {
           type,
           amount: parseInt(amount),
           duration: parseInt(duration),
-          nbrseance: parseInt(duration),
+          nbrseance: parseInt(nbrseance),
           enligne: payes ? 'oui' : 'non',
         });
   
@@ -202,6 +221,7 @@ const Plans = () => {
   return (
     <Layout activePage="plans"> 
     <div className="flex justify-center pt-14 mx-2 w-full">
+    <div className="relative flex items-center"> 
   <input
     type="text"
     placeholder="Search by name..."
@@ -209,6 +229,10 @@ const Plans = () => {
     onChange={handleSearchQueryChange}
     className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
   />
+<div className="absolute inset-y-0 right-0 flex items-center pr-3">
+      <Image src='/searchbar.svg' alt='search' width={15} height={40} />
+    </div>
+  </div>
 </div>
 
 <div className=" table-wrapper">
@@ -229,7 +253,7 @@ const Plans = () => {
             </thead>
             <tbody>
               
-            {plans.map((plan: Plan) => (
+           {filteredPlans.map((plan: Plan) => (
               <tr className={plan.status === 'activated' ? '' : 'deleted-row'} key={plan.id}>
 
                 <td className={TdStyle.TdStyle}>{plan.name}</td>
@@ -238,6 +262,9 @@ const Plans = () => {
                 <td className={TdStyle.TdStyle}>{plan.duration}</td>
                 <td className={TdStyle.TdStyle}>{plan.nbrseance}</td>
                 <td className={TdStyle.TdStyle}>{plan.enligne === 'oui' ? 'Oui' : 'Non'}</td>
+
+
+              
               
                 <td className={TdStyle.TdStyle}> 
                 <div className="flex items-center justify-center">
@@ -247,6 +274,7 @@ const Plans = () => {
                 
 {showEditForm && selectedPlan && (
        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+       {/* Form contents */}
        <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
          <div className="flex justify-end mt-2.5 mr-4 absolute top-0 right-0">
            <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowEditForm(false)} className="cursor-pointer" />
@@ -270,7 +298,7 @@ const Plans = () => {
             {formSubmitted && isEmptyname &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
 
          </div>
-         
+         {/* Select Box */}
          <div className="flex flex-wrap items-center mb-4 relative">
            <label htmlFor="type" className="block text-gray-700 text-sm font-bold mb-2">
              Type:
@@ -310,7 +338,9 @@ const Plans = () => {
              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
              placeholder="Entrer le prix"
            />
-           {formSubmitted && isEmptyamount &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire et doit être un nombre.</p>}
+          {formSubmitted &&!isValidamount && amount.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un prix valide.</p>}
+
+           {formSubmitted && isEmptyamount &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
          </div>
          <div className="flex flex-wrap items-center mb-4 relative">
            <label htmlFor="duree" className="block text-gray-700 text-sm font-bold mb-2">
@@ -325,8 +355,11 @@ const Plans = () => {
              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
              placeholder="Entrer la durée"
            />
-           {formSubmitted && isEmptyduration &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire et doit être un nombre. </p>}
+          
          </div>
+         {formSubmitted &&!isValidduration && nbrseance.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer une durée valide.</p>}
+
+{formSubmitted && isEmptyduration &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
          <div className="flex flex-wrap items-center mb-4 relative">
            <label htmlFor="nbrseance" className="block text-gray-700 text-sm font-bold mb-2">
              Nbr des séances par mois:
@@ -340,9 +373,11 @@ const Plans = () => {
              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
              placeholder="Entrer le nombre des séances"
            />
-           {formSubmitted && isEmptynbrseance &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire et doit être un nombre.</p>}
+           
          </div>
-        
+         {formSubmitted &&!isValidnbrseance && nbrseance.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un nombre valide.</p>}
+
+{formSubmitted && isEmptynbrseance &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
          <div className="flex items-center mb-4">
   <span className="block text-gray-700 text-sm font-bold mr-2">Paiement en ligne :</span>
   <label className="inline-flex items-center">
@@ -389,7 +424,7 @@ const Plans = () => {
                 </td>
               
                 <td className={TdStyle.TdStyle}><div className="flex items-center justify-center">
-    
+    {/* Toggle button */}
     <button onClick={() => handleClick(plan.id, 'toggle')} className="toggle-button">
   <div className={`toggle-switch ${plan.status === 'activated' ? 'active' : ''}`}></div>
 </button>
@@ -435,7 +470,7 @@ const Plans = () => {
                         {formSubmitted && isEmptyname &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
 
           </div>
-          
+          {/* Select Box */}
           <div className="mb-2">
             <label htmlFor="type" className="block text-gray-700 text-sm font-bold mb-2">
               Type:
@@ -477,7 +512,9 @@ const Plans = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
               placeholder="Entrer le prix"
             />
-                        {formSubmitted && isEmptyamount &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire et doit être un nombre.</p>}
+                         {formSubmitted &&!isValidamount && amount.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un prix valide.</p>}
+
+{formSubmitted && isEmptyamount &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
 
           </div>
           <div className="mb-2">
@@ -493,12 +530,15 @@ const Plans = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
               placeholder="Entrer la durée de la séance "
             />
-                        {formSubmitted && isEmptyduration &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire et doit être un nombre.</p>}
+                       
 
           </div>
+          {formSubmitted &&!isValidduration && duration.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer une durée valide.</p>}
+
+{formSubmitted && isEmptyduration &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
           <div className="mb-2">
             <label htmlFor="nbrseance" className="block text-gray-700 text-sm font-bold mb-2">
-              Nbr des séances par mois:
+              Nombre des séances par mois:
             </label>
             <input
               type="nbrseance"
@@ -509,9 +549,12 @@ const Plans = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
               placeholder="Entrer le nombre des séances"
             />
-                        {formSubmitted && isEmptynbrseance &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire et doit être un nombre.</p>}
+                        
 
           </div>
+          {formSubmitted &&!isValidnbrseance && nbrseance.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un nombre valide.</p>}
+
+{formSubmitted && isEmptynbrseance &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
          
           <div className="flex items-center mb-4">
   <span className="block text-gray-700 text-sm font-bold mr-2">Paiement en ligne :</span>
