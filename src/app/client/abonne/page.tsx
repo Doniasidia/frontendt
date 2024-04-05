@@ -1,303 +1,503 @@
-//client/abonne
+//client/abonné
 "use client";
 import React, { useState, ChangeEvent, useEffect } from "react";
 import Image from 'next/image'
 import Layout from "../clientLayout";
-import PaginationBar from "../PaginationBar";
+import axios from "axios";
+import { HiMail } from "react-icons/hi";
+
+
 
 const TdStyle = {
   ThStyle : 'border-l border-transparent py-2 px-3 text-base font-medium lg:py-4 lg:px-4 bg-custom-blue' ,
   TdStyle: 'text-dark border-b border-l border-transparent border-[#E8E8E8] bg-sky-100 dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium',
   TdButton: 'inline-block px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium',
 };
-
 interface InputProps {
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   isValid: boolean;
 }
-interface Client {
-  nom: string;
-  prenom: string;
-  // Add other properties as needed
-}
-const TelephoneInput: React.FC<InputProps> = ({ value, onChange, isValid }) => {
+const TelephoneInput: React.FC<InputProps & { isEmpty: boolean; formSubmitted: boolean }> = ({ value, onChange, isValid, isEmpty, formSubmitted }) => {
+
   return (
-    <div className="mb-4">
+    <div className="flex flex-wrap items-center mb-6 relative">
       <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
-        Numéro de téléphone : 
+        Numéro de téléphone *: 
       </label>
       <input        
         id="telephone"
         name="telephone"
         value={value}
         onChange={onChange}
-        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-indigo-500 ${isValid ? '' : 'border-red-500'}`}
+        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid ? '' : 'border-red-500'}`}
         placeholder="Entrer votre numéro de téléphone"
       />
-      {!isValid && <p className="text-red-500 text-xs italic">Veuillez entrer un numéro de téléphone valide.</p>}
+        {!isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un numéro de téléphone valide.</p>}
+      {formSubmitted && isEmpty &&  value.trim() === '' &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
     </div>
   );
 }
 
 const EmailInput: React.FC<InputProps> = ({ value, onChange, isValid }) => {
   return (
-    <div className="mb-4">
+    <div className="flex flex-wrap items-center mb-4 relative">
       <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
         Email : 
       </label>
-      <input        
-        id="email"
-        name="email"
-        value={value}
-        onChange={onChange}
-        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-indigo-500 ${isValid ? '' : 'border-red-500'}`}
-        placeholder="Entrer votre email"
-      />
-      {!isValid && <p className="text-red-500 text-xs italic">Veuillez entrer une adresse email valide.</p>}
+    
+        <input        
+          id="email"
+          name="email"
+          value={value}
+          onChange={onChange}
+          //className={shadow appearance-none border rounded w-full py-2 px-3 pl-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid ? '' : 'border-red-500'}}
+          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid || value.trim() === ''? '' : 'border-red-500'}`}
+
+          placeholder="Enter votre email"
+        />
+          <div className="flex flex-wrap items-center mb-1 relative">
+        <div className="absolute inset-y-0 right-3 flex items-center pl-3 pointer-events-none">
+          <HiMail className="h-5 w-5 text-gray-400" />
+        </div>
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+       
+        </div>
+      </div>
+      {!isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer une adresse email valide.</p>}
     </div>
   );
 }
 
-const Abonnés = () => {
+interface Subscriber {
+ 
+  id: number; 
+  username: string;
+  email: string;
+  telephone: string;
+  status: string;
+  nom: string;
+  enLigne: string; 
+  prenom:string;
+  FirstName:string;
+}
+
+const Subscribers = () => {
   const [showForm, setShowForm] = useState(false);
-  const [nomEtablissement, setNomEtablissement] = useState('');
-  const [password, setPassword] = useState('');
+  const [nom, setNom] = useState('');
+  const [prenom, setprenom] = useState('');
   const [telephone, setTelephone] = useState('');
   const [email, setEmail] = useState('');
-  const [typepack, setPack] = useState('');
+  const [enLigne, setenLigne] = useState('');
   const [telephoneIsValid, setTelephoneIsValid] = useState(true);
   const [emailIsValid, setEmailIsValid] = useState(true);
   const [formValid, setFormValid] = useState(true);
-  const [isActive, setIsActive] = useState(false);
-  const [payes, setPayes] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [clients, setClients] = useState<Client[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [selectedSubscriberId, setSelectedSubscriberId] = useState<number | null>(null);
+  const [selectedSubscriber, setSelectedSubscriber] = useState<Subscriber | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const isEmptynom = !nom ;
+  const isEmptyprenom= !prenom ;
+  const isEmptytelephone=!telephone ;
+  const isEmptyradio=!enLigne ;
 
 
+
+
+  useEffect(() => {
+    const fetchSubscribers = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/subscribers');
+        setSubscribers(response.data);
+      } catch (error) {
+        console.error('Error fetching subscribers:', error);
+      }
+    };
+  
+    // Fetch  from the API when the component mounts
+    fetchSubscribers();
+  }, []);
+
+  // Update selec  information when selectedId changes
+  useEffect(() => {
+    if (selectedSubscriberId !== null) {
+      const subscriber = subscribers.find((subscriber) => subscriber.id === selectedSubscriberId);
+      if (subscriber) {
+        setSelectedSubscriber(subscriber);
+        setNom(subscriber.username);
+        setprenom(subscriber.FirstName);
+        setTelephone(subscriber.telephone);
+        setEmail(subscriber.email);
+        setenLigne(subscriber.enLigne);
+        
+      }
+    }
+  }, [selectedSubscriberId, subscribers]);
 
   
-
+  const handleClick = async (subscriberId: number, action: string) => {
+    try {
+      if (action === 'edit') {
+        const subscriber = subscribers.find((subscriber) => subscriber.id === subscriberId);
+        if (subscriber && subscriber.status === 'activated') {
+          setSelectedSubscriberId(subscriberId);
+          setSelectedSubscriber(subscriber);
+          setShowEditForm(true);
+        }
+      } else if (action === 'toggle') {
+        const updatedSubscriberIndex = subscribers.findIndex((subscriber) => subscriber.id === subscriberId);
+        if (updatedSubscriberIndex !== -1) {
+          const updatedSubscriber = subscribers[updatedSubscriberIndex];
+          const newStatus = updatedSubscriber.status === 'activated' ? 'deactivated' : 'activated';
+          const response = await axios.patch(`http://localhost:5000/api/subscribers/${subscriberId}/status`, { status: newStatus });
+          const updatedSubscribers = [...subscribers];
+          updatedSubscribers[updatedSubscriberIndex] = response.data;
+          setSubscribers(updatedSubscribers);
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error handling action:', error);
+    }
+  };
+  
+  
+  
+  
   const toggleForm = () => {
     setShowForm(!showForm);
+    // Reset form fields to empty values when toggling the form
+    setNom('');
+    setprenom('');
+    setTelephone('');
+    setEmail('');
+    setenLigne('');
+    // Reset form validation states 
+    setFormValid(true);
+   setFormSubmitted(false);
+    setEmailIsValid(true);
+    setTelephoneIsValid(true);
   };
-  const handleClick = () => {
-    setIsActive(!isActive); // Toggle the state when the button is clicked
-  };
-  const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-  };
-  const handlePageChange = (page: number) => {
-  setCurrentPage(page);
-};
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, clients.length);
-  const visibleClients = clients.slice(startIndex, endIndex);
-
+  
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Prevents the form from submitting by default
-    if (!nomEtablissement || !email || !telephone || !password || !typepack) {
-      window.alert('Veuillez remplir tous les champs.'); // If any field is empty, show alert
-      setFormValid(false);
-      return; // Exit early if any field is empty
-    }
+    event.preventDefault(); 
   
-    // Validate email
+  
+  
     if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
       setEmailIsValid(false);
     } else {
       setEmailIsValid(true);
     }
   
-    // Validate telephone
     if (!/^((\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$/.test(telephone)) {
       setTelephoneIsValid(false);
     } else {
       setTelephoneIsValid(true);
     }
-  
-    // Check if all fields are valid
-    if (nomEtablissement && email && telephone && password && typepack) {
+      // Check if all fields are valid
+      if (nom && email && telephone && prenom ) {
       
-      console.log('succesfully created');
-      setFormValid(true); 
-    } 
-  };
+        console.log('succesfully created');
+        setFormValid(true); 
+      } 
+      setFormSubmitted(true);
   
-
-  const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setPack(event.target.value); // Corrected setPack usage
-    
-    
-    
+    try {
+      if (selectedSubscriberId !== null) {
+        // Update existing plan
+        const response = await axios.put(`http://localhost:5000/api/subscribers/${selectedSubscriberId}`, {
+          nom,
+          prenom,
+          email: email.trim() === '' ? null : email,
+          telephone,
+          enLigne,
+      
+        });
+        
+        // Update local state with modified plan
+        const updatedSubscribers = subscribers.map(subscriber => {
+          if (subscriber.id === selectedSubscriberId) {
+            return response.data;
+          }
+          return subscriber;
+        });
+  
+        setSubscribers(updatedSubscribers);
+        setShowEditForm(false);
+      } else {
+        // Create new subscriber
+        const response = await axios.post('http://localhost:5000/api/subscribers', {
+          nom,
+          prenom,
+          email: email.trim() === '' ? null : email,
+          telephone,
+          enLigne,
+      
+        });
+  
+        // Update local state with newly created subscriber
+        setSubscribers([...subscribers, response.data]);
+        setShowForm(false);
+      }
+  
+      setFormValid(true);
+    } catch (error) {
+      console.error('Error creating/modifying plan:', error);
+    }
   };
-  const filteredClients = clients.filter(client => {
-    const fullName = `${client.nom} ${client.prenom}`.toLowerCase();
-    return fullName.includes(searchQuery.toLowerCase());
-  });
+ 
 
   return (
     <Layout activePage="Abonnés"> 
-<div className="flex justify-center mt-8">
-    <div className="relative">
-        <input
-            type="text"
-            value={searchQuery}
-            onChange={handleSearchQueryChange}
-            placeholder=""
-            className="border border-gray-300 px-20 py-1 rounded-md pl-10" // Adjust padding to make space for the icon
-        />
-        <div className="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none">
-            {/* Using the search icon image without importing */}
-            <img src="/search.svg" alt="Search" className="h-4 w-4" /> {/* Adjust height and width as needed */}
-        </div>
-    </div>
-</div>
-  <div className='flex justify-center pt-6 mx-2 w-full '>
-        <div className='w-full max-w-[90%] overflow-x-auto rounded-xl rounded-b-none'>
-          <table className='w-full table-auto border-collapse'>
+<div className=" table-wrapper">
+      <div className='flex justify-center pt-14 mx-2 w-full  '>
+        <div className='w-full max-w-[90%] rounded-xl  table-wrapper'>
+          <table className='w-full table-auto border-collapse rounded-xl '>
             <thead className='text-center bg-primary'>
-              <tr>
+              <tr >
                 <th className={TdStyle.ThStyle}> Nom  </th>
                 <th className={TdStyle.ThStyle}> Prénom </th>
-                <th className={TdStyle.ThStyle}> Tel </th>
+                <th className={TdStyle.ThStyle}> Téléphone </th>
                 <th className={TdStyle.ThStyle}> Email </th>
-                <th className={TdStyle.ThStyle}>Groupe </th>
-                <th className={TdStyle.ThStyle}> Plans</th>
-                <th className={TdStyle.ThStyle}> Payés</th>
+                <th className={TdStyle.ThStyle}> Groupe </th>
+                <th className={TdStyle.ThStyle}>Plans </th>
+                <th className={TdStyle.ThStyle}> Payés </th>
                 <th className={TdStyle.ThStyle}> </th>
-                <th className={TdStyle.ThStyle}></th>
+                <th className={TdStyle.ThStyle}> </th>
+                <th className={TdStyle.ThStyle}> </th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className={TdStyle.TdStyle}>Ben salah</td>
-                <td className={TdStyle.TdStyle}>Mohamed</td>
-                <td className={TdStyle.TdStyle}>96325874</td>
-                <td className={TdStyle.TdStyle}>bensalah@gmail.com</td>
-                <td className={TdStyle.TdStyle}></td>
-                <td className={TdStyle.TdStyle}></td>
-                <td className={TdStyle.TdStyle}></td>
-                
-                <td className={TdStyle.TdStyle}>
-                <div className="flex justify-between items-center">
-                  <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-     
-                    
-                  </div>
-                  <div className="flex items-center justify-center">
-  
-            <Image src='/file-pen.svg' alt='edit' width={30} height={30}></Image>
-        
-        </div>
-        
-                  </div>
-                </td>
-                <td className={TdStyle.TdStyle}><div className="flex items-center justify-center">
-    {/* Toggle button */}
-    <button onClick={handleClick} className="toggle-button">
-      <div className={`toggle-switch ${isActive ? 'active' : ''}`}></div>
-    </button>
-  </div></td>
-                
+              
+            {subscribers.map((subscriber: Subscriber) => (
+              <tr className={subscriber.status === 'activated' ? '' : 'deleted-row'} key={subscriber.id}>
 
+                <td className={TdStyle.TdStyle}>{subscriber.username}</td>
+                <td className={TdStyle.TdStyle}>{subscriber.FirstName}</td>
+                <td className={TdStyle.TdStyle}>{subscriber.telephone}</td>
+                <td className={TdStyle.TdStyle}>{subscriber.email}</td>
+                <td className={TdStyle.TdStyle}> </td>  
+                <td className={TdStyle.TdStyle}></td>
+                <td className={TdStyle.TdStyle}>{subscriber.enLigne} </td>
+                <td className={TdStyle.TdStyle}>  </td>
+                <td className={TdStyle.TdStyle}> 
+                <div className="flex items-center justify-center">
+                <button onClick={() => handleClick(subscriber.id, 'edit')}>
+  <Image src='/file-pen.svg' alt='edit' width={20} height={20} />
+</button>
+                
+{showEditForm && selectedSubscriber && (
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+        
+        <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
+          
+        
+            <div className="flex justify-end mt-4 mr-4 absolute top-0 right-0">
+              <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowEditForm(false)} className="cursor-pointer" />
+            </div>
+
+            <h2 className="text-lg font-bold mb-4" style={{ color: 'rgb(27, 158, 246)' }}>Modifier abonné :</h2>
+
+
+            <div className="flex flex-wrap items-center mb-4 relative">
+              <label htmlFor="nom" className="block text-gray-700 text-sm font-bold mb-2">
+                Nom *  :
+              </label>
+              <input 
+                type="text"
+                id="nom"
+                name="nom"
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                placeholder="Entrer votre nom "
+              />
+               
+            </div>
+            {formSubmitted && isEmptyprenom &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+            <div className="flex flex-wrap items-center mb-4 relative">
+              <label htmlFor="prenom" className="block text-gray-700 text-sm font-bold mb-2">
+                Prénom *:
+              </label>
+              <input 
+                type="text"
+                id="prenom"
+                name="prenom"
+                value={prenom}
+                onChange={(e) => setprenom(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                placeholder="Entrer votre prénom "
+              />
+            </div>
+            {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+            <TelephoneInput
+  value={telephone}
+  onChange={(e) => setTelephone(e.target.value)}
+  isValid={telephoneIsValid}
+  isEmpty={telephone.trim() === ''}
+  formSubmitted={formSubmitted} 
+/>
+<EmailInput value={email} onChange={(e) => setEmail(e.target.value)} isValid={emailIsValid} />
+          
+
+           
+          
+<div className="flex items-center mb-4">
+  <span className="block text-gray-700 text-sm font-bold mr-2">Paiement en ligne :</span>
+  <label className="inline-flex items-center">
+    <input
+      type="radio"
+      name="enLigne"
+      value="oui"
+      checked={enLigne === 'oui'}
+      onChange={(e) => setenLigne(e.target.value)}
+      className="form-radio h-5 w-5 text-blue-600"
+    />
+    <span className="ml-2 text-gray-700">Oui</span>
+  </label>
+  <label className="inline-flex items-center ml-4">
+    <input
+      type="radio"
+      name="enLigne"
+      value="non"
+      checked={enLigne === 'non'}
+      onChange={(e) => setenLigne(e.target.value)}
+      className="form-radio h-5 w-5 text-blue-600"
+    />
+    <span className="ml-2 text-gray-700">Non</span>
+  </label>
+</div>
+{formSubmitted && isEmptyradio && (
+  (enLigne.trim() === '') &&
+  <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>
+)}
+
+
+
+            <div className="flex justify-end">
+              <button
+                className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
+                type="submit"
+              >
+                Modifier
+              </button>
+            </div>
+          
+        </form>
+      </div>
+    )}
+                </div>
+                </td>
+              
+                <td className={TdStyle.TdStyle}><div className="flex items-center justify-center">
+   
+    <button onClick={() => handleClick(subscriber.id, 'toggle')} className="toggle-button">
+  <div className={`toggle-switch ${subscriber.status === 'activated' ? 'active' : ''}`}></div>
+</button>
+
+
+
+
+
+  </div></td>
+  
               </tr>
+            ))}
+            
+            
             </tbody>
+            
           </table>
         </div>
       </div>
 
       {showForm && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '30%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
           <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
-            <div className="flex justify-end mt-2.5 mr-4 absolute top-0 right-0">
+            <div className="flex justify-end mt-4 mr-4 absolute top-0 right-0">
               <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowForm(false)} className="cursor-pointer" />
             </div>
 
-            <h2 className="text-lg font-bold underline mb-4">Ajouter abonné :</h2>
+            <h2 className="text-lg font-bold mb-4 text-center" style={{ color: 'rgb(27, 158, 246)' }}>Ajouter abonné :</h2>
+
 
             <div className="mb-4">
-              <label htmlFor="nomEtablissement" className="block text-gray-700 text-sm font-bold mb-2">
-                Nom:
+              <label htmlFor="nom" className="block text-gray-700 text-sm font-bold mb-2">
+                Nom *:
               </label>
               <input 
                 type="text"
-                id="nomEtablissement"
-                name="nomEtablissement"
-                value={nomEtablissement}
-                onChange={(e) => setNomEtablissement(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-indigo-500"
-                placeholder="Entrer votre nom "
+                id="nom"
+                name="nom"
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                placeholder="Entrer votre nom"
+
               />
+              {formSubmitted && isEmptynom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
-            <div className="mb-4">
-              <label htmlFor="nomEtablissement" className="block text-gray-700 text-sm font-bold mb-2">
-                Prénom:
+            <div className="flex flex-wrap items-center mb-4 relative">
+              <label htmlFor="prenom" className="block text-gray-700 text-sm font-bold mb-2">
+                Prénom * :
               </label>
               <input 
                 type="text"
-                id="nomEtablissement"
-                name="nomEtablissement"
-                value={nomEtablissement}
-                onChange={(e) => setNomEtablissement(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-indigo-500"
+                id="prenom"
+                name="prenom"
+                value={prenom}
+                onChange={(e) => setprenom(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
                 placeholder="Entrer votre prénom "
               />
             </div>
+            {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+            <TelephoneInput
+  value={telephone}
+  onChange={(e) => setTelephone(e.target.value)}
+  isValid={telephoneIsValid}
+  isEmpty={telephone.trim() === ''}
+  formSubmitted={formSubmitted} // Pass formSubmitted as a prop
+/>
+<EmailInput value={email} onChange={(e) => setEmail(e.target.value)} isValid={emailIsValid} />
+
+
+          
+
             
-            <TelephoneInput value={telephone} onChange={(e) => setTelephone(e.target.value)} isValid={telephoneIsValid} />
-
-            <EmailInput value={email} onChange={(e) => setEmail(e.target.value)} isValid={emailIsValid} />
-           
-
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-                Groupe :
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-indigo-500"
-                placeholder="Entrer votre mot de passe"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-                Plans:
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-indigo-500"
-                placeholder="Entrer votre mot de passe"
-              />
-            </div>
-            <div className="mb-4">
-  <input
-    type="checkbox"
-    id="payes"
-    name="payes"
-    checked={payes}
-    onChange={(e) => setPayes(e.target.checked)}
-    className="mr-2 leading-tight focus:outline-none focus:shadow-outline"
-  />
-  <label htmlFor="payes" className="text-gray-700 text-sm font-bold">
-    Payés
+           {/* Radio Buttons for Payment en ligne */}
+<div className="flex items-center mb-4">
+  <span className="block text-gray-700 text-sm font-bold mr-2">Paiement en ligne :</span>
+  <label className="inline-flex items-center">
+    <input
+      type="radio"
+      name="enLigne"
+      value="oui"
+      checked={enLigne === 'oui'}
+      onChange={(e) => setenLigne(e.target.value)}
+      className="form-radio h-5 w-5 text-blue-600"
+    />
+    <span className="ml-2 text-gray-700">Oui</span>
+  </label>
+  <label className="inline-flex items-center ml-4">
+    <input
+      type="radio"
+      name="enLigne"
+      value="non"
+      checked={enLigne === 'non'}
+      onChange={(e) => setenLigne(e.target.value)}
+      className="form-radio h-5 w-5 text-blue-600"
+    />
+    <span className="ml-2 text-gray-700">Non</span>
   </label>
 </div>
-
-
-            
+{formSubmitted && isEmptyradio && (
+  (enLigne.trim() === '') &&
+  <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>
+)}
 
             <div className="flex justify-end">
               <button
@@ -310,26 +510,16 @@ const Abonnés = () => {
           </form>
         </div>
       )}
-<div className="fixed bottom-6 right-8 mb-0.5 mr-4 mt-40 flex flex-column items-center">
-  <button onClick={toggleForm} className="flex items-center button-color font-bold text-white rounded-xl px-4 py-2 mb-2">
-    <span className="mr-2">Ajouter</span>
-    <Image src='/Add User Male.svg' alt='addUser' width={20} height={20}></Image>
-  </button>
-  
-</div>
-<div className="flex justify-center mt-50">
-    <PaginationBar
-      totalItems={clients.length}
-      itemsPerPage={itemsPerPage}
-      onPageChange={handlePageChange}
-      currentPage={currentPage}
-    />
-  </div>
 
-    
+      <div className="fixed bottom-6 right-8 mb-4 mr-4">
+        <button onClick={toggleForm} className="flex items-center button-color font-bold text-white rounded-xl px-4 py-2">
+          <span className="mr-2">Ajouter abonné</span>
+          <Image src='/Add User Male.svg' alt='addUser' width={20} height={20}></Image>
+        </button>
+      </div>
+      </div>
     </Layout>
-      
   );
 }
 
-export default Abonnés;
+export default Subscribers;

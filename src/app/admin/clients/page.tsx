@@ -17,7 +17,8 @@ interface InputProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   isValid: boolean;
 }
-const TelephoneInput: React.FC<InputProps> = ({ value, onChange, isValid }) => {
+
+const TelephoneInput: React.FC<InputProps & { isEmpty: boolean; formSubmitted: boolean }> = ({ value, onChange, isValid, isEmpty, formSubmitted }) => {
   return (
     <div className="flex flex-wrap items-center mb-6 relative">
       <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
@@ -31,12 +32,15 @@ const TelephoneInput: React.FC<InputProps> = ({ value, onChange, isValid }) => {
         className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid ? '' : 'border-red-500'}`}
         placeholder="Entrer votre numéro de téléphone"
       />
-      {!isValid && <p className="text-red-500 text-xs italic">Veuillez entrer un numéro de téléphone valide.</p>}
+        {!isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un numéro de téléphone valide.</p>}
+      {formSubmitted && isEmpty &&  value.trim() === '' && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+
     </div>
+    
   );
 }
 
-const EmailInput: React.FC<InputProps> = ({ value, onChange, isValid }) => {
+const EmailInput: React.FC<InputProps & { isEmptyemail: boolean; formSubmitted: boolean }> = ({ value, onChange, isValid, isEmptyemail, formSubmitted }) => {
   return (
     <div className="flex flex-wrap items-center mb-4 relative">
       <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
@@ -59,7 +63,9 @@ const EmailInput: React.FC<InputProps> = ({ value, onChange, isValid }) => {
        
         </div>
       </div>
-      {!isValid && <p className="text-red-500 text-xs italic">Veuillez entrer une adresse email valide.</p>}
+      {!isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer une adresse mail valide.</p>}
+      {formSubmitted && isEmptyemail &&  value.trim() === '' && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+
     </div>
   );
 }
@@ -91,6 +97,13 @@ const Clients = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const isEmptynomEtablissement = !nomEtablissement ;
+  const isEmptypassword= !password ;
+  const isEmptytypepack=!typepack ;
+
+
+
 
 
 
@@ -146,6 +159,7 @@ const Clients = () => {
           setClients(updatedClients);
         }
       }
+      
     } catch (error) {
       console.error('Error handling action:', error);
     }
@@ -164,7 +178,7 @@ const Clients = () => {
     setPack('');
     // Reset form validation states as well if needed
     setFormValid(true);
-   
+    setFormSubmitted(false);
     setEmailIsValid(true);
     setTelephoneIsValid(true);
   };
@@ -172,63 +186,62 @@ const Clients = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); 
-    if (!nomEtablissement || !email || !telephone || !password || !typepack) {
-      window.alert('Veuillez remplir tous les champs.'); 
-      setFormValid(false);
-      return; 
-    }
   
-    
+   
+  
     if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
       setEmailIsValid(false);
     } else {
       setEmailIsValid(true);
     }
   
-    // Validate telephone
     if (!/^((\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$/.test(telephone)) {
       setTelephoneIsValid(false);
     } else {
       setTelephoneIsValid(true);
     }
-  
-  
-    if (nomEtablissement && email && telephone && password && typepack) {
-      try {
+    setFormSubmitted(true);
+    try {
+      if (selectedClientId !== null) {
+        // Update existing plan
+        const response = await axios.put(`http://localhost:5000/api/clients/${selectedClientId}`, {
+          nomEtablissement,
+          email,
+          telephone,
+          typepack,
+          password,
+        });
         
+        // Update local state with modified plan
+        const updatedClients = clients.map(client => {
+          if (client.id === selectedClientId) {
+            return response.data;
+          }
+          return client;
+        });
+  
+        setClients(updatedClients);
+        setShowEditForm(false);
+      } else {
+        // Create new plan
         const response = await axios.post('http://localhost:5000/api/clients', {
           nomEtablissement,
           email,
           telephone,
+          typepack,
           password,
-          typepack
         });
-        const newClient = response.data; 
-        const updatedClients = clients.map(client => ({
-          ...client,
-          status: client.status === 'activated' ? 'deactivated' : 'activated'
-        }));
   
-        // Add the new client to the updated client list
-        updatedClients.push(newClient);
-  
-        // Set the updated client list as the new state
-        setClients(updatedClients);
-        
-       
-        console.log('Client created successfully:', response.data);
-        //const updatedClientsResponse = await axios.get('http://localhost:5000/api/clients');
-        //setClients(updatedClientsResponse.data); 
-        
-        setFormValid(true); 
-      } catch (error) {
-       
-        console.error('Error creating client:', error);
-        
+        // Update local state with newly created plan
+        setClients([...clients, response.data]);
+        setShowForm(false);
       }
-    } 
+  
+      setFormValid(true);
+    } catch (error) {
+      console.error('Error creating/modifying plan:', error);
+    }
   };
-
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPack(event.target.value); 
   };
@@ -299,10 +312,19 @@ const Clients = () => {
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
                 placeholder="Entrer le nom de l'établissement"
               />
+              {formSubmitted && isEmptynomEtablissement &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
+          
 
-            <EmailInput value={email} onChange={(e) => setEmail(e.target.value)} isValid={emailIsValid} />
-            <TelephoneInput value={telephone} onChange={(e) => setTelephone(e.target.value)} isValid={telephoneIsValid} />
+            <EmailInput value={email} onChange={(e) => setEmail(e.target.value)} isValid={emailIsValid}    isEmptyemail={telephone.trim() === ''}
+  formSubmitted={formSubmitted} />
+            <TelephoneInput
+  value={telephone}
+  onChange={(e) => setTelephone(e.target.value)}
+  isValid={telephoneIsValid}
+  isEmpty={telephone.trim() === ''}
+  formSubmitted={formSubmitted} // Pass formSubmitted as a prop
+/>
 
             <div className="flex flex-wrap items-center mb-6 relative">
   <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
@@ -325,6 +347,7 @@ const Clients = () => {
     {showPassword ? <HiEye className="text-gray-400" /> : <HiEyeOff className="text-gray-400" />}
   </button>
 </div>
+{formSubmitted && isEmptypassword &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
 
             {/* Select Box */}
             <div className="flex flex-wrap items-center mb-4 relative">
@@ -347,7 +370,9 @@ const Clients = () => {
                   <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4z" /></svg>
                 </div>
               </div>
+              
             </div>
+            {formSubmitted && isEmptytypepack &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
 
             <div className="flex justify-end">
               <button
@@ -409,11 +434,19 @@ const Clients = () => {
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
                 placeholder="Entrer le nom de l'établissement"
               />
+              {formSubmitted && isEmptynomEtablissement &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
+            
 
-            <EmailInput value={email} onChange={(e) => setEmail(e.target.value)} isValid={emailIsValid} />
-            <TelephoneInput value={telephone} onChange={(e) => setTelephone(e.target.value)} isValid={telephoneIsValid} />
-
+            <EmailInput value={email} onChange={(e) => setEmail(e.target.value)} isValid={emailIsValid}    isEmptyemail={telephone.trim() === ''}
+  formSubmitted={formSubmitted} />
+            <TelephoneInput
+  value={telephone}
+  onChange={(e) => setTelephone(e.target.value)}
+  isValid={telephoneIsValid}
+  isEmpty={telephone.trim() === ''}
+  formSubmitted={formSubmitted} // Pass formSubmitted as a prop
+/>
             <div className="mb-6 relative">
   <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
     Mot de passe :
@@ -435,6 +468,7 @@ const Clients = () => {
     {showPassword ? <HiEye className="text-gray-400" /> : <HiEyeOff className="text-gray-400" />}
   </button>
 </div>
+{formSubmitted && isEmptypassword &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
 
             {/* Select Box */}
             <div className="flex items-center mb-4">
@@ -457,8 +491,9 @@ const Clients = () => {
                   <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4z" /></svg>
                 </div>
               </div>
+             
             </div>
-
+            {formSubmitted && isEmptytypepack &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             <div className="flex justify-end">
               <button
                 className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
@@ -482,4 +517,4 @@ const Clients = () => {
   );
 }
 
-export default Clients;  
+export default Clients;
