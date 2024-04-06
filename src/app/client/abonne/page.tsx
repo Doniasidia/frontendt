@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Layout from "../clientLayout";
 import axios from "axios";
 import { HiMail } from "react-icons/hi";
-
+import PaginationBar from "../../components/PaginationBar";
 
 
 const TdStyle = {
@@ -103,6 +103,8 @@ const Subscribers = () => {
   const isEmptyradio=!enLigne ;
   const [searchQuery, setSearchQuery] = useState('');
 const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 7;
 
 
 
@@ -152,7 +154,7 @@ const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([])
         if (updatedSubscriberIndex !== -1) {
           const updatedSubscriber = subscribers[updatedSubscriberIndex];
           const newStatus = updatedSubscriber.status === 'activated' ? 'deactivated' : 'activated';
-          const response = await axios.patch(`http://localhost:5000/api/subscribers/${subscriberId}/status`, { status: newStatus });
+          const response = await axios.patch(`http://localhost:5000/api/subscribers/${subscriberId}/status, { status: newStatus }`);
           const updatedSubscribers = [...subscribers];
           updatedSubscribers[updatedSubscriberIndex] = response.data;
           setSubscribers(updatedSubscribers);
@@ -179,7 +181,11 @@ const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([])
     setFilteredSubscribers(filtered);
   }, [searchQuery, subscribers]);
   
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
   
+   
   const toggleForm = () => {
     setShowForm(!showForm);
     // Reset form fields to empty values when toggling the form
@@ -267,15 +273,21 @@ const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([])
 
   return (
     <Layout activePage="Abonnés"> 
-    <div className="flex justify-center pt-14 mx-2 w-full">
-  <input
-    type="text"
-    value={searchQuery}
-    onChange={handleSearchQueryChange}
-    placeholder="recherche par nom ou prénom"
-    className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
-  />
+   <div className="flex justify-center pt-14 mx-2 w-full">
+    <div className="relative flex items-center ">
+        <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+            placeholder="recherche par nom ou prénom"
+            className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
+        />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+            <Image src='/searchbar.svg' alt='search' width={15} height={40} />
+        </div>
+    </div>
 </div>
+
 <div className=" table-wrapper">
       <div className='flex justify-center mx-2 w-full  '>
         <div className='w-full max-w-[90%] rounded-xl  table-wrapper'>
@@ -296,7 +308,8 @@ const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([])
             </thead>
             <tbody>
               
-            {filteredSubscribers.map((subscriber: Subscriber) => (
+            {filteredSubscribers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+.map((subscriber: Subscriber) => (
               <tr className={subscriber.status === 'activated' ? '' : 'deleted-row'} key={subscriber.id}>
 
                 <td className={TdStyle.TdStyle}>{subscriber.username}</td>
@@ -540,8 +553,17 @@ const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([])
           <span className="mr-2">Ajouter abonné</span>
           <Image src='/Add User Male.svg' alt='addUser' width={20} height={20}></Image>
         </button>
-      </div>
-      </div>
+
+        </div>
+<div className="flex justify-center mt-50">
+  <PaginationBar
+    totalItems={filteredSubscribers.length}
+    itemsPerPage={itemsPerPage}
+    onPageChange={handlePageChange}
+    currentPage={currentPage}
+  />
+</div>
+</div>
     </Layout>
   );
 }

@@ -4,7 +4,7 @@ import React, { useState, ChangeEvent, useEffect } from "react";
 import Image from 'next/image'
 import Layout from "../clientLayout";
 import axios from "axios";
-import PaginationBar from "../PaginationBar";
+import PaginationBar from "../../components/PaginationBar";
 
 
 const TdStyle = {
@@ -45,7 +45,7 @@ const Plans = () => {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [payes, setPayes] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 7;
   const [searchQuery, setSearchQuery] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
   const isEmptyname = !name ;
@@ -54,7 +54,6 @@ const Plans = () => {
   const isEmptyduration = !duration ;
   const isEmptynbrseance = !nbrseance ;
   const isEmptyradio = !enligne ;
-  // Assuming isValid is based on form fields being filled correctly
   const isValidname = name.trim() !== '' ;
   const isValidtype =type.trim() !== '' ;
   const isValidamount = !isNaN(parseFloat(amount));
@@ -219,20 +218,20 @@ const Plans = () => {
   };
 
   return (
-    <Layout activePage="plans"> 
-    <div className="flex justify-center pt-14 mx-2 w-full">
-    <div className="relative flex items-center"> 
-  <input
-    type="text"
-    placeholder="Search by name..."
-    value={searchQuery}
-    onChange={handleSearchQueryChange}
-    className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
-  />
-<div className="absolute inset-y-0 right-0 flex items-center pr-3">
-      <Image src='/searchbar.svg' alt='search' width={15} height={40} />
+    <Layout activePage="Plans"> 
+   <div className="flex justify-center pt-14 mx-2 w-full">
+    <div className="relative flex items-center">
+        <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+            placeholder="rechercher par nom "
+            className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
+        />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-4 pb-4">
+            <Image src='/searchbar.svg' alt='search' width={15} height={40} />
+        </div>
     </div>
-  </div>
 </div>
 
 <div className=" table-wrapper">
@@ -253,7 +252,8 @@ const Plans = () => {
             </thead>
             <tbody>
               
-           {filteredPlans.map((plan: Plan) => (
+           {filteredPlans.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+.map((plan: Plan) => (
               <tr className={plan.status === 'activated' ? '' : 'deleted-row'} key={plan.id}>
 
                 <td className={TdStyle.TdStyle}>{plan.name}</td>
@@ -338,7 +338,7 @@ const Plans = () => {
              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
              placeholder="Entrer le prix"
            />
-          {formSubmitted &&!isValidamount && amount.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un prix valide.</p>}
+          {formSubmitted &&!isValidamount && amount.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer prix valide.</p>}
 
            {formSubmitted && isEmptyamount &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
          </div>
@@ -552,7 +552,7 @@ const Plans = () => {
                         
 
           </div>
-          {formSubmitted &&!isValidnbrseance && nbrseance.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un nombre valide.</p>}
+          {formSubmitted &&!isValidnbrseance && nbrseance.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer nombre valide.</p>}
 
 {formSubmitted && isEmptynbrseance &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
          
@@ -605,7 +605,7 @@ const Plans = () => {
 </div>
 <div className="flex justify-center mt-50">
   <PaginationBar
-    totalItems={Plans.length}
+    totalItems={filteredPlans.length}
     itemsPerPage={itemsPerPage}
     onPageChange={handlePageChange}
     currentPage={currentPage}

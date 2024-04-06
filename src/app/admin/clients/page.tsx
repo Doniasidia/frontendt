@@ -1,10 +1,11 @@
 //admin/clients
 "use client";
-import React, { useState, ChangeEvent, useEffect } from "react";
+import React, { useState, ChangeEvent, useEffect, use } from "react";
 import Image from 'next/image'
 import Layout from "../adminLayout";
 import axios from "axios";
 import { HiEye, HiEyeOff, HiMail } from "react-icons/hi";
+import PaginationBar from "../../components/PaginationBar";
 
 
 const TdStyle = {
@@ -76,7 +77,6 @@ interface Client {
   email: string;
   telephone: string;
   status: string;
-  nomEtablissement: string;
   password:string;
   typepack: string; 
   
@@ -84,7 +84,7 @@ interface Client {
 
 const Clients = () => {
   const [showForm, setShowForm] = useState(false);
-  const [nomEtablissement, setNomEtablissement] = useState('');
+  const [username, setusername] = useState('');
   const [password, setPassword] = useState('');
   const [telephone, setTelephone] = useState('');
   const [email, setEmail] = useState('');
@@ -98,11 +98,13 @@ const Clients = () => {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const isEmptynomEtablissement = !nomEtablissement ;
+  const isEmptyusername = !username ;
   const isEmptypassword= !password ;
   const isEmptytypepack=!typepack ;
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
   
 
 
@@ -130,7 +132,7 @@ const Clients = () => {
       if (client) {
         setSelectedClient(client);
         // Set form fields based on selected client data
-        setNomEtablissement(client.username);
+        setusername(client.username);
         setEmail(client.email);
         setTelephone(client.telephone);
         setPack(client.typepack);
@@ -155,7 +157,7 @@ const Clients = () => {
         if (updatedClientIndex !== -1) {
           const updatedClient = clients[updatedClientIndex];
           const newStatus = updatedClient.status === 'activated' ? 'deactivated' : 'activated';
-          const response = await axios.patch(`http://localhost:5000/api/clients/${clientId}/status`, { status: newStatus });
+          const response = await axios.patch(`http://localhost:5000/api/clients/${clientId}/status, { status: newStatus }`);
           const updatedClients = [...clients];
           updatedClients[updatedClientIndex] = response.data;
           setClients(updatedClients);
@@ -166,25 +168,30 @@ const Clients = () => {
       console.error('Error handling action:', error);
     }
   };
-  
+  useEffect(() => {
+    const filtered = clients.filter((client) => {
+      return (
+       ( client.username?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+       ( client.email?.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    });
+    
+    setFilteredClients(filtered);
+  }, [searchQuery, clients]);
   const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
-  useEffect(() => {
-    const filtered = clients.filter((client) =>
-      (client.nomEtablissement?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-      (client.email?.toLowerCase() || '').includes(searchQuery.toLowerCase())
-    );
-    setFilteredClients(filtered);
-  }, [searchQuery, clients]);
+ 
   
-    
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
   
   
   const toggleForm = () => {
     setShowForm(!showForm);
     // Reset form fields to empty values when toggling the form
-    setNomEtablissement('');
+    setusername('');
     setEmail('');
     setTelephone('');
     setPassword('');
@@ -218,7 +225,7 @@ const Clients = () => {
       if (selectedClientId !== null) {
         // Update existing plan
         const response = await axios.put(`http://localhost:5000/api/clients/${selectedClientId}`, {
-          nomEtablissement,
+          username,
           email,
           telephone,
           typepack,
@@ -238,7 +245,7 @@ const Clients = () => {
       } else {
         // Create new plan
         const response = await axios.post('http://localhost:5000/api/clients', {
-          nomEtablissement,
+          username,
           email,
           telephone,
           typepack,
@@ -261,19 +268,19 @@ const Clients = () => {
 
   return (
     <Layout activePage="clients"> 
-    <div className="flex justify-center pt-14 mx-2 w-full relative">
-  <div className="relative flex items-center"> 
-    <input
-      type="text"
-      value={searchQuery}
-      onChange={handleSearchQueryChange}
-      placeholder="Search by nom établissement or email..."
-      className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
-    />
-    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-      <Image src='/searchbar.svg' alt='search' width={15} height={40} />
+   <div className="flex justify-center pt-14 mx-2 w-full">
+    <div className="relative flex items-center ">
+        <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+            placeholder="recherche par nom établissement ou email"
+            className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
+        />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+            <Image src='/searchbar.svg' alt='search' width={15} height={40} />
+        </div>
     </div>
-  </div>
 </div>
 <div className=" table-wrapper">
       <div className='flex justify-center mx-2 w-full  '>
@@ -291,7 +298,7 @@ const Clients = () => {
             </thead>
             <tbody>
               
-            {filteredClients.map((client: Client) => (
+            {filteredClients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((client: Client) => (
               <tr className={client.status === 'activated' ? '' : 'deleted-row'} key={client.id}>
 
                 <td className={TdStyle.TdStyle}>{client.username}</td>
@@ -327,19 +334,19 @@ const Clients = () => {
 
 
             <div className="flex flex-wrap items-center mb-4 relative">
-              <label htmlFor="nomEtablissement" className="block text-gray-700 text-sm font-bold mb-2">
+              <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">
                 Nom d'établissement :
               </label>
               <input 
                 type="text"
-                id="nomEtablissement"
-                name="nomEtablissement"
-                value={nomEtablissement}
-                onChange={(e) => setNomEtablissement(e.target.value)}
+                id="username"
+                name="username"
+                value={username}
+                onChange={(e) => setusername(e.target.value)}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
                 placeholder="Entrer le nom de l'établissement"
               />
-              {formSubmitted && isEmptynomEtablissement &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+              {formSubmitted && isEmptyusername &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
           
 
@@ -449,19 +456,19 @@ const Clients = () => {
 
 
             <div className="mb-4">
-              <label htmlFor="nomEtablissement" className="block text-gray-700 text-sm font-bold mb-2">
+              <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">
                 Nom d'établissement :
               </label>
               <input 
                 type="text"
-                id="nomEtablissement"
-                name="nomEtablissement"
-                value={nomEtablissement}
-                onChange={(e) => setNomEtablissement(e.target.value)}
+                id="username"
+                name="username"
+                value={username}
+                onChange={(e) => setusername(e.target.value)}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
                 placeholder="Entrer le nom de l'établissement"
               />
-              {formSubmitted && isEmptynomEtablissement &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+              {formSubmitted && isEmptyusername &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
             
 
@@ -538,8 +545,16 @@ const Clients = () => {
           <span className="mr-2">Ajouter client</span>
           <Image src='/Add User Male.svg' alt='addUser' width={20} height={20}></Image>
         </button>
-      </div>
-      </div>
+        </div>
+<div className="flex justify-center mt-50">
+  <PaginationBar
+    totalItems={filteredClients.length}
+    itemsPerPage={itemsPerPage}
+    onPageChange={handlePageChange}
+    currentPage={currentPage}
+  />
+</div>
+</div>
     </Layout>
   );
 }
