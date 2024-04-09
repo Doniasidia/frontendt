@@ -54,6 +54,7 @@ const Plans = () => {
   const isEmptyduration = !duration ;
   const isEmptynbrseance = !nbrseance ;
   const isEmptyradio = !enligne ;
+  // Assuming isValid is based on form fields being filled correctly
   const isValidname = name.trim() !== '' ;
   const isValidtype =type.trim() !== '' ;
   const isValidamount = !isNaN(parseFloat(amount));
@@ -88,7 +89,7 @@ const Plans = () => {
         setAmount(plan.amount.toString());
         setDuration(plan.duration.toString());
         setNbrseance(plan.nbrseance.toString());
-        setEnligne(plan.enligne);
+        setEnligne(plan.enligne.toString());
 
 
       }
@@ -110,7 +111,7 @@ const Plans = () => {
         if (updatedPlanIndex !== -1) {
           const updatedPlan = plans[updatedPlanIndex];
           const newStatus = updatedPlan.status === 'activated' ? 'deactivated' : 'activated';
-          const response = await axios.patch(`http://localhost:5000/api/plans/${planId}/status`, { status: newStatus });
+          const response = await axios.patch(`http://localhost:5000/api/plans/${planId}/status, { status: newStatus }`);
           const updatedPlans = [...plans];
           updatedPlans[updatedPlanIndex] = response.data;
           setPlans(updatedPlans);
@@ -152,6 +153,7 @@ const Plans = () => {
     setAmount('');
     setDuration('');
     setNbrseance('');
+    setEnligne('');
     setFormSubmitted(false);
     // Reset form validation states as well if needed
     setFormValid(true);
@@ -178,7 +180,7 @@ const Plans = () => {
           amount: parseInt(amount),
           duration: parseInt(duration),
           nbrseance: parseInt(nbrseance),
-          enligne: payes ? 'oui' : 'non',
+          enligne,
         });
         
         // Update local state with modified plan
@@ -199,7 +201,7 @@ const Plans = () => {
           amount: parseInt(amount),
           duration: parseInt(duration),
           nbrseance: parseInt(nbrseance),
-          enligne: payes ? 'oui' : 'non',
+          enligne,
         });
   
         // Update local state with newly created plan
@@ -218,7 +220,7 @@ const Plans = () => {
   };
 
   return (
-    <Layout activePage="Plans"> 
+    <Layout activePage="plans"> 
    <div className="flex justify-center pt-14 mx-2 w-full">
     <div className="relative flex items-center">
         <input
@@ -292,7 +294,7 @@ const Plans = () => {
              name="name"
              value={name}
              onChange={(e) => setName(e.target.value)}
-             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyname ? 'border-red-500' : ''}`}
              placeholder="Entrer le nom"
            />
             {formSubmitted && isEmptyname &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
@@ -309,7 +311,7 @@ const Plans = () => {
                name="type"
                value={type} 
                onChange={handleTypeChange}
-               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+               className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptytype ? 'border-red-500' : ''}`}
              >
                 <option value=""></option>
                <option value="annuel">Annuel</option>
@@ -335,7 +337,7 @@ const Plans = () => {
              name="amount"
              value={amount}
              onChange={(e) => setAmount(e.target.value)}
-             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyamount ? 'border-red-500' : ''}`}
              placeholder="Entrer le prix"
            />
           {formSubmitted &&!isValidamount && amount.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer prix valide.</p>}
@@ -352,12 +354,12 @@ const Plans = () => {
              name="duration"
              value={duration}
              onChange={(e) => setDuration(e.target.value)}
-             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyduration ? 'border-red-500' : ''}`}
              placeholder="Entrer la durée"
            />
           
          </div>
-         {formSubmitted &&!isValidduration && nbrseance.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer une durée valide.</p>}
+         {formSubmitted &&!isValidduration && duration.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer une durée valide.</p>}
 
 {formSubmitted && isEmptyduration &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
          <div className="flex flex-wrap items-center mb-4 relative">
@@ -370,7 +372,7 @@ const Plans = () => {
              name="nbrseance"
              value={nbrseance}
              onChange={(e) => setNbrseance(e.target.value)}
-             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptynbrseance ? 'border-red-500' : ''}`}
              placeholder="Entrer le nombre des séances"
            />
            
@@ -464,7 +466,7 @@ const Plans = () => {
               name="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyname ? 'border-red-500' : ''}`}
               placeholder="Entrer le nom"
             />
                         {formSubmitted && isEmptyname &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
@@ -481,7 +483,7 @@ const Plans = () => {
                 name="type"
                 value={type} 
                 onChange={handleTypeChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptytype ? 'border-red-500' : ''}`}
               >
                  <option value=""></option>
                 <option value="annuel">Annuel</option>
@@ -509,7 +511,7 @@ const Plans = () => {
               name="amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyamount ? 'border-red-500' : ''}`}
               placeholder="Entrer le prix"
             />
                          {formSubmitted &&!isValidamount && amount.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un prix valide.</p>}
@@ -527,7 +529,7 @@ const Plans = () => {
               name="duration"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyduration ? 'border-red-500' : ''}`}
               placeholder="Entrer la durée de la séance "
             />
                        
@@ -546,7 +548,7 @@ const Plans = () => {
               name="nbrseance"
               value={nbrseance}
               onChange={(e) => setNbrseance(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptynbrseance ? 'border-red-500' : ''}`}
               placeholder="Entrer le nombre des séances"
             />
                         

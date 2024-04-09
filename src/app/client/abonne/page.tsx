@@ -6,6 +6,7 @@ import Layout from "../clientLayout";
 import axios from "axios";
 import { HiMail } from "react-icons/hi";
 import PaginationBar from "../../components/PaginationBar";
+import validator from 'email-validator';
 
 
 const TdStyle = {
@@ -18,12 +19,11 @@ interface InputProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   isValid: boolean;
 }
-const TelephoneInput: React.FC<InputProps & { isEmpty: boolean; formSubmitted: boolean }> = ({ value, onChange, isValid, isEmpty, formSubmitted }) => {
-
+const TelephoneInput: React.FC<InputProps & { isEmpty: boolean; formSubmitted: boolean; telephoneExists: boolean }> = ({ value, onChange, isValid, isEmpty, formSubmitted, telephoneExists }) => {
   return (
     <div className="flex flex-wrap items-center mb-6 relative">
       <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
-        Numéro de téléphone *: 
+        Numéro de téléphone : 
       </label>
       <input        
         id="telephone"
@@ -33,30 +33,29 @@ const TelephoneInput: React.FC<InputProps & { isEmpty: boolean; formSubmitted: b
         className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid ? '' : 'border-red-500'}`}
         placeholder="Entrer votre numéro de téléphone"
       />
-        {!isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un numéro de téléphone valide.</p>}
-      {formSubmitted && isEmpty &&  value.trim() === '' &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+      {formSubmitted && !isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un numéro de téléphone valide.</p>}
+      {formSubmitted && isEmpty && value.trim() === '' && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
+      {telephoneExists && <p className="text-red-500 text-xs italic">Ce numéro de téléphone existe déjà.</p>}
     </div>
   );
 }
 
-const EmailInput: React.FC<InputProps> = ({ value, onChange, isValid }) => {
+const EmailInput: React.FC<InputProps & {  formSubmitted: boolean; emailExists: boolean }> = ({ value, onChange, isValid,  formSubmitted, emailExists }) => {
   return (
     <div className="flex flex-wrap items-center mb-4 relative">
       <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
         Email : 
       </label>
     
-        <input        
-          id="email"
-          name="email"
-          value={value}
-          onChange={onChange}
-          //className={shadow appearance-none border rounded w-full py-2 px-3 pl-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid ? '' : 'border-red-500'}}
-          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid || value.trim() === ''? '' : 'border-red-500'}`}
-
-          placeholder="Enter votre email"
-        />
-          <div className="flex flex-wrap items-center mb-1 relative">
+      <input        
+        id="email"
+        name="email"
+        value={value}
+        onChange={onChange}
+        className={`shadow appearance-none border rounded w-full py-2 px-3 pl-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid || value.trim() === '' ? '' : 'border-red-500'}`}
+        placeholder="Enter votre email"
+      />
+      <div className="flex flex-wrap items-center mb-1 relative">
         <div className="absolute inset-y-0 right-3 flex items-center pl-3 pointer-events-none">
           <HiMail className="h-5 w-5 text-gray-400" />
         </div>
@@ -64,10 +63,13 @@ const EmailInput: React.FC<InputProps> = ({ value, onChange, isValid }) => {
        
         </div>
       </div>
-      {!isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer une adresse email valide.</p>}
+      {formSubmitted && !isValid  && value.trim() !== '' &&<p className="text-red-500 text-xs italic">Veuillez entrer une adresse mail valide.</p>}
+     
+      {formSubmitted && emailExists && <p className="text-red-500 text-xs italic">Cet email existe déjà.</p>}
     </div>
   );
 }
+
 
 interface Subscriber {
  
@@ -105,6 +107,10 @@ const Subscribers = () => {
 const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
 const [currentPage, setCurrentPage] = useState(1);
 const itemsPerPage = 7;
+const [emailExists, setEmailExists] = useState(false);
+const [telephoneExists, setTelephoneExists] = useState(false);
+
+
 
 
 
@@ -154,7 +160,7 @@ const itemsPerPage = 7;
         if (updatedSubscriberIndex !== -1) {
           const updatedSubscriber = subscribers[updatedSubscriberIndex];
           const newStatus = updatedSubscriber.status === 'activated' ? 'deactivated' : 'activated';
-          const response = await axios.patch(`http://localhost:5000/api/subscribers/${subscriberId}/status, { status: newStatus }`);
+          const response = await axios.patch(`http://localhost:5000/api/subscribers/${subscriberId}/status`, { status: newStatus });
           const updatedSubscribers = [...subscribers];
           updatedSubscribers[updatedSubscriberIndex] = response.data;
           setSubscribers(updatedSubscribers);
@@ -184,7 +190,18 @@ const itemsPerPage = 7;
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-  
+  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const enteredEmail = event.target.value;
+    const emailAlreadyExists = subscribers.some(subscriber => subscriber.email === enteredEmail);
+    setEmailExists(emailAlreadyExists);
+    setEmail(event.target.value);
+  };
+  const handleTelephoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const enteredTelephone = event.target.value;
+    const telephoneAlreadyExists = subscribers.some(subscriber => subscriber.telephone === enteredTelephone);
+    setTelephoneExists(telephoneAlreadyExists);
+    setTelephone(event.target.value);
+  };
    
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -207,7 +224,8 @@ const itemsPerPage = 7;
   
   
   
-    if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
+    if (!validator.validate(email)) {
+
       setEmailIsValid(false);
     } else {
       setEmailIsValid(true);
@@ -282,7 +300,7 @@ const itemsPerPage = 7;
             placeholder="recherche par nom ou prénom"
             className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
         />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+        <div className="absolute inset-y-0 right-0 flex items-center pr-4 pb-4">
             <Image src='/searchbar.svg' alt='search' width={15} height={40} />
         </div>
     </div>
@@ -349,7 +367,7 @@ const itemsPerPage = 7;
                 name="nom"
                 value={nom}
                 onChange={(e) => setNom(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptynom ? 'border-red-500' : ''}`}
                 placeholder="Entrer votre nom "
               />
                
@@ -365,19 +383,29 @@ const itemsPerPage = 7;
                 name="prenom"
                 value={prenom}
                 onChange={(e) => setprenom(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyprenom ? 'border-red-500' : ''}`}
                 placeholder="Entrer votre prénom "
               />
+               {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
-            {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+           
             <TelephoneInput
-  value={telephone}
-  onChange={(e) => setTelephone(e.target.value)}
-  isValid={telephoneIsValid}
-  isEmpty={telephone.trim() === ''}
-  formSubmitted={formSubmitted} 
-/>
-<EmailInput value={email} onChange={(e) => setEmail(e.target.value)} isValid={emailIsValid} />
+      value={telephone}
+      onChange={handleTelephoneChange}
+      isValid={telephoneIsValid}
+      isEmpty={telephone.trim() === ''}
+      formSubmitted={formSubmitted}
+      telephoneExists={telephoneExists}
+    />
+           
+<EmailInput
+      value={email}
+      onChange={handleEmailChange}
+      isValid={emailIsValid}
+     
+      formSubmitted={formSubmitted}
+      emailExists={emailExists}
+    />
           
 
            
@@ -471,7 +499,7 @@ const itemsPerPage = 7;
                 name="nom"
                 value={nom}
                 onChange={(e) => setNom(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptynom ? 'border-red-500' : ''}`}
                 placeholder="Entrer votre nom"
 
               />
@@ -487,19 +515,30 @@ const itemsPerPage = 7;
                 name="prenom"
                 value={prenom}
                 onChange={(e) => setprenom(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyprenom ? 'border-red-500' : ''}`}
                 placeholder="Entrer votre prénom "
               />
+               {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
-            {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+            
             <TelephoneInput
-  value={telephone}
-  onChange={(e) => setTelephone(e.target.value)}
-  isValid={telephoneIsValid}
-  isEmpty={telephone.trim() === ''}
-  formSubmitted={formSubmitted} // Pass formSubmitted as a prop
-/>
-<EmailInput value={email} onChange={(e) => setEmail(e.target.value)} isValid={emailIsValid} />
+      value={telephone}
+      onChange={handleTelephoneChange}
+      isValid={telephoneIsValid}
+      isEmpty={telephone.trim() === ''}
+      formSubmitted={formSubmitted}
+      telephoneExists={telephoneExists}
+    />
+
+           
+<EmailInput
+      value={email}
+      onChange={handleEmailChange}
+      isValid={emailIsValid}
+      
+      formSubmitted={formSubmitted}
+      emailExists={emailExists}
+    />
 
 
           
