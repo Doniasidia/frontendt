@@ -55,7 +55,7 @@ const EmailInput: React.FC<InputProps & { isEmptyemail: boolean; formSubmitted: 
         value={value}
         onChange={onChange}
         className={`shadow appearance-none border rounded w-full py-2 px-3 pl-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid ? '' : 'border-red-500'}`}
-        placeholder="Enter votre email"
+        placeholder="Entrer votre email"
       />
       <div className="flex flex-wrap items-center mb-1 relative">
         <div className="absolute inset-y-0 right-3 flex items-center pl-3 pointer-events-none">
@@ -65,12 +65,13 @@ const EmailInput: React.FC<InputProps & { isEmptyemail: boolean; formSubmitted: 
        
         </div>
       </div>
-      {formSubmitted && !isValid  && value.trim() !== '' &&<p className="text-red-500 text-xs italic">Veuillez entrer une adresse mail valide.</p>}
+      {formSubmitted && !isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer une adresse mail valide.</p>}
       {formSubmitted && isEmptyemail && value.trim() === '' && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
       {formSubmitted && emailExists && <p className="text-red-500 text-xs italic">Cet email existe déjà.</p>}
     </div>
   );
 }
+
 
 interface Client {
  
@@ -103,6 +104,8 @@ const Clients = () => {
   const isEmptyusername = !username ;
   const isEmptypassword= !password ;
   const isEmptytypepack=!typepack ;
+
+  const [isEmptyEmail, setIsEmptyemail] = useState(false);
 
 
 
@@ -195,11 +198,13 @@ const Clients = () => {
   };
   
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const enteredEmail = event.target.value;
-    const emailAlreadyExists = clients.some(client => client.email === enteredEmail);
+    const enteredEmail = event.target.value.toLowerCase(); // Convert entered email to lowercase
+    const emailAlreadyExists = clients.some(client => client.email.toLowerCase() === enteredEmail); // Check if email exists in lowercase
     setEmailExists(emailAlreadyExists);
     setEmail(event.target.value);
+    setIsEmptyemail(event.target.value.trim() === '');
   };
+  
   const handleTelephoneChange = (event: ChangeEvent<HTMLInputElement>) => {
     const enteredTelephone = event.target.value;
     const telephoneAlreadyExists = clients.some(client => client.telephone === enteredTelephone);
@@ -226,7 +231,7 @@ const Clients = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); 
   
-   
+  
   
     if (!validator.validate(email)) {
       setEmailIsValid(false);
@@ -241,6 +246,12 @@ const Clients = () => {
     }
     setFormSubmitted(true);
     try {
+      // Check if the entered email already exists
+      const emailAlreadyExists = clients.some(client => client.email.toLowerCase() === email.toLowerCase());
+      if (emailAlreadyExists) {
+        setEmailExists(true);
+        return; // Exit the function without adding the client if the email already exists
+      }
       if (selectedClientId !== null) {
         // Update existing plan
         const response = await axios.put(`http://localhost:5000/api/clients/${selectedClientId}`, {
@@ -288,15 +299,15 @@ const Clients = () => {
   return (
     <Layout activePage="clients"> 
    <div className="flex justify-center pt-14 mx-2 w-full">
-    <div className="relative flex items-center  pt-5">
+    <div className="relative flex items-center ">
         <input
             type="text"
             value={searchQuery}
             onChange={handleSearchQueryChange}
-            placeholder="recherche par nom établissement ou email"
+            placeholder="rechercher par nom établissement ou email"
             className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
         />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+        <div className="absolute inset-y-0 right-0 flex items-center pr-4 pb-4">
             <Image src='/searchbar.svg' alt='search' width={15} height={40} />
         </div>
     </div>
@@ -374,7 +385,7 @@ const Clients = () => {
       value={email}
       onChange={handleEmailChange}
       isValid={emailIsValid}
-      isEmptyemail={telephone.trim() === ''}
+      isEmptyemail={email.trim() === ''}
       formSubmitted={formSubmitted}
       emailExists={emailExists}
     />
@@ -412,7 +423,7 @@ const Clients = () => {
 {formSubmitted && isEmptypassword &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
 
 
-            {/* Select Box */}
+          
             <div className="flex flex-wrap items-center mb-4 relative">
               <label htmlFor="typeClient" className="block text-gray-700 text-sm font-bold mb-2">Packs SMS :</label> 
               <div className="relative" style={{ width: '73%' }}>
@@ -421,7 +432,7 @@ const Clients = () => {
                   name="typeClient"
                   value={typepack} 
                   onChange={handleTypeChange}
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
+                  className={`shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
                 >
                   <option value=""></option>
                   <option value="type1">100 SMS</option>
@@ -429,9 +440,7 @@ const Clients = () => {
                   <option value="type3">10000 SMS</option>
                  
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4z" /></svg>
-                </div>
+                
               </div>
               
             </div>
@@ -504,7 +513,7 @@ const Clients = () => {
       value={email}
       onChange={handleEmailChange}
       isValid={emailIsValid}
-      isEmptyemail={telephone.trim() === ''}
+      isEmptyemail={email.trim() === ''}
       formSubmitted={formSubmitted}
       emailExists={emailExists}
     />
@@ -541,7 +550,7 @@ const Clients = () => {
 </div>
 
 
-            {/* Select Box */}
+           
             <div className="flex items-center mb-4">
               <label htmlFor="typeClient" className="block text-gray-700 text-sm font-bold mb-2">Packs SMS :</label> 
               <div className="relative" style={{ width: '73%' }}>
@@ -550,7 +559,7 @@ const Clients = () => {
                   name="typeClient"
                   value={typepack} 
                   onChange={handleTypeChange}
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
+                  className={`shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
                 >
                   <option value=""></option>
                   <option value="type1">100 SMS</option>
@@ -558,9 +567,7 @@ const Clients = () => {
                   <option value="type3">10000 SMS</option>
                  
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4z" /></svg>
-                </div>
+               
               </div>
              
             </div>
@@ -583,7 +590,7 @@ const Clients = () => {
           <Image src='/Add User Male.svg' alt='addUser' width={20} height={20}></Image>
         </button>
         </div>
-<div className="flex justify-center mt-50">
+        <div className="flex justify-center mt-50">
   <PaginationBar
     totalItems={filteredClients.length}
     itemsPerPage={itemsPerPage}

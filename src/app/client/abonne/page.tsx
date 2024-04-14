@@ -35,7 +35,7 @@ const TelephoneInput: React.FC<InputProps & { isEmpty: boolean; formSubmitted: b
       />
       {formSubmitted && !isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un numéro de téléphone valide.</p>}
       {formSubmitted && isEmpty && value.trim() === '' && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
-      {telephoneExists && <p className="text-red-500 text-xs italic">Ce numéro de téléphone existe déjà.</p>}
+      {formSubmitted && telephoneExists && <p className="text-red-500 text-xs italic">Ce numéro de téléphone existe déjà.</p>}
     </div>
   );
 }
@@ -79,7 +79,7 @@ interface Subscriber {
   telephone: string;
   status: string;
   nom: string;
-  enLigne: string; 
+
   prenom:string;
   FirstName:string;
 }
@@ -90,7 +90,7 @@ const Subscribers = () => {
   const [prenom, setprenom] = useState('');
   const [telephone, setTelephone] = useState('');
   const [email, setEmail] = useState('');
-  const [enLigne, setenLigne] = useState('');
+
   const [telephoneIsValid, setTelephoneIsValid] = useState(true);
   const [emailIsValid, setEmailIsValid] = useState(true);
   const [formValid, setFormValid] = useState(true);
@@ -102,18 +102,30 @@ const Subscribers = () => {
   const isEmptynom = !nom ;
   const isEmptyprenom= !prenom ;
   const isEmptytelephone=!telephone ;
-  const isEmptyradio=!enLigne ;
+
   const [searchQuery, setSearchQuery] = useState('');
 const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
 const [currentPage, setCurrentPage] = useState(1);
 const itemsPerPage = 7;
 const [emailExists, setEmailExists] = useState(false);
 const [telephoneExists, setTelephoneExists] = useState(false);
+const [plans, setPlans] = useState([]);
+const [selectedPlan, setSelectedPlan] = useState("");
 
 
 
+useEffect(() => {
+  const fetchPlans = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/plans');
+      setPlans(response.data);
+    } catch (error) {
+      console.error('Error fetching plans:', error);
+    }
+  };
 
-
+  fetchPlans();
+}, []);
 
   useEffect(() => {
     const fetchSubscribers = async () => {
@@ -139,7 +151,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
         setprenom(subscriber.FirstName);
         setTelephone(subscriber.telephone);
         setEmail(subscriber.email);
-        setenLigne(subscriber.enLigne);
+      
         
       }
     }
@@ -160,7 +172,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
         if (updatedSubscriberIndex !== -1) {
           const updatedSubscriber = subscribers[updatedSubscriberIndex];
           const newStatus = updatedSubscriber.status === 'activated' ? 'deactivated' : 'activated';
-          const response = await axios.patch(`http://localhost:5000/api/subscribers/${subscriberId}/status`, { status: newStatus });
+          const response = await axios.patch(`://localhost:5000/api/subscribers/${subscriberId}/status`, { status: newStatus });
           const updatedSubscribers = [...subscribers];
           updatedSubscribers[updatedSubscriberIndex] = response.data;
           setSubscribers(updatedSubscribers);
@@ -210,7 +222,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
     setprenom('');
     setTelephone('');
     setEmail('');
-    setenLigne('');
+   
     // Reset form validation states 
     setFormValid(true);
    setFormSubmitted(false);
@@ -252,7 +264,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
           prenom,
           email: email.trim() === '' ? null : email,
           telephone,
-          enLigne,
+       
       
         });
         
@@ -273,7 +285,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
           prenom,
           email: email.trim() === '' ? null : email,
           telephone,
-          enLigne,
+       
       
         });
   
@@ -292,12 +304,12 @@ const [telephoneExists, setTelephoneExists] = useState(false);
   return (
     <Layout activePage="Abonnés"> 
    <div className="flex justify-center pt-14 mx-2 w-full">
-    <div className="relative flex items-center ">
+    <div className="relative flex items-center  ">
         <input
             type="text"
             value={searchQuery}
             onChange={handleSearchQueryChange}
-            placeholder="recherche par nom ou prénom"
+            placeholder="rechercher par nom ou prénom"
             className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-4 pb-4">
@@ -318,7 +330,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
                 <th className={TdStyle.ThStyle}> Email </th>
                 <th className={TdStyle.ThStyle}> Groupe </th>
                 <th className={TdStyle.ThStyle}>Plans </th>
-                <th className={TdStyle.ThStyle}> Payés </th>
+                
                 <th className={TdStyle.ThStyle}> </th>
                 <th className={TdStyle.ThStyle}> </th>
                 <th className={TdStyle.ThStyle}> </th>
@@ -336,7 +348,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
                 <td className={TdStyle.TdStyle}>{subscriber.email}</td>
                 <td className={TdStyle.TdStyle}> </td>  
                 <td className={TdStyle.TdStyle}></td>
-                <td className={TdStyle.TdStyle}>{subscriber.enLigne} </td>
+                
                 <td className={TdStyle.TdStyle}>  </td>
                 <td className={TdStyle.TdStyle}> 
                 <div className="flex items-center justify-center">
@@ -410,35 +422,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
 
            
           
-<div className="flex items-center mb-4">
-  <span className="block text-gray-700 text-sm font-bold mr-2">Paiement en ligne :</span>
-  <label className="inline-flex items-center">
-    <input
-      type="radio"
-      name="enLigne"
-      value="oui"
-      checked={enLigne === 'oui'}
-      onChange={(e) => setenLigne(e.target.value)}
-      className="form-radio h-5 w-5 text-blue-600"
-    />
-    <span className="ml-2 text-gray-700">Oui</span>
-  </label>
-  <label className="inline-flex items-center ml-4">
-    <input
-      type="radio"
-      name="enLigne"
-      value="non"
-      checked={enLigne === 'non'}
-      onChange={(e) => setenLigne(e.target.value)}
-      className="form-radio h-5 w-5 text-blue-600"
-    />
-    <span className="ml-2 text-gray-700">Non</span>
-  </label>
-</div>
-{formSubmitted && isEmptyradio && (
-  (enLigne.trim() === '') &&
-  <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>
-)}
+
 
 
 
@@ -544,37 +528,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
           
 
             
-           {/* Radio Buttons for Payment en ligne */}
-<div className="flex items-center mb-4">
-  <span className="block text-gray-700 text-sm font-bold mr-2">Paiement en ligne :</span>
-  <label className="inline-flex items-center">
-    <input
-      type="radio"
-      name="enLigne"
-      value="oui"
-      checked={enLigne === 'oui'}
-      onChange={(e) => setenLigne(e.target.value)}
-      className="form-radio h-5 w-5 text-blue-600"
-    />
-    <span className="ml-2 text-gray-700">Oui</span>
-  </label>
-  <label className="inline-flex items-center ml-4">
-    <input
-      type="radio"
-      name="enLigne"
-      value="non"
-      checked={enLigne === 'non'}
-      onChange={(e) => setenLigne(e.target.value)}
-      className="form-radio h-5 w-5 text-blue-600"
-    />
-    <span className="ml-2 text-gray-700">Non</span>
-  </label>
-</div>
-{formSubmitted && isEmptyradio && (
-  (enLigne.trim() === '') &&
-  <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>
-)}
-
+     
             <div className="flex justify-end">
               <button
                 className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
@@ -594,7 +548,7 @@ const [telephoneExists, setTelephoneExists] = useState(false);
         </button>
 
         </div>
-<div className="flex justify-center mt-50">
+        <div className="flex justify-center mt-50">
   <PaginationBar
     totalItems={filteredSubscribers.length}
     itemsPerPage={itemsPerPage}

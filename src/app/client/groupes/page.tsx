@@ -120,7 +120,7 @@ const Groupes = () => {
       }
       else if (action === 'delete') {
         // Supprimer l'entrée de la base de données
-        await axios.delete(`://localhost:5000/api/groupes/${groupeId}`);
+        await axios.delete(`http://localhost:5000/api/groupes/${groupeId}`);
         
         // Mettre à jour l'état local pour supprimer l'élément de la liste des groupes
         setGroupes(prevGroupes => prevGroupes.filter(groupe => groupe.id !== groupeId));
@@ -179,7 +179,7 @@ setNameExists(nameExistsInGroupes);
     try {
       if (selectedGroupeId !== null) {
         // Update existing groupe
-        const response = await axios.put(`http://localhost:5000/api/groupes/${selectedGroupeId}`, {
+        const response = await axios.put(`://localhost:5000/api/groupes/${selectedGroupeId}`, {
           name,
           plan,
        

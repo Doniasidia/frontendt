@@ -97,9 +97,9 @@ const Abonnements = () => {
                                 Choisir un groupe
                             </label>
                             {selectedRadio === 'group' && (
-                                <select className="w-32">
+                                <select className="w-32" >
                                     <option value="groupe">Groupe 1</option>
-                                    {/* Add more options as needed */}
+                                    
                                 </select>
                             )}
                         </div>
