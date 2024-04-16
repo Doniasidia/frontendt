@@ -109,22 +109,26 @@ const [currentPage, setCurrentPage] = useState(1);
 const itemsPerPage = 7;
 const [emailExists, setEmailExists] = useState(false);
 const [telephoneExists, setTelephoneExists] = useState(false);
-const [plans, setPlans] = useState([]);
-const [selectedPlan, setSelectedPlan] = useState("");
-
+const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+const [plans, setPlans] = useState<string[]>([]);
+const [groups, setGroups] = useState<string[]>([]);
 
 
 useEffect(() => {
-  const fetchPlans = async () => {
+  const fetchPlansAndGroups = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/plans');
-      setPlans(response.data);
+      const plansResponse = await axios.get('http://localhost:5000/api/plans');
+      const groupsResponse = await axios.get('http://localhost:5000/api/groupes');
+      setPlans(plansResponse.data);
+      setGroups(groupsResponse.data);
     } catch (error) {
-      console.error('Error fetching plans:', error);
+      console.error('Error fetching plans and groups:', error);
     }
   };
 
-  fetchPlans();
+  fetchPlansAndGroups();
 }, []);
 
   useEffect(() => {
@@ -172,7 +176,7 @@ useEffect(() => {
         if (updatedSubscriberIndex !== -1) {
           const updatedSubscriber = subscribers[updatedSubscriberIndex];
           const newStatus = updatedSubscriber.status === 'activated' ? 'deactivated' : 'activated';
-          const response = await axios.patch(`://localhost:5000/api/subscribers/${subscriberId}/status`, { status: newStatus });
+          const response = await axios.patch(`http://localhost:5000/api/subscribers/${subscriberId}/status`, { status: newStatus });
           const updatedSubscribers = [...subscribers];
           updatedSubscribers[updatedSubscriberIndex] = response.data;
           setSubscribers(updatedSubscribers);
@@ -295,11 +299,25 @@ useEffect(() => {
       }
   
       setFormValid(true);
+      setShowSuccessNotification(true);
     } catch (error) {
       console.error('Error creating/modifying plan:', error);
     }
   };
- 
+  const SuccessNotification = () => {
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setShowSuccessNotification(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }, []);
+  
+    return (
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
+       Abonné ajouté avec succès
+      </div>
+    );
+  };
 
   return (
     <Layout activePage="Abonnés"> 
@@ -346,8 +364,30 @@ useEffect(() => {
                 <td className={TdStyle.TdStyle}>{subscriber.FirstName}</td>
                 <td className={TdStyle.TdStyle}>{subscriber.telephone}</td>
                 <td className={TdStyle.TdStyle}>{subscriber.email}</td>
-                <td className={TdStyle.TdStyle}> </td>  
-                <td className={TdStyle.TdStyle}></td>
+                <td className={TdStyle.TdStyle}>
+  <select
+    value={selectedGroup || ''}
+    onChange={(e) => setSelectedGroup(e.target.value)}
+    className="border border-gray-300 rounded-md px-2 py-1"
+  >
+    <option value="">Select Group</option>
+    {groups.map((group) => (
+      <option key={group} value={group}>{group}</option>
+    ))}
+  </select>
+</td>
+<td className={TdStyle.TdStyle}>
+  <select
+    value={selectedPlan || ''}
+    onChange={(e) => setSelectedPlan(e.target.value)}
+    className="border border-gray-300 rounded-md px-2 py-1"
+  >
+    <option value="">Select Plan</option>
+    {plans.map((plan) => (
+      <option key={plan} value={plan}>{plan}</option>
+    ))}
+  </select>
+</td>
                 
                 <td className={TdStyle.TdStyle}>  </td>
                 <td className={TdStyle.TdStyle}> 
@@ -523,6 +563,41 @@ useEffect(() => {
       formSubmitted={formSubmitted}
       emailExists={emailExists}
     />
+<div className="flex flex-wrap items-center mb-4 relative">
+    <label htmlFor="selectedGroup" className="block text-gray-700 text-sm font-bold mb-2">
+      Groupe :
+    </label>
+    <select
+      id="selectedGroup"
+      name="selectedGroup"
+      value={selectedGroup || ''}
+      onChange={(e) => setSelectedGroup(e.target.value)}
+      className="border border-gray-300 rounded-md px-2 py-1"
+    >
+      <option value="">Sélectionnez un groupe</option>
+      {groups.map((group) => (
+        <option key={group} value={group}>{group}</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="flex flex-wrap items-center mb-4 relative">
+    <label htmlFor="selectedPlan" className="block text-gray-700 text-sm font-bold mb-2">
+      Plan :
+    </label>
+    <select
+      id="selectedPlan"
+      name="selectedPlan"
+      value={selectedPlan || ''}
+      onChange={(e) => setSelectedPlan(e.target.value)}
+      className="border border-gray-300 rounded-md px-2 py-1"
+    >
+      <option value="">Sélectionnez un plan</option>
+      {plans.map((plan) => (
+        <option key={plan} value={plan}>{plan}</option>
+      ))}
+    </select>
+  </div>
 
 
           
@@ -557,6 +632,7 @@ useEffect(() => {
   />
 </div>
 </div>
+{showSuccessNotification && <SuccessNotification />}
     </Layout>
   );
 }

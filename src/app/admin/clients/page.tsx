@@ -22,6 +22,7 @@ interface InputProps {
 
 const TelephoneInput: React.FC<InputProps & { isEmpty: boolean; formSubmitted: boolean; telephoneExists: boolean }> = ({ value, onChange, isValid, isEmpty, formSubmitted, telephoneExists }) => {
   return (
+    
     <div className="flex flex-wrap items-center mb-6 relative">
       <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
         Numéro de téléphone : 
@@ -104,17 +105,15 @@ const Clients = () => {
   const isEmptyusername = !username ;
   const isEmptypassword= !password ;
   const isEmptytypepack=!typepack ;
-
   const [isEmptyEmail, setIsEmptyemail] = useState(false);
-
-
-
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
   const [emailExists, setEmailExists] = useState(false);
   const [telephoneExists, setTelephoneExists] = useState(false);
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+
   
 
 
@@ -288,6 +287,9 @@ const Clients = () => {
       }
   
       setFormValid(true);
+      // Inside handleSubmit function after adding the client
+setShowSuccessNotification(true);
+
     } catch (error) {
       console.error('Error creating/modifying plan:', error);
     }
@@ -295,9 +297,25 @@ const Clients = () => {
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPack(event.target.value); 
   };
+  const SuccessNotification = () => {
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setShowSuccessNotification(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }, []);
+  
+    return (
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
+       Client ajouté avec succès
+      </div>
+    );
+  };
+  
 
   return (
     <Layout activePage="clients"> 
+    
    <div className="flex justify-center pt-14 mx-2 w-full">
     <div className="relative flex items-center ">
         <input
@@ -598,7 +616,10 @@ const Clients = () => {
     currentPage={currentPage}
   />
 </div>
-</div>
+
+</div> 
+{showSuccessNotification && <SuccessNotification />}
+
     </Layout>
   );
 }

@@ -34,10 +34,7 @@ const Groupes = () => {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [plan, setPlan] = useState('');
- 
- 
   const [nbrab, setNbrab] = useState('');
-
   const [formValid, setFormValid] = useState(true);
   const [groupes, setGroupes] = useState<Groupe []>([]);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -50,17 +47,11 @@ const Groupes = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const isEmptyname = !name ;
   const isEmptyplan = !plan ;
-
- 
   const isEmptynbrab = !nbrab ;
-
-  // Assuming isValid is based on form fields being filled correctly
-  const isValidname = name.trim() !== '' ;
-  const isValidplan =plan.trim() !== '' ;
-
   const isValidnbrab = !isNaN(parseFloat(nbrab));
   const [planExists, setPlanExists] = useState(false);
   const [nameExists, setNameExists] = useState(false);
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 
 
 
@@ -165,21 +156,29 @@ const Groupes = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); 
-    const planExistsInGroupes = groupes.some(groupe => groupe.plan === plan);
+    const lowercaseNamee = plan.toLowerCase();
+    const planExistsInGroupes = groupes.some(groupe => groupe.plan.toLowerCase() === lowercaseNamee);
     setPlanExists(planExistsInGroupes);
-    const nameExistsInGroupes = groupes.some(groupe => groupe.name === name);
-setNameExists(nameExistsInGroupes);
+  
+    // Convert the entered name to lowercase
+    const lowercaseName = name.toLowerCase();
+    // Check if any existing name matches the lowercase version of the entered name
+    const nameExistsInGroupes = groupes.some(groupe => groupe.name.toLowerCase() === lowercaseName);
+    setNameExists(nameExistsInGroupes);
    
-    if (name && plan  && nbrab ) {
+    if (name && plan  && nbrab  && !nameExistsInGroupes ) {
       
       console.log('succesfully created');
       setFormValid(true); 
     } 
     setFormSubmitted(true);
+    if (nameExistsInGroupes) {
+      return;
+    }
     try {
       if (selectedGroupeId !== null) {
         // Update existing groupe
-        const response = await axios.put(`://localhost:5000/api/groupes/${selectedGroupeId}`, {
+        const response = await axios.put(`http://localhost:5000/api/groupes/${selectedGroupeId}`, {
           name,
           plan,
        
@@ -213,7 +212,7 @@ setNameExists(nameExistsInGroupes);
         setGroupes([...groupes, response.data]);
         setShowForm(false);
       }
-  
+      setShowSuccessNotification(true);
       setFormValid(true);
     } catch (error) {
       console.error('Error creating/modifying groupe:', error);
@@ -223,7 +222,20 @@ setNameExists(nameExistsInGroupes);
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPlan(event.target.value); 
   };
+  const SuccessNotification = () => {
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setShowSuccessNotification(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }, []);
   
+    return (
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
+       Groupe ajouté avec succès
+      </div>
+    );
+  };
 
   return (
     <Layout activePage="Groupes"> 
@@ -477,6 +489,7 @@ setNameExists(nameExistsInGroupes);
   />
 </div>
 </div>
+{showSuccessNotification && <SuccessNotification />}
 </Layout>
  );
     }

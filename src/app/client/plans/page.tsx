@@ -106,17 +106,16 @@ const isEmptyEndDate = !endDate;
         setName(plan.name);
         setType(plan.type);
         setAmount(plan.amount.toString());
-        setDuration(plan.duration.toString());
         setNbrseance(plan.nbrseance.toString());
         setEnligne(plan.enligne.toString());
         const [hrs, mins, secs] = plan.duration.split(':');
         setHours(hrs);
         setMinutes(mins);
         setSeconds(secs);
-
       }
     }
   }, [selectedPlanId, plans]);
+  
 
   
   const handleClick = async (planId: number, action: string) => {
@@ -197,14 +196,11 @@ setEndDate('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); 
-    // Concatenate hours, minutes, and seconds into a single string representing the duration
     const durationString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-
-  // Now, you can set the duration state with the concatenated string
-  setDuration(durationString);
+    setDuration(durationString);
+  
     if (name && type && amount && duration && nbrseance ) {
-      
+     
       console.log('succesfully created');
       setFormValid(true); 
     } 
@@ -212,19 +208,19 @@ setEndDate('');
     try {
       if (selectedPlanId !== null) {
         // Update existing plan
-        const response = await axios.put(`http://localhost:5000/api/plans/${selectedPlanId}`, {
+        const response = await axios.patch(`http://localhost:5000/api/plans/${selectedPlanId}`, {
           name,
           type,
           amount: parseInt(amount),
           duration,
           nbrseance: parseInt(nbrseance),
           enligne,
-          startDate,
-          endDate
+          startDate: startDate || null, 
+  endDate: endDate || null,
           
         });
         
-        // Update local state with modified plan
+     
         const updatedPlans = plans.map(plan => {
           if (plan.id === selectedPlanId) {
             return response.data;
@@ -235,12 +231,13 @@ setEndDate('');
         setPlans(updatedPlans);
         setShowEditForm(false);
       } else {
-        // Create new plan
+       
+        
         const response = await axios.post('http://localhost:5000/api/plans', {
           name,
           type,
-          startDate,
-          endDate,
+          startDate: startDate || null, 
+          endDate: endDate || null,
           amount: parseInt(amount),
           duration,
           nbrseance: parseInt(nbrseance),
@@ -415,10 +412,10 @@ setEndDate('');
         id="endDate"
         name="endDate"
         value={endDate}
-  onChange={(e) => setEndDate(e.target.value)}
+        onChange={(e) => setEndDate(e.target.value)}
         className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500`}
       />
-       {formSubmitted && isEmptyEndDate &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+       {formSubmitted && isEmptyEndDate && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
     </div>
   </>
 )}
@@ -798,4 +795,4 @@ setEndDate('');
 </Layout>
  );
     }
-export default Plans;
+export default Plans;
