@@ -7,6 +7,7 @@ import axios from "axios";
 import { HiMail } from "react-icons/hi";
 import PaginationBar from "../../components/PaginationBar";
 import validator from 'email-validator';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 
 
 const TdStyle = {
@@ -19,39 +20,23 @@ interface InputProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   isValid: boolean;
 }
-const TelephoneInput: React.FC<InputProps & { isEmpty: boolean; formSubmitted: boolean; telephoneExists: boolean }> = ({ value, onChange, isValid, isEmpty, formSubmitted, telephoneExists }) => {
-  return (
-    <div className="flex flex-wrap items-center mb-6 relative">
-      <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
-        Numéro de téléphone : 
-      </label>
-      <input        
-        id="telephone"
-        name="telephone"
-        value={value}
-        onChange={onChange}
-        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid ? '' : 'border-red-500'}`}
-        placeholder="Entrer votre numéro de téléphone"
-      />
-      {formSubmitted && !isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un numéro de téléphone valide.</p>}
-      {formSubmitted && isEmpty && value.trim() === '' && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
-      {formSubmitted && telephoneExists && <p className="text-red-500 text-xs italic">Ce numéro de téléphone existe déjà.</p>}
-    </div>
-  );
-}
 
-const EmailInput: React.FC<InputProps & {  formSubmitted: boolean; emailExists: boolean }> = ({ value, onChange, isValid,  formSubmitted, emailExists }) => {
+
+const EmailInput: React.FC<InputProps & { formSubmitted: boolean; emailExists: boolean }> = ({ value, onChange, isValid, formSubmitted, emailExists }) => {
+  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
+    onChange(event); // Propagate the change event to parent component
+  };
   return (
     <div className="flex flex-wrap items-center mb-4 relative">
       <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
-        Email : 
+        Email :
       </label>
-    
-      <input        
+
+      <input
         id="email"
         name="email"
         value={value}
-        onChange={onChange}
+        onChange={handleEmailChange} // Handle email change event
         className={`shadow appearance-none border rounded w-full py-2 px-3 pl-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid || value.trim() === '' ? '' : 'border-red-500'}`}
         placeholder="Enter votre email"
       />
@@ -59,17 +44,14 @@ const EmailInput: React.FC<InputProps & {  formSubmitted: boolean; emailExists: 
         <div className="absolute inset-y-0 right-3 flex items-center pl-3 pointer-events-none">
           <HiMail className="h-5 w-5 text-gray-400" />
         </div>
-        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-       
-        </div>
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400"></div>
       </div>
-      {formSubmitted && !isValid  && value.trim() !== '' &&<p className="text-red-500 text-xs italic">Veuillez entrer une adresse mail valide.</p>}
-     
+      {formSubmitted && !isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer une adresse mail valide.</p>}
+
       {formSubmitted && emailExists && <p className="text-red-500 text-xs italic">Cet email existe déjà.</p>}
     </div>
   );
-}
-
+};
 
 interface Subscriber {
  
@@ -79,9 +61,11 @@ interface Subscriber {
   telephone: string;
   status: string;
   nom: string;
-
   prenom:string;
   FirstName:string;
+  groupeId: number;
+  planId: number;
+
 }
 
 const Subscribers = () => {
@@ -110,26 +94,35 @@ const itemsPerPage = 7;
 const [emailExists, setEmailExists] = useState(false);
 const [telephoneExists, setTelephoneExists] = useState(false);
 const [showSuccessNotification, setShowSuccessNotification] = useState(false);
-const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-const [plans, setPlans] = useState<string[]>([]);
-const [groups, setGroups] = useState<string[]>([]);
+const [telephoneError, setTelephoneError] = useState<string>('');
+const [plans, setPlans] = useState<{ id: number; name: string }[]>([]);
+const [groupes, setGroupes] = useState<{ id: number; name: string }[]>([]);
+
+const [selectedGroupe, setSelectedGroupe] = useState<string>('');
+const [selectedPlan, setSelectedPlan] = useState<string>('');
+
 
 
 useEffect(() => {
   const fetchPlansAndGroups = async () => {
     try {
       const plansResponse = await axios.get('http://localhost:5000/api/plans');
-      const groupsResponse = await axios.get('http://localhost:5000/api/groupes');
       setPlans(plansResponse.data);
-      setGroups(groupsResponse.data);
+
+      const groupesResponse = await axios.get('http://localhost:5000/api/groupes');
+      setGroupes(groupesResponse.data);
     } catch (error) {
-      console.error('Error fetching plans and groups:', error);
+      console.error('Error fetching plans and groupes:', error);
     }
   };
 
   fetchPlansAndGroups();
 }, []);
+
+
+
+
+
 
   useEffect(() => {
     const fetchSubscribers = async () => {
@@ -212,11 +205,26 @@ useEffect(() => {
     setEmailExists(emailAlreadyExists);
     setEmail(event.target.value);
   };
-  const handleTelephoneChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const enteredTelephone = event.target.value;
-    const telephoneAlreadyExists = subscribers.some(subscriber => subscriber.telephone === enteredTelephone);
-    setTelephoneExists(telephoneAlreadyExists);
-    setTelephone(event.target.value);
+  
+  useEffect(() => {
+    if (validator.validate(email)) {
+      setEmailIsValid(true);
+    } else {
+      setEmailIsValid(false);
+    }
+  }, [email]);
+  const handleTelephoneChange = (value: string | undefined) => {
+    // Update telephone state
+    setTelephone(value || '');
+    
+    // Check if the telephone number is valid
+    if (!isValidPhoneNumber(value || '')) {
+      // Set the error message if the telephone number is invalid
+      setTelephoneError('Ce numéro est invalide');
+    } else {
+      // Clear the error message if the telephone number is valid
+      setTelephoneError('');
+    }
   };
    
   const toggleForm = () => {
@@ -253,7 +261,7 @@ useEffect(() => {
       setTelephoneIsValid(true);
     }
       // Check if all fields are valid
-      if (nom && email && telephone && prenom ) {
+      if (nom && email && telephone && prenom && selectedGroupe && selectedPlan) {
       
         console.log('succesfully created');
         setFormValid(true); 
@@ -268,7 +276,8 @@ useEffect(() => {
           prenom,
           email: email.trim() === '' ? null : email,
           telephone,
-       
+          groupe: selectedGroupe,
+          plan: selectedPlan
       
         });
         
@@ -283,12 +292,16 @@ useEffect(() => {
         setSubscribers(updatedSubscribers);
         setShowEditForm(false);
       } else {
+        
+        
         // Create new subscriber
         const response = await axios.post('http://localhost:5000/api/subscribers', {
           nom,
           prenom,
           email: email.trim() === '' ? null : email,
           telephone,
+          groupe: selectedGroupe,
+          plan: selectedPlan
        
       
         });
@@ -364,30 +377,8 @@ useEffect(() => {
                 <td className={TdStyle.TdStyle}>{subscriber.FirstName}</td>
                 <td className={TdStyle.TdStyle}>{subscriber.telephone}</td>
                 <td className={TdStyle.TdStyle}>{subscriber.email}</td>
-                <td className={TdStyle.TdStyle}>
-  <select
-    value={selectedGroup || ''}
-    onChange={(e) => setSelectedGroup(e.target.value)}
-    className="border border-gray-300 rounded-md px-2 py-1"
-  >
-    <option value="">Select Group</option>
-    {groups.map((group) => (
-      <option key={group} value={group}>{group}</option>
-    ))}
-  </select>
-</td>
-<td className={TdStyle.TdStyle}>
-  <select
-    value={selectedPlan || ''}
-    onChange={(e) => setSelectedPlan(e.target.value)}
-    className="border border-gray-300 rounded-md px-2 py-1"
-  >
-    <option value="">Select Plan</option>
-    {plans.map((plan) => (
-      <option key={plan} value={plan}>{plan}</option>
-    ))}
-  </select>
-</td>
+                <td className={TdStyle.TdStyle}>{groupes.find(groupe => groupe.id === subscriber.groupeId)?.name}</td>
+               <td className={TdStyle.TdStyle}>{plans.find(plan => plan.id === subscriber.planId)?.name}</td>
                 
                 <td className={TdStyle.TdStyle}>  </td>
                 <td className={TdStyle.TdStyle}> 
@@ -441,15 +432,29 @@ useEffect(() => {
                {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
            
-            <TelephoneInput
+            <div className="flex flex-wrap items-center mb-4 relative">
+  <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
+    Téléphone :
+  </label>
+  <div className="relative flex items-center" >
+    
+    {/* PhoneInput component */}
+    <PhoneInput
+      placeholder="Entrez votre numéro de téléphone"
       value={telephone}
       onChange={handleTelephoneChange}
-      isValid={telephoneIsValid}
-      isEmpty={telephone.trim() === ''}
-      formSubmitted={formSubmitted}
-      telephoneExists={telephoneExists}
+      error={telephoneError}
+      
+      style={{ width: '20%', paddingLeft: '0.75rem' }} // Adjust width and padding as needed
     />
-           
+  </div>
+  {/* Display error message if telephoneError is not empty */}
+  {telephoneError && formSubmitted && <p className="text-red-500 text-xs italic">{telephoneError}</p>}
+  {/* Display error message if telephone field is empty */}
+  {formSubmitted && isEmptytelephone && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
+</div>
+
+
 <EmailInput
       value={email}
       onChange={handleEmailChange}
@@ -459,10 +464,42 @@ useEffect(() => {
       emailExists={emailExists}
     />
           
-
+          <div className="flex flex-wrap items-center mb-4 relative">
+  <label htmlFor="groupe" className="block text-gray-700 text-sm font-bold mb-2">
+    Groupe:
+  </label>
+  <select
+    id="groupe"
+    name="groupe"
+    value={selectedGroupe}
+    onChange={(e) => setSelectedGroupe(e.target.value)}
+    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+  >
+    <option value="">Sélectionner un groupe</option>
+    {groupes.map((groupe) => (
+      <option key={groupe.id} value={groupe.name}>{groupe.name}</option>
+    ))}
+  </select>
+</div>
            
           
-
+<div className="flex flex-wrap items-center mb-4 relative">
+  <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
+    Plan:
+  </label>
+  <select
+    id="plan"
+    name="plan"
+    value={selectedPlan}
+    onChange={(e) => setSelectedPlan(e.target.value)}
+    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+  >
+    <option value="">Sélectionner un plan</option>
+    {plans.map((plan) => (
+      <option key={plan.id} value={plan.name}>{plan.name}</option>
+    ))}
+  </select>
+</div>
 
 
 
@@ -504,7 +541,7 @@ useEffect(() => {
       </div>
 
       {showForm && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
           <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
             <div className="flex justify-end mt-4 mr-4 absolute top-0 right-0">
               <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowForm(false)} className="cursor-pointer" />
@@ -544,15 +581,28 @@ useEffect(() => {
               />
                {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
-            
-            <TelephoneInput
+            <div className="flex flex-wrap items-center mb-4 relative">
+  <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
+    Téléphone :
+  </label>
+  <div className="relative flex items-center" >
+    
+    {/* PhoneInput component */}
+    <PhoneInput
+      placeholder="Entrez votre numéro de téléphone"
       value={telephone}
       onChange={handleTelephoneChange}
-      isValid={telephoneIsValid}
-      isEmpty={telephone.trim() === ''}
-      formSubmitted={formSubmitted}
-      telephoneExists={telephoneExists}
+      error={telephoneError}
+      
+      style={{ width: '20%', paddingLeft: '0.75rem' }} // Adjust width and padding as needed
     />
+  </div>
+  {/* Display error message if telephoneError is not empty */}
+  {telephoneError && formSubmitted && <p className="text-red-500 text-xs italic">{telephoneError}</p>}
+  {/* Display error message if telephone field is empty */}
+  {formSubmitted && isEmptytelephone && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
+</div>
+
 
            
 <EmailInput
@@ -564,41 +614,39 @@ useEffect(() => {
       emailExists={emailExists}
     />
 <div className="flex flex-wrap items-center mb-4 relative">
-    <label htmlFor="selectedGroup" className="block text-gray-700 text-sm font-bold mb-2">
-      Groupe :
-    </label>
-    <select
-      id="selectedGroup"
-      name="selectedGroup"
-      value={selectedGroup || ''}
-      onChange={(e) => setSelectedGroup(e.target.value)}
-      className="border border-gray-300 rounded-md px-2 py-1"
-    >
-      <option value="">Sélectionnez un groupe</option>
-      {groups.map((group) => (
-        <option key={group} value={group}>{group}</option>
-      ))}
-    </select>
-  </div>
-
-  <div className="flex flex-wrap items-center mb-4 relative">
-    <label htmlFor="selectedPlan" className="block text-gray-700 text-sm font-bold mb-2">
-      Plan :
-    </label>
-    <select
-      id="selectedPlan"
-      name="selectedPlan"
-      value={selectedPlan || ''}
-      onChange={(e) => setSelectedPlan(e.target.value)}
-      className="border border-gray-300 rounded-md px-2 py-1"
-    >
-      <option value="">Sélectionnez un plan</option>
-      {plans.map((plan) => (
-        <option key={plan} value={plan}>{plan}</option>
-      ))}
-    </select>
-  </div>
-
+  <label htmlFor="groupe" className="block text-gray-700 text-sm font-bold mb-2">
+    Groupe:
+  </label>
+  <select
+    id="groupe"
+    name="groupe"
+    value={selectedGroupe}
+    onChange={(e) => setSelectedGroupe(e.target.value)}
+    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+  >
+    <option value="">Sélectionner un groupe</option>
+    {groupes.map((groupe) => (
+      <option key={groupe.id} value={groupe.name}>{groupe.name}</option>
+    ))}
+  </select>
+</div>
+<div className="flex flex-wrap items-center mb-4 relative">
+  <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
+    Plan:
+  </label>
+  <select
+    id="plan"
+    name="plan"
+    value={selectedPlan}
+    onChange={(e) => setSelectedPlan(e.target.value)}
+    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+  >
+    <option value="">Sélectionner un plan</option>
+    {plans.map((plan) => (
+      <option key={plan.id} value={plan.name}>{plan.name}</option>
+    ))}
+  </select>
+</div>
 
           
 

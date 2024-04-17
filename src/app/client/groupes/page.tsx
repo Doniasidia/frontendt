@@ -34,7 +34,10 @@ const Groupes = () => {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [plan, setPlan] = useState('');
+ 
+ 
   const [nbrab, setNbrab] = useState('');
+
   const [formValid, setFormValid] = useState(true);
   const [groupes, setGroupes] = useState<Groupe []>([]);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -232,7 +235,7 @@ const Groupes = () => {
   
     return (
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
-       Groupe ajouté avec succès
+        Groupe ajouté avec succès
       </div>
     );
   };

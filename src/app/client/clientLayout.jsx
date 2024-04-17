@@ -1,5 +1,6 @@
-// clientlayout.jsx
-const Layout = ({ children , activePage}) => {
+import Link from 'next/link';
+
+const Layout = ({ children, activePage }) => {
     return (
         <div className="flex h-screen bg-sky-50 p-4"> {/* Main container */}
             <div className="sidebar bg-white w-41 text-white shadow-lg rounded-xl rounded-tr-none"> {/* Sidebar container */}
@@ -9,23 +10,33 @@ const Layout = ({ children , activePage}) => {
                         <span className="text-2xl font-bold logo-color">USMS</span>
                     </div>
                     <div className="h-4/5">
-                    <div className="border-t-2 border-cyan-400 p-4"></div>
-                    <div className="flex flex-col items-center space-y-2 px-4">
-                    <a href="#" className={activePage === 'dashboard' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Tableau de bord</a>                       
-                    <a href="#" className={activePage === 'Abonnés' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Abonnés</a>
-                    <a href="#" className={activePage === 'plans' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Plans d'abonnements</a>
-                    
-                <a href="#" className={activePage === 'abonnements' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Abonnements</a>
-                <a href="#" className={activePage === 'Groupes' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Groupes</a>
-                    <a href="#" className={activePage === 'Parametres' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Paramètres</a>
-                    
-                    </div>
+                        <div className="border-t-2 border-cyan-400 p-4"></div>
+                        <div className="flex flex-col items-center space-y-2 px-4">
+                            <Link href="/client/dashboard">
+                                <button className={activePage === 'dashboard' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Tableau de bord</button>
+                            </Link>
+                            <Link href="/client/abonne">
+                                <button className={activePage === 'Abonnés' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Abonnés</button>
+                            </Link>
+                            <Link href="/client/plans">
+                                <button className={activePage === 'plans' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Plans d'abonnements</button>
+                            </Link>
+                            <Link href="/client/paiement">
+                                <button className={activePage === 'paiement' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>paiement</button>
+                            </Link>
+                            <Link href="/client/groupes">
+                                <button className={activePage === 'Groupes' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Groupes</button>
+                            </Link>
+                            <Link href="/client/parametres">
+                                <button className={activePage === 'Parametres' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Paramètres</button>
+                            </Link>
+                        </div>
                     </div>
                     <div className="flex justify-center">
                         <div className="border-t border-gray-400 p-3 w-60"></div>
                     </div>
                     <div className="flex justify-center items-center mb-4"> {/* Centered Logout button */}
-                        <a href="#" className="hover:bg-sky-500 hover:text-white py-2 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400 "> Déconnecter</a>
+                        <button className="hover:bg-sky-500 hover:text-white py-2 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400 ">Déconnecter</button>
                     </div>
                 </div>
             </div>
@@ -46,4 +57,4 @@ const Layout = ({ children , activePage}) => {
     );
 }
 
-export default Layout;
+export default Layout;

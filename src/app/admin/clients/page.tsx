@@ -7,6 +7,7 @@ import axios from "axios";
 import { HiEye, HiEyeOff, HiMail } from "react-icons/hi";
 import PaginationBar from "../../components/PaginationBar";
 import validator from 'email-validator';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 
 
 const TdStyle = {
@@ -113,6 +114,8 @@ const Clients = () => {
   const [emailExists, setEmailExists] = useState(false);
   const [telephoneExists, setTelephoneExists] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const [telephoneError, setTelephoneError] = useState<string>('');
+  const isEmptytelephone=!telephone ;
 
   
 
@@ -198,17 +201,25 @@ const Clients = () => {
   
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     const enteredEmail = event.target.value.toLowerCase(); // Convert entered email to lowercase
-    const emailAlreadyExists = clients.some(client => client.email.toLowerCase() === enteredEmail); // Check if email exists in lowercase
-    setEmailExists(emailAlreadyExists);
-    setEmail(event.target.value);
-    setIsEmptyemail(event.target.value.trim() === '');
+    const emailIsValid = validator.validate(enteredEmail); // Check if the entered email is valid
+    setEmailExists(clients.some(client => client.email.toLowerCase() === enteredEmail)); // Check if the entered email already exists
+    setEmailIsValid(emailIsValid); // Update the email validity state
+    setEmail(event.target.value); // Update the email state
+    setIsEmptyemail(event.target.value.trim() === ''); // Check if the email input is empty
   };
   
-  const handleTelephoneChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const enteredTelephone = event.target.value;
-    const telephoneAlreadyExists = clients.some(client => client.telephone === enteredTelephone);
-    setTelephoneExists(telephoneAlreadyExists);
-    setTelephone(event.target.value);
+  const handleTelephoneChange = (value: string | undefined) => {
+    // Update telephone state
+    setTelephone(value || '');
+    
+    // Check if the telephone number is valid
+    if (!isValidPhoneNumber(value || '')) {
+      // Set the error message if the telephone number is invalid
+      setTelephoneError('Ce numéro est invalide');
+    } else {
+      // Clear the error message if the telephone number is valid
+      setTelephoneError('');
+    }
   };
   
   const toggleForm = () => {
@@ -408,15 +419,27 @@ setShowSuccessNotification(true);
       emailExists={emailExists}
     />
    
-   <TelephoneInput
+   <div className="flex flex-wrap items-center mb-4 relative">
+  <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
+    Téléphone :
+  </label>
+  <div className="relative flex items-center" >
+    
+    {/* PhoneInput component */}
+    <PhoneInput
+      placeholder="Entrez votre numéro de téléphone"
       value={telephone}
       onChange={handleTelephoneChange}
-      isValid={telephoneIsValid}
-      isEmpty={telephone.trim() === ''}
-      formSubmitted={formSubmitted}
-      telephoneExists={telephoneExists}
+      error={telephoneError}
+      className={`shadow appearance-none border rounded w-full py-2 px-8 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && telephoneError &&isEmptytelephone? 'border-red-500' : ''}`}
+      style={{ width: '20%', paddingLeft: '0.75rem' }} // Adjust width and padding as needed
     />
-
+  </div>
+  {/* Display error message if telephoneError is not empty */}
+  {telephoneError && formSubmitted && <p className="text-red-500 text-xs italic">{telephoneError}</p>}
+  {/* Display error message if telephone field is empty */}
+  {formSubmitted && isEmptytelephone && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
+</div>
 <div className="mb-6 relative">
   <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
     Mot de passe :
@@ -536,14 +559,27 @@ setShowSuccessNotification(true);
       emailExists={emailExists}
     />
 
-<TelephoneInput
+<div className="flex flex-wrap items-center mb-4 relative">
+  <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
+    Téléphone :
+  </label>
+  <div className="relative flex items-center" >
+    
+    {/* PhoneInput component */}
+    <PhoneInput
+      placeholder="Entrez votre numéro de téléphone"
       value={telephone}
       onChange={handleTelephoneChange}
-      isValid={telephoneIsValid}
-      isEmpty={telephone.trim() === ''}
-      formSubmitted={formSubmitted}
-      telephoneExists={telephoneExists}
+      error={telephoneError}
+      className={`shadow appearance-none border rounded w-full py-2 px-8 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && telephoneError &&isEmptytelephone? 'border-red-500' : ''}`}
+      style={{ width: '20%', paddingLeft: '0.75rem' }} // Adjust width and padding as needed
     />
+  </div>
+  {/* Display error message if telephoneError is not empty */}
+  {telephoneError && formSubmitted && <p className="text-red-500 text-xs italic">{telephoneError}</p>}
+  {/* Display error message if telephone field is empty */}
+  {formSubmitted && isEmptytelephone && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
+</div>
             <div className="mb-6 relative">
   <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
     Mot de passe :

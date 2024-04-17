@@ -1,5 +1,6 @@
-// adminlayout.jsx
-const Layout = ({ children , activePage}) => {
+import Link from 'next/link';
+
+const Layout = ({ children, activePage }) => {
     return (
         <div className="flex h-screen bg-sky-50 p-4"> {/* Main container */}
             <div className="sidebar bg-white w-41 text-white shadow-lg rounded-xl rounded-tr-none"> {/* Sidebar container */}
@@ -9,20 +10,28 @@ const Layout = ({ children , activePage}) => {
                         <span className="text-2xl font-bold logo-color">USMS</span>
                     </div>
                     <div className="h-4/5">
-                    <div className="border-t-2 border-cyan-400 p-4"></div>
-                    <div className="flex flex-col space-y-2 px-4">
-                    <a href="#" className={activePage === 'dashboard' ? "navBarButton-bgcolor flex items-center justify-center  text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor flex items-center justify-center hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Tableau de bord</a>
-                    <a href="#" className={activePage === 'clients' ? "navBarButton-bgcolor flex items-center justify-center text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor flex items-center justify-center hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Clients</a>
-                    <a href="#" className={activePage === 'abonnements' ? "navBarButton-bgcolor flex items-center justify-center text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor flex items-center justify-center hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Abonnements</a>
-                    <a href="#" className={activePage === 'parametres' ? "navBarButton-bgcolor flex items-center justify-center text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor flex items-center justify-center hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Paramètres</a>
-
-                    </div>
+                        <div className="border-t-2 border-cyan-400 p-4"></div>
+                        <div className="flex flex-col items-center space-y-2 px-4">
+                            <Link href="/admin/dashboard">
+                                <button className={activePage === 'dashboard' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Tableau de bord</button>
+                            </Link>
+                            <Link href="/admin/clients">
+                                <button className={activePage === 'clients' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>clients</button>
+                            </Link>
+                            <Link href="/admin/abonnements">
+                                <button className={activePage === 'abonnements' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>abonnements</button>
+                            </Link>
+                            <Link href="/admin/parametres">
+                                <button className={activePage === 'parametres' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>parametres</button>
+                            </Link>
+                           
+                        </div>
                     </div>
                     <div className="flex justify-center">
                         <div className="border-t border-gray-400 p-3 w-60"></div>
                     </div>
                     <div className="flex justify-center items-center mb-4"> {/* Centered Logout button */}
-                        <a href="#" className="hover:bg-sky-500 hover:text-white py-2 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400 "> Déconnecter</a>
+                        <button className="hover:bg-sky-500 hover:text-white py-2 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400 ">Déconnecter</button>
                     </div>
                 </div>
             </div>
@@ -43,4 +52,4 @@ const Layout = ({ children , activePage}) => {
     );
 }
 
-export default Layout;
+export default Layout;
