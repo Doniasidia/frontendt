@@ -24,8 +24,9 @@ interface Groupe {
   plan: string;
  
   status: string;
+  planId: number;
  
-  nbrab: number;
+
 
 }
 
@@ -36,7 +37,7 @@ const Groupes = () => {
   const [plan, setPlan] = useState('');
  
  
-  const [nbrab, setNbrab] = useState('');
+ 
 
   const [formValid, setFormValid] = useState(true);
   const [groupes, setGroupes] = useState<Groupe []>([]);
@@ -49,18 +50,35 @@ const Groupes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
   const isEmptyname = !name ;
-  const isEmptyplan = !plan ;
-  const isEmptynbrab = !nbrab ;
-  const isValidnbrab = !isNaN(parseFloat(nbrab));
-  const [planExists, setPlanExists] = useState(false);
   const [nameExists, setNameExists] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const [groupesToDisplay, setGroupesToDisplay] = useState<Groupe[]>([]);
+  const [filteredGroupes, setFilteredGroupes] = useState<Groupe[]>([]);
+  const [plans, setPlans] = useState<{ id: number; name: string }[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<string>('');
+
+  
 
 
 
 
 
-
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const plansResponse = await axios.get('http://localhost:5000/api/plans');
+        setPlans(plansResponse.data);
+  
+    
+      } catch (error) {
+        console.error('Error fetching plans and groupes:', error);
+      }
+    };
+  
+    fetchPlans();
+  }, []);
+  
+  
 
   useEffect(() => {
     const fetchGroupes = async () => {
@@ -81,9 +99,9 @@ const Groupes = () => {
       if (groupe) {
         setSelectedGroupe(groupe);
         setName(groupe.name);
-        setPlan(groupe.plan);
+       
       
-        setNbrab(groupe.nbrab.toString());
+     
       
 
 
@@ -124,13 +142,27 @@ const Groupes = () => {
     }
   };
   
-  
+  useEffect(() => {
+    const filtered = groupes.filter((groupe) => {
+      return (
+       ( groupe.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+      
+      );
+    });
+    
+    setFilteredGroupes(filtered);
+    setCurrentPage(1);
+  }, [searchQuery, groupes]);
+  useEffect(() => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const groupesToDisplay = filteredGroupes.slice(indexOfFirstItem, indexOfLastItem);
+    setGroupesToDisplay(groupesToDisplay);
+  }, [currentPage, filteredGroupes]);
   const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
-  const filteredGroupes = groupes.filter((groupe) =>
-    groupe.name.toLowerCase().includes(searchQuery.toLowerCase())
-);
+
   const handlePageChange = (page: number) => {
   setCurrentPage(page);
 };
@@ -144,10 +176,10 @@ const Groupes = () => {
     setShowForm(!showForm);
     // Reset form fields to empty values when toggling the form
     setName('');
-    setPlan('');
+   
   
    
-    setNbrab('');
+  
   
     setFormSubmitted(false);
     // Reset form validation states as well if needed
@@ -159,9 +191,7 @@ const Groupes = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); 
-    const lowercaseNamee = plan.toLowerCase();
-    const planExistsInGroupes = groupes.some(groupe => groupe.plan.toLowerCase() === lowercaseNamee);
-    setPlanExists(planExistsInGroupes);
+   
   
     // Convert the entered name to lowercase
     const lowercaseName = name.toLowerCase();
@@ -169,7 +199,7 @@ const Groupes = () => {
     const nameExistsInGroupes = groupes.some(groupe => groupe.name.toLowerCase() === lowercaseName);
     setNameExists(nameExistsInGroupes);
    
-    if (name && plan  && nbrab  && !nameExistsInGroupes ) {
+    if (name     && !nameExistsInGroupes && selectedPlan ) {
       
       console.log('succesfully created');
       setFormValid(true); 
@@ -181,12 +211,12 @@ const Groupes = () => {
     try {
       if (selectedGroupeId !== null) {
         // Update existing groupe
-        const response = await axios.put(`http://localhost:5000/api/groupes/${selectedGroupeId}`, {
+        const response = await axios.patch(`http://localhost:5000/api/groupes/${selectedGroupeId}`, {
           name,
-          plan,
-       
          
-          nbrab: parseInt(nbrab),
+          plan: selectedPlan
+         
+      
     
         });
         
@@ -204,10 +234,10 @@ const Groupes = () => {
         // Create new groupe
         const response = await axios.post('http://localhost:5000/api/groupes', {
           name,
-          plan,
+          plan: selectedPlan
    
        
-          nbrab: parseInt(nbrab),
+          
          
         });
   
@@ -267,7 +297,7 @@ const Groupes = () => {
                 <th className={TdStyle.ThStyle}> Plan </th>
             
                
-                <th className={TdStyle.ThStyle}> Nombre des abonnés </th>
+               
                
                 <th className={TdStyle.ThStyle}> </th>
                 <th className={TdStyle.ThStyle}> </th>
@@ -280,10 +310,9 @@ const Groupes = () => {
               <tr className={groupe.status === 'activated' ? '' : 'deleted-row'} key={groupe.id}>
 
                 <td className={TdStyle.TdStyle}>{groupe.name}</td>
-                <td className={TdStyle.TdStyle}>{groupe.plan}</td>
+                <td className={TdStyle.TdStyle}>{plans.find(plan => plan.id === groupe.planId)?.name}</td>
                
             
-                <td className={TdStyle.TdStyle}>{groupe.nbrab}</td>
              
 
 
@@ -322,40 +351,24 @@ const Groupes = () => {
             {formSubmitted && nameExists && <p className="text-red-500 text-xs italic">Ce nom existe déjà.</p>}
          </div>
          <div className="flex flex-wrap items-center mb-4 relative">
-           <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
-             Plan:
-           </label>
-           <input 
-             type="text"
-             id="plan"
-             name="plan"
-             value={plan}
-             onChange={(e) => setPlan(e.target.value)}
-             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyname ? 'border-red-500' : ''}`}
-             placeholder="Entrer le plan"
-           />
-            {formSubmitted && isEmptyplan &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
-            {formSubmitted && planExists && <p className="text-red-500 text-xs italic">Ce plan existe déjà.</p>}
-
-         </div>
+  <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
+    Plan:
+  </label>
+  <select
+    id="plan"
+    name="plan"
+    value={selectedPlan}
+    onChange={(e) => setSelectedPlan(e.target.value)}
+    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+  >
+    <option value="">Sélectionner un plan</option>
+    {plans.map((plan) => (
+      <option key={plan.id} value={plan.name}>{plan.name}</option>
+    ))}
+  </select>
+</div>
        
-         <div className="flex flex-wrap items-center mb-4 relative">
-           <label htmlFor="nbrab" className="block text-gray-700 text-sm font-bold mb-2">
-             Nombre des abonnés:
-           </label>
-           <input
-             type="nbrab"
-             id="nbrab"
-             name="nbrab"
-             value={nbrab}
-             onChange={(e) => setNbrab(e.target.value)}
-             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptynbrab ? 'border-red-500' : ''}`}
-             placeholder="Entrer le nombre des abonnés"
-           />
-                    {formSubmitted &&!isValidnbrab &&  <p className="text-red-500 text-xs italic">Veuillez entrer un nombre valide.</p>}
-
-{formSubmitted && isEmptynbrab &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
-         </div>
+        
 
          
 
@@ -422,46 +435,29 @@ const Groupes = () => {
                         {formSubmitted &&nameExists && <p className="text-red-500 text-xs italic">Ce nom existe déjà.</p>}
           </div>
           <div className="flex flex-wrap items-center mb-4 relative">
-           <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
-             Plan:
-           </label>
-           <input 
-             type="text"
-             id="plan"
-             name="plan"
-             value={plan}
-             onChange={(e) => setPlan(e.target.value)}
-             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyname ? 'border-red-500' : ''}`}
-             placeholder="Entrer le plan"
-           />
-            {formSubmitted && isEmptyplan &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
-            {formSubmitted && planExists && <p className="text-red-500 text-xs italic">Ce plan existe déjà.</p>}
+  <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
+    Plan:
+  </label>
+  <select
+    id="plan"
+    name="plan"
+    value={selectedPlan}
+    onChange={(e) => setSelectedPlan(e.target.value)}
+    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+  >
+    <option value="">Sélectionner un plan</option>
+    {plans.map((plan) => (
+   <option key={plan.id} value={plan.id}>{plan.name}</option>
 
-         </div>
-          
-        
+
+    ))}
+  </select>
+</div>
          
 
           
          
-          <div className="mb-2">
-            <label htmlFor="nbrab" className="block text-gray-700 text-sm font-bold mb-2">
-            Nombre des abonnés:
-            </label>
-            <input
-              type="nbrab"
-              id="nbrab"
-              name="nbrab"
-              value={nbrab}
-              onChange={(e) => setNbrab(e.target.value)}
-              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptynbrab ? 'border-red-500' : ''}`}
-              placeholder="Entrer le nombre des abonnés"
-            />
-                             {formSubmitted &&!isValidnbrab && nbrab.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un nombre valide.</p>}
-
-{formSubmitted && isEmptynbrab &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}    
-
-          </div>
+          
         
          
           

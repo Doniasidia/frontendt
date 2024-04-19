@@ -21,27 +21,6 @@ interface InputProps {
   isValid: boolean;
 }
 
-const TelephoneInput: React.FC<InputProps & { isEmpty: boolean; formSubmitted: boolean; telephoneExists: boolean }> = ({ value, onChange, isValid, isEmpty, formSubmitted, telephoneExists }) => {
-  return (
-    
-    <div className="flex flex-wrap items-center mb-6 relative">
-      <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
-        Numéro de téléphone : 
-      </label>
-      <input        
-        id="telephone"
-        name="telephone"
-        value={value}
-        onChange={onChange}
-        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid ? '' : 'border-red-500'}`}
-        placeholder="Entrer votre numéro de téléphone"
-      />
-      {!isValid && value.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un numéro de téléphone valide.</p>}
-      {formSubmitted && isEmpty && value.trim() === '' && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
-      {telephoneExists && <p className="text-red-500 text-xs italic">Ce numéro de téléphone existe déjà.</p>}
-    </div>
-  );
-}
 
 
 const EmailInput: React.FC<InputProps & { isEmptyemail: boolean; formSubmitted: boolean; emailExists: boolean }> = ({ value, onChange, isValid, isEmptyemail, formSubmitted, emailExists }) => {
@@ -56,7 +35,8 @@ const EmailInput: React.FC<InputProps & { isEmptyemail: boolean; formSubmitted: 
         name="email"
         value={value}
         onChange={onChange}
-        className={`shadow appearance-none border rounded w-full py-2 px-3 pl-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${isValid ? '' : 'border-red-500'}`}
+        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && !isValid ? 'border-red-500' : ''}`}
+
         placeholder="Entrer votre email"
       />
       <div className="flex flex-wrap items-center mb-1 relative">
@@ -116,6 +96,9 @@ const Clients = () => {
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   const [telephoneError, setTelephoneError] = useState<string>('');
   const isEmptytelephone=!telephone ;
+  const [clientsToDisplay, setClientsToDisplay] = useState<Client[]>([]);
+  const [successNotificationActionType, setSuccessNotificationActionType] = useState<string>('');
+
 
   
 
@@ -175,7 +158,7 @@ const Clients = () => {
           setClients(updatedClients);
         }
       }
-      
+
     } catch (error) {
       console.error('Error handling action:', error);
     }
@@ -189,7 +172,17 @@ const Clients = () => {
     });
     
     setFilteredClients(filtered);
+    if (searchQuery) {
+      setCurrentPage(1);
+    }
   }, [searchQuery, clients]);
+  useEffect(() => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const clientsToDisplay = filteredClients.slice(indexOfFirstItem, indexOfLastItem);
+    setClientsToDisplay(clientsToDisplay);
+  }, [currentPage, filteredClients]);
+
   const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
@@ -209,6 +202,16 @@ const Clients = () => {
   };
   
   const handleTelephoneChange = (value: string | undefined) => {
+    setTelephone(value || '');
+
+    // Check if the telephone number already exists
+    if (clients.some(client => client.telephone === value)) {
+      // Set the error message if the telephone number already exists
+      setTelephoneExists(true);
+    } else {
+      // Clear the error message if the telephone number is unique
+      setTelephoneExists(false);
+    }
     // Update telephone state
     setTelephone(value || '');
     
@@ -249,22 +252,20 @@ const Clients = () => {
       setEmailIsValid(true);
     }
   
-    if (!/^((\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$/.test(telephone)) {
-      setTelephoneIsValid(false);
-    } else {
-      setTelephoneIsValid(true);
-    }
+    
     setFormSubmitted(true);
     try {
       // Check if the entered email already exists
-      const emailAlreadyExists = clients.some(client => client.email.toLowerCase() === email.toLowerCase());
+      const emailAlreadyExists = filteredClients.some(client => client.email.toLowerCase() === email.toLowerCase() && client.id !== selectedClientId);
+
+
       if (emailAlreadyExists) {
         setEmailExists(true);
         return; // Exit the function without adding the client if the email already exists
       }
       if (selectedClientId !== null) {
         // Update existing plan
-        const response = await axios.put(`http://localhost:5000/api/clients/${selectedClientId}`, {
+        const response = await axios.patch(`http://localhost:5000/api/clients/${selectedClientId}`, {
           username,
           email,
           telephone,
@@ -300,6 +301,7 @@ const Clients = () => {
       setFormValid(true);
       // Inside handleSubmit function after adding the client
 setShowSuccessNotification(true);
+setSuccessNotificationActionType(selectedClientId !== null ? "modifié" : "ajouté");
 
     } catch (error) {
       console.error('Error creating/modifying plan:', error);
@@ -308,7 +310,8 @@ setShowSuccessNotification(true);
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPack(event.target.value); 
   };
-  const SuccessNotification = () => {
+  
+  const SuccessNotification = ({ actionType }: { actionType: string }) => {
     useEffect(() => {
       const timer = setTimeout(() => {
         setShowSuccessNotification(false);
@@ -318,7 +321,7 @@ setShowSuccessNotification(true);
   
     return (
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
-       Client ajouté avec succès
+        {actionType === "ajouté" ? "Client ajouté avec succès" : "Client modifié avec succès"}
       </div>
     );
   };
@@ -380,7 +383,7 @@ setShowSuccessNotification(true);
 </button>
                 
 {showEditForm && selectedClient && (
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+   <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
         {/* Form contents */}
         <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
           {/* Form fields */}
@@ -431,7 +434,7 @@ setShowSuccessNotification(true);
       value={telephone}
       onChange={handleTelephoneChange}
       error={telephoneError}
-      className={`shadow appearance-none border rounded w-full py-2 px-8 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && telephoneError &&isEmptytelephone? 'border-red-500' : ''}`}
+     
       style={{ width: '20%', paddingLeft: '0.75rem' }} // Adjust width and padding as needed
     />
   </div>
@@ -439,6 +442,9 @@ setShowSuccessNotification(true);
   {telephoneError && formSubmitted && <p className="text-red-500 text-xs italic">{telephoneError}</p>}
   {/* Display error message if telephone field is empty */}
   {formSubmitted && isEmptytelephone && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
+{/* Display error message if telephone already exists */}
+{formSubmitted && telephoneExists && <p className="text-red-500 text-xs italic">Ce téléphone existe déjà.</p>}
+
 </div>
 <div className="mb-6 relative">
   <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
@@ -450,7 +456,7 @@ setShowSuccessNotification(true);
     name="password"
     value={password}
     onChange={(e) => setPassword(e.target.value)}
-    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
+    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptypassword ? 'border-red-500' : ''}`}
     placeholder="Entrer votre mot de passe"
   />
   <button
@@ -473,7 +479,7 @@ setShowSuccessNotification(true);
                   name="typeClient"
                   value={typepack} 
                   onChange={handleTypeChange}
-                  className={`shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
+                  className={`shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptytypepack ? 'border-red-500' : ''}`}
                 >
                   <option value=""></option>
                   <option value="type1">100 SMS</option>
@@ -525,7 +531,7 @@ setShowSuccessNotification(true);
       </div>
 
       {showForm && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+   <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
           <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
             <div className="flex justify-end mt-4 mr-4 absolute top-0 right-0">
               <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowForm(false)} className="cursor-pointer" />
@@ -571,7 +577,7 @@ setShowSuccessNotification(true);
       value={telephone}
       onChange={handleTelephoneChange}
       error={telephoneError}
-      className={`shadow appearance-none border rounded w-full py-2 px-8 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && telephoneError &&isEmptytelephone? 'border-red-500' : ''}`}
+     
       style={{ width: '20%', paddingLeft: '0.75rem' }} // Adjust width and padding as needed
     />
   </div>
@@ -579,6 +585,9 @@ setShowSuccessNotification(true);
   {telephoneError && formSubmitted && <p className="text-red-500 text-xs italic">{telephoneError}</p>}
   {/* Display error message if telephone field is empty */}
   {formSubmitted && isEmptytelephone && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
+{/* Display error message if telephone already exists */}
+{formSubmitted && telephoneExists && <p className="text-red-500 text-xs italic">Ce téléphone existe déjà.</p>}
+
 </div>
             <div className="mb-6 relative">
   <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
@@ -590,7 +599,7 @@ setShowSuccessNotification(true);
     name="password"
     value={password}
     onChange={(e) => setPassword(e.target.value)}
-    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
+    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptypassword ? 'border-red-500' : ''}`}
     placeholder="Entrer votre mot de passe"
   />
   {formSubmitted && isEmptypassword &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
@@ -613,7 +622,7 @@ setShowSuccessNotification(true);
                   name="typeClient"
                   value={typepack} 
                   onChange={handleTypeChange}
-                  className={`shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
+                  className={`shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptytypepack ? 'border-red-500' : ''}`}
                 >
                   <option value=""></option>
                   <option value="type1">100 SMS</option>
@@ -637,6 +646,8 @@ setShowSuccessNotification(true);
           </form>
         </div>
       )}
+    {showSuccessNotification && <SuccessNotification actionType={successNotificationActionType} />}
+
 
       <div className="fixed bottom-6 right-8 mb-4 mr-4">
         <button onClick={toggleForm} className="flex items-center button-color font-bold text-white rounded-xl px-4 py-2">
@@ -654,10 +665,11 @@ setShowSuccessNotification(true);
 </div>
 
 </div> 
-{showSuccessNotification && <SuccessNotification />}
+
 
     </Layout>
   );
 }
+
 
 export default Clients;

@@ -98,11 +98,17 @@ const [telephoneError, setTelephoneError] = useState<string>('');
 const [plans, setPlans] = useState<{ id: number; name: string }[]>([]);
 const [groupes, setGroupes] = useState<{ id: number; name: string }[]>([]);
 
-const [selectedGroupe, setSelectedGroupe] = useState<string>('');
+
 const [selectedPlan, setSelectedPlan] = useState<string>('');
 
+const [selectedGroup, setSelectedGroup] = useState<string>('');
+const [selectedOption, setSelectedOption] = useState("client"); // Default selected option is "client"
 
-
+const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  setSelectedOption(event.target.value);
+  setSelectedGroup(""); // Reset selected group when option changes
+  setSelectedPlan(""); // Reset selected plan when option changes
+};
 useEffect(() => {
   const fetchPlansAndGroups = async () => {
     try {
@@ -244,79 +250,83 @@ useEffect(() => {
   
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); 
+    event.preventDefault();
   
-  
-  
+    // Validate email
     if (!validator.validate(email)) {
-
       setEmailIsValid(false);
+      setFormSubmitted(true);
+      return;
     } else {
       setEmailIsValid(true);
     }
   
+    // Validate telephone number
     if (!/^((\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$/.test(telephone)) {
       setTelephoneIsValid(false);
+      setFormSubmitted(true);
+      return;
     } else {
       setTelephoneIsValid(true);
     }
-      // Check if all fields are valid
-      if (nom && email && telephone && prenom && selectedGroupe && selectedPlan) {
-      
-        console.log('succesfully created');
-        setFormValid(true); 
-      } 
+  
+    // Check if either a group or a plan is selected
+    if (!(selectedGroup || selectedPlan)) {
+      // Display an error message or handle it as needed
       setFormSubmitted(true);
-  
-    try {
-      if (selectedSubscriberId !== null) {
-        // Update existing plan
-        const response = await axios.put(`http://localhost:5000/api/subscribers/${selectedSubscriberId}`, {
-          nom,
-          prenom,
-          email: email.trim() === '' ? null : email,
-          telephone,
-          groupe: selectedGroupe,
-          plan: selectedPlan
-      
-        });
-        
-        // Update local state with modified plan
-        const updatedSubscribers = subscribers.map(subscriber => {
-          if (subscriber.id === selectedSubscriberId) {
-            return response.data;
-          }
-          return subscriber;
-        });
-  
-        setSubscribers(updatedSubscribers);
-        setShowEditForm(false);
-      } else {
-        
-        
-        // Create new subscriber
-        const response = await axios.post('http://localhost:5000/api/subscribers', {
-          nom,
-          prenom,
-          email: email.trim() === '' ? null : email,
-          telephone,
-          groupe: selectedGroupe,
-          plan: selectedPlan
-       
-      
-        });
-  
-        // Update local state with newly created subscriber
-        setSubscribers([...subscribers, response.data]);
-        setShowForm(false);
-      }
-  
-      setFormValid(true);
-      setShowSuccessNotification(true);
-    } catch (error) {
-      console.error('Error creating/modifying plan:', error);
+      return;
     }
+  
+    // Check if all fields are valid
+    if (nom && prenom && email && telephone) {
+      try {
+        if (selectedSubscriberId !== null) {
+          // Update existing subscriber
+          const response = await axios.put(`http://localhost:5000/api/subscribers/${selectedSubscriberId}`, {
+            nom,
+            prenom,
+            email: email.trim() === '' ? null : email,
+            telephone,
+            groupeId: selectedGroup, // Use selected group ID
+            planId: selectedPlan // Use selected plan ID
+          });
+  
+          // Update local state with modified subscriber
+          const updatedSubscribers = subscribers.map(subscriber => {
+            if (subscriber.id === selectedSubscriberId) {
+              return response.data;
+            }
+            return subscriber;
+          });
+  
+          setSubscribers(updatedSubscribers);
+          setShowEditForm(false);
+        } else {
+          // Create new subscriber
+          const response = await axios.post('http://localhost:5000/api/subscribers', {
+            nom,
+            prenom,
+            email: email.trim() === '' ? null : email,
+            telephone,
+            groupeId: selectedGroup, // Use selected group ID
+            planId: selectedPlan // Use selected plan ID
+          });
+  
+          // Update local state with newly created subscriber
+          setSubscribers([...subscribers, response.data]);
+          setShowForm(false);
+        }
+  
+        setFormValid(true);
+        setShowSuccessNotification(true);
+      } catch (error) {
+        console.error('Error creating/modifying subscriber:', error);
+      }
+    }
+  
+    setFormSubmitted(true);
   };
+  
   const SuccessNotification = () => {
     useEffect(() => {
       const timer = setTimeout(() => {
@@ -463,43 +473,75 @@ useEffect(() => {
       formSubmitted={formSubmitted}
       emailExists={emailExists}
     />
-          
-          <div className="flex flex-wrap items-center mb-4 relative">
-  <label htmlFor="groupe" className="block text-gray-700 text-sm font-bold mb-2">
-    Groupe:
-  </label>
-  <select
-    id="groupe"
-    name="groupe"
-    value={selectedGroupe}
-    onChange={(e) => setSelectedGroupe(e.target.value)}
-    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
-  >
-    <option value="">Sélectionner un groupe</option>
-    {groupes.map((groupe) => (
-      <option key={groupe.id} value={groupe.name}>{groupe.name}</option>
-    ))}
-  </select>
+         
+       
+         <div>
+  <input
+    type="radio"
+    value="groupe"
+    checked={selectedOption === "groupe"}
+    onChange={handleOptionChange}
+  />
+  <label htmlFor="groupe">Groupe</label>
 </div>
-           
-          
-<div className="flex flex-wrap items-center mb-4 relative">
-  <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
-    Plan:
-  </label>
-  <select
-    id="plan"
-    name="plan"
-    value={selectedPlan}
-    onChange={(e) => setSelectedPlan(e.target.value)}
-    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
-  >
-    <option value="">Sélectionner un plan</option>
-    {plans.map((plan) => (
-      <option key={plan.id} value={plan.name}>{plan.name}</option>
-    ))}
-  </select>
+<div>
+  <input
+    type="radio"
+    value="plan"
+    checked={selectedOption === "plan"}
+    onChange={handleOptionChange}
+  />
+  <label htmlFor="plan">Plan</label>
 </div>
+
+{selectedOption === "groupe" && (
+  <div className="flex flex-wrap items-center mb-4 relative">
+    <label htmlFor="groupe" className="block text-gray-700 text-sm font-bold mb-2">
+      Groupe:
+    </label>
+    <select
+      id="groupe"
+      name="groupe"
+      value={selectedGroup}
+      onChange={(e) => {
+        setSelectedGroup(e.target.value);
+        setSelectedPlan(""); // Reset selected plan when selecting a group
+      }}
+      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+    >
+      <option value="">Sélectionner un groupe</option>
+      {/* Render your group options here */}
+      {groupes.map((groupe) => (
+        <option key={groupe.id} value={groupe.id}>{groupe.name}</option>
+      ))}
+    </select>
+  </div>
+)}
+
+{selectedOption === "plan" && (
+  <div className="flex flex-wrap items-center mb-4 relative">
+    <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
+      Plan:
+    </label>
+    <select
+      id="plan"
+      name="plan"
+      value={selectedPlan}
+      onChange={(e) => {
+        setSelectedPlan(e.target.value);
+        setSelectedGroup(""); // Reset selected group when selecting a plan
+      }}
+      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+    >
+      <option value="">Sélectionner un plan</option>
+      {/* Render your plan options here */}
+      {plans.map((plan) => (
+        <option key={plan.id} value={plan.id}>{plan.name}</option>
+      ))}
+    </select>
+  </div>
+)}
+
 
 
 
@@ -613,40 +655,73 @@ useEffect(() => {
       formSubmitted={formSubmitted}
       emailExists={emailExists}
     />
-<div className="flex flex-wrap items-center mb-4 relative">
-  <label htmlFor="groupe" className="block text-gray-700 text-sm font-bold mb-2">
-    Groupe:
-  </label>
-  <select
-    id="groupe"
-    name="groupe"
-    value={selectedGroupe}
-    onChange={(e) => setSelectedGroupe(e.target.value)}
-    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
-  >
-    <option value="">Sélectionner un groupe</option>
-    {groupes.map((groupe) => (
-      <option key={groupe.id} value={groupe.name}>{groupe.name}</option>
-    ))}
-  </select>
+<div>
+  <input
+    type="radio"
+    value="groupe"
+    checked={selectedOption === "groupe"}
+    onChange={handleOptionChange}
+  />
+  <label htmlFor="groupe">Groupe</label>
 </div>
-<div className="flex flex-wrap items-center mb-4 relative">
-  <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
-    Plan:
-  </label>
-  <select
-    id="plan"
-    name="plan"
-    value={selectedPlan}
-    onChange={(e) => setSelectedPlan(e.target.value)}
-    className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
-  >
-    <option value="">Sélectionner un plan</option>
-    {plans.map((plan) => (
-      <option key={plan.id} value={plan.name}>{plan.name}</option>
-    ))}
-  </select>
+<div>
+  <input
+    type="radio"
+    value="plan"
+    checked={selectedOption === "plan"}
+    onChange={handleOptionChange}
+  />
+  <label htmlFor="plan">Plan</label>
 </div>
+
+{selectedOption === "groupe" && (
+  <div className="flex flex-wrap items-center mb-4 relative">
+    <label htmlFor="groupe" className="block text-gray-700 text-sm font-bold mb-2">
+      Groupe:
+    </label>
+    <select
+      id="groupe"
+      name="groupe"
+      value={selectedGroup}
+      onChange={(e) => {
+        setSelectedGroup(e.target.value);
+        setSelectedPlan(""); // Reset selected plan when selecting a group
+      }}
+      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+    >
+      <option value="">Sélectionner un groupe</option>
+      {/* Render your group options here */}
+      {groupes.map((groupe) => (
+        <option key={groupe.id} value={groupe.id}>{groupe.name}</option>
+      ))}
+    </select>
+  </div>
+)}
+
+{selectedOption === "plan" && (
+  <div className="flex flex-wrap items-center mb-4 relative">
+    <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
+      Plan:
+    </label>
+    <select
+      id="plan"
+      name="plan"
+      value={selectedPlan}
+      onChange={(e) => {
+        setSelectedPlan(e.target.value);
+        setSelectedGroup(""); // Reset selected group when selecting a plan
+      }}
+      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+    >
+      <option value="">Sélectionner un plan</option>
+      {/* Render your plan options here */}
+      {plans.map((plan) => (
+        <option key={plan.id} value={plan.id}>{plan.name}</option>
+      ))}
+    </select>
+  </div>
+)}
+
 
           
 
