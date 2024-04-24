@@ -1,5 +1,5 @@
 //Admin/dashboard
-import DoughnutChart from "../../components/DoughnutChart";
+import DoughnutChart from "../../../components/DoughnutChart";
 
 import  React  from "react";
 import Layout from "../adminLayout";

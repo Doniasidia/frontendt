@@ -2,9 +2,8 @@
 "use client";
 import React from "react";
 import Layout from "../clientLayout";
-import BarChart from "../../components/BarChart"; // Import BarChart component
-import MultiAxisLineChart from "../../components/MultiAxisLineChart";
-
+import BarChart from "../../../components/BarChart";
+import MultiAxisLineChart from "../../../components/MultiAxisLineChart";
 const Dashboard = () => {
     const chartData = {
         labels: ["January", "February", "March", "April", "May", "June", "July"],

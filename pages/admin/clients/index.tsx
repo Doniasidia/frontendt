@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Layout from "../adminLayout";
 import axios from "axios";
 import { HiEye, HiEyeOff, HiMail } from "react-icons/hi";
-import PaginationBar from "../../components/PaginationBar";
+import PaginationBar from "../../../components/PaginationBar";
 import validator from 'email-validator';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 
@@ -420,6 +420,7 @@ setSuccessNotificationActionType(selectedClientId !== null ? "modifié" : "ajout
       isEmptyemail={email.trim() === ''}
       formSubmitted={formSubmitted}
       emailExists={emailExists}
+      
     />
    
    <div className="flex flex-wrap items-center mb-4 relative">

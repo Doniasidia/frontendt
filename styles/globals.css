@@ -1,7 +1,8 @@
-/* Globals.css */
+ /* Globals.css */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import 'tailwindcss/utilities'; 
+
 .logo-color {
     color: rgb(2, 87, 158); /* Same RGB color */
 }

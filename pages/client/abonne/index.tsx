@@ -5,10 +5,28 @@ import Image from 'next/image'
 import Layout from "../clientLayout";
 import axios from "axios";
 import { HiMail } from "react-icons/hi";
-import PaginationBar from "../../components/PaginationBar";
+import PaginationBar from "../../../components/PaginationBar";
 import validator from 'email-validator';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import MyCalendar from "../../../components/calendar"
 
+const eventsData = [
+  {
+    id: 1,
+    title: 'Event 1',
+    start: '2024-04-19T10:00:00',
+    end: '2024-04-19T12:00:00',
+    description: 'Description of event 1'
+  },
+  {
+    id: 2,
+    title: 'Event 2',
+    start: '2024-04-20T14:00:00',
+    end: '2024-04-20T16:00:00',
+    description: 'Description of event 2'
+  },
+  // Add more events as needed
+];
 
 const TdStyle = {
   ThStyle : 'border-l border-transparent py-2 px-3 text-base font-medium lg:py-4 lg:px-4 bg-custom-blue' ,
@@ -63,7 +81,7 @@ interface Subscriber {
   nom: string;
   prenom:string;
   FirstName:string;
-  groupeId: number;
+  groupId: number;
   planId: number;
 
 }
@@ -96,29 +114,43 @@ const [telephoneExists, setTelephoneExists] = useState(false);
 const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 const [telephoneError, setTelephoneError] = useState<string>('');
 const [plans, setPlans] = useState<{ id: number; name: string }[]>([]);
-const [groupes, setGroupes] = useState<{ id: number; name: string }[]>([]);
+const [groups, setGroups] = useState<{ id: number; name: string }[]>([]);
 
 
 const [selectedPlan, setSelectedPlan] = useState<string>('');
 
 const [selectedGroup, setSelectedGroup] = useState<string>('');
 const [selectedOption, setSelectedOption] = useState("client"); // Default selected option is "client"
+const [showCalendar, setShowCalendar] = useState(false); // Step 1: Track plan selection state
+const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
 
-const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  setSelectedOption(event.target.value);
-  setSelectedGroup(""); // Reset selected group when option changes
-  setSelectedPlan(""); // Reset selected plan when option changes
+const handlePlanSelect = (planId: number) => {
+  setSelectedPlan(planId.toString()); 
+  setSelectedPlanId(planId);
+  setShowCalendar(true); // Set showCalendar to true when a plan is selected
 };
+const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const selectedValue = event.target.value;
+  setSelectedOption(selectedValue);
+
+  // Update selectedGroup and selectedPlan based on the selected option
+  if (selectedValue === "group") {
+    setSelectedGroup(""); // Clear selected group
+  } else if (selectedValue === "plan") {
+    setSelectedPlan(""); // Clear selected plan
+  }
+};
+
 useEffect(() => {
   const fetchPlansAndGroups = async () => {
     try {
       const plansResponse = await axios.get('http://localhost:5000/api/plans');
       setPlans(plansResponse.data);
 
-      const groupesResponse = await axios.get('http://localhost:5000/api/groupes');
-      setGroupes(groupesResponse.data);
+      const groupsResponse = await axios.get('http://localhost:5000/api/groups');
+      setGroups(groupsResponse.data);
     } catch (error) {
-      console.error('Error fetching plans and groupes:', error);
+      console.error('Error fetching plans and groups:', error);
     }
   };
 
@@ -179,6 +211,9 @@ useEffect(() => {
           const updatedSubscribers = [...subscribers];
           updatedSubscribers[updatedSubscriberIndex] = response.data;
           setSubscribers(updatedSubscribers);
+          const { groupId, planId } = response.data;
+          setSelectedPlan(planId.toString()); // Update selectedPlan with the chosen plan ID
+          setSelectedGroup(groupId.toString()); 
         }
       }
       
@@ -251,7 +286,14 @@ useEffect(() => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+    console.log('Data sent to backend:', {
+      nom,
+      prenom,
+      email,
+      telephone,
+      groupId: selectedGroup,
+      planId: selectedPlan
+    });
     // Validate email
     if (!validator.validate(email)) {
       setEmailIsValid(false);
@@ -261,21 +303,14 @@ useEffect(() => {
       setEmailIsValid(true);
     }
   
-    // Validate telephone number
-    if (!/^((\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$/.test(telephone)) {
-      setTelephoneIsValid(false);
-      setFormSubmitted(true);
-      return;
-    } else {
-      setTelephoneIsValid(true);
-    }
+   
   
-    // Check if either a group or a plan is selected
-    if (!(selectedGroup || selectedPlan)) {
+    if (!selectedGroup && !selectedPlan) {
       // Display an error message or handle it as needed
       setFormSubmitted(true);
       return;
     }
+    
   
     // Check if all fields are valid
     if (nom && prenom && email && telephone) {
@@ -287,7 +322,7 @@ useEffect(() => {
             prenom,
             email: email.trim() === '' ? null : email,
             telephone,
-            groupeId: selectedGroup, // Use selected group ID
+            groupId: selectedGroup, // Use selected group ID
             planId: selectedPlan // Use selected plan ID
           });
   
@@ -308,8 +343,8 @@ useEffect(() => {
             prenom,
             email: email.trim() === '' ? null : email,
             telephone,
-            groupeId: selectedGroup, // Use selected group ID
-            planId: selectedPlan // Use selected plan ID
+            groupId: selectedGroup !== '' ? selectedGroup : undefined, // Include only if not empty
+    planId: selectedPlan !== '' ? selectedPlan : undefined 
           });
   
           // Update local state with newly created subscriber
@@ -387,7 +422,7 @@ useEffect(() => {
                 <td className={TdStyle.TdStyle}>{subscriber.FirstName}</td>
                 <td className={TdStyle.TdStyle}>{subscriber.telephone}</td>
                 <td className={TdStyle.TdStyle}>{subscriber.email}</td>
-                <td className={TdStyle.TdStyle}>{groupes.find(groupe => groupe.id === subscriber.groupeId)?.name}</td>
+                <td className={TdStyle.TdStyle}>{groups.find(group => group.id === subscriber.groupId)?.name}</td>
                <td className={TdStyle.TdStyle}>{plans.find(plan => plan.id === subscriber.planId)?.name}</td>
                 
                 <td className={TdStyle.TdStyle}>  </td>
@@ -478,30 +513,30 @@ useEffect(() => {
          <div>
   <input
     type="radio"
-    value="groupe"
-    checked={selectedOption === "groupe"}
+    value="group"
+    checked={selectedOption === "group"} // Check if the option is selected
     onChange={handleOptionChange}
   />
-  <label htmlFor="groupe">Groupe</label>
+  <label htmlFor="group">Groupe</label>
 </div>
 <div>
   <input
     type="radio"
     value="plan"
-    checked={selectedOption === "plan"}
+    checked={selectedOption === "plan"} // Check if the option is selected
     onChange={handleOptionChange}
   />
   <label htmlFor="plan">Plan</label>
 </div>
 
-{selectedOption === "groupe" && (
+{selectedOption === "group" && (
   <div className="flex flex-wrap items-center mb-4 relative">
-    <label htmlFor="groupe" className="block text-gray-700 text-sm font-bold mb-2">
+    <label htmlFor="group" className="block text-gray-700 text-sm font-bold mb-2">
       Groupe:
     </label>
     <select
-      id="groupe"
-      name="groupe"
+      id="group"
+      name="group"
       value={selectedGroup}
       onChange={(e) => {
         setSelectedGroup(e.target.value);
@@ -511,8 +546,8 @@ useEffect(() => {
     >
       <option value="">Sélectionner un groupe</option>
       {/* Render your group options here */}
-      {groupes.map((groupe) => (
-        <option key={groupe.id} value={groupe.id}>{groupe.name}</option>
+      {groups.map((group) => (
+        <option key={group.id} value={group.id}>{group.name}</option>
       ))}
     </select>
   </div>
@@ -530,6 +565,7 @@ useEffect(() => {
       onChange={(e) => {
         setSelectedPlan(e.target.value);
         setSelectedGroup(""); // Reset selected group when selecting a plan
+        handlePlanSelect(Number(e.target.value));
       }}
       className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
     >
@@ -541,6 +577,8 @@ useEffect(() => {
     </select>
   </div>
 )}
+
+
 
 
 
@@ -658,11 +696,11 @@ useEffect(() => {
 <div>
   <input
     type="radio"
-    value="groupe"
-    checked={selectedOption === "groupe"}
+    value="group"
+    checked={selectedOption === "group"}
     onChange={handleOptionChange}
   />
-  <label htmlFor="groupe">Groupe</label>
+  <label htmlFor="group">Groupe</label>
 </div>
 <div>
   <input
@@ -674,14 +712,14 @@ useEffect(() => {
   <label htmlFor="plan">Plan</label>
 </div>
 
-{selectedOption === "groupe" && (
+{selectedOption === "group" && (
   <div className="flex flex-wrap items-center mb-4 relative">
-    <label htmlFor="groupe" className="block text-gray-700 text-sm font-bold mb-2">
+    <label htmlFor="group" className="block text-gray-700 text-sm font-bold mb-2">
       Groupe:
     </label>
     <select
-      id="groupe"
-      name="groupe"
+      id="group"
+      name="group"
       value={selectedGroup}
       onChange={(e) => {
         setSelectedGroup(e.target.value);
@@ -691,8 +729,8 @@ useEffect(() => {
     >
       <option value="">Sélectionner un groupe</option>
       {/* Render your group options here */}
-      {groupes.map((groupe) => (
-        <option key={groupe.id} value={groupe.id}>{groupe.name}</option>
+      {groups.map((group) => (
+        <option key={group.id} value={group.id}>{group.name}</option>
       ))}
     </select>
   </div>
@@ -710,6 +748,7 @@ useEffect(() => {
       onChange={(e) => {
         setSelectedPlan(e.target.value);
         setSelectedGroup(""); // Reset selected group when selecting a plan
+        handlePlanSelect(Number(e.target.value));
       }}
       className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
     >
@@ -719,6 +758,11 @@ useEffect(() => {
         <option key={plan.id} value={plan.id}>{plan.name}</option>
       ))}
     </select>
+  </div>
+)}
+{showCalendar && selectedPlanId && (
+  <div className="mb-8">
+    <MyCalendar selectedPlanId={selectedPlanId} />
   </div>
 )}
 
@@ -760,4 +804,4 @@ useEffect(() => {
   );
 }
 
-export default Subscribers;
+export default Subscribers;

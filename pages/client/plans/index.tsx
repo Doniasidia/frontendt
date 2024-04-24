@@ -4,7 +4,7 @@ import React, { useState, ChangeEvent, useEffect } from "react";
 import Image from 'next/image'
 import Layout from "../clientLayout";
 import axios from "axios";
-import PaginationBar from "../../components/PaginationBar";
+import PaginationBar from "../../../components/PaginationBar";
 
 
 
