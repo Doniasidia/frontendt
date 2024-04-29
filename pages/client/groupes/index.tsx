@@ -420,7 +420,7 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
       </div>
 
       {showForm && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '30%', height: '100%',overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '30%', height: '98%',overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
         <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
           <div className="flex justify-end mt-2.5 mr-4 absolute top-0 right-0">
             <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowForm(false)} className="cursor-pointer" />
@@ -465,11 +465,7 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
   ))}
 </select>
 </div>
-{showCalendar && selectedPlanId && (
-  <div className="mb-8">
-    <MyCalendar selectedPlanId={selectedPlanId} />
-  </div>
-)}   
+
 
           
          
@@ -487,8 +483,25 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
             </button>
           </div>
         </form>
+       
       </div>
+      
     )}
+     {showCalendar && selectedPlanId && ( 
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6  rounded-xl shadow-lg w-[720px]" style={{ overflow: 'auto', maxHeight: '500px' }} > {/* Set the width of the popup */}
+                      <MyCalendar selectedPlanId={selectedPlanId} />
+            <div className="flex justify-center mt-4">
+              <button
+                className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
+                onClick={() => setShowCalendar(false)} 
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     {showSuccessNotification && <SuccessNotification actionType={successNotificationActionType} />}
 
 <div className="fixed bottom-6 right-8 mb-0.5 mr-4 mt-40 flex flex-column items-center">

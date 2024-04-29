@@ -41,13 +41,17 @@ const MyCalendar = (props) => {
         events={props.myEventsList}
         startAccessor="start"
         endAccessor="end"
-        style={{ height: 500, width: 325 }}
+        style={{ height: 350, width: 675 }}
         selectable
         onSelectSlot={handleSelectSlot}
         view="week"
-        step={15} // Set the time interval to 15 minutes
+        step={15} 
         // Key aspect: Pass a persistent value (e.g., an empty object) to selected
         selected={selectedRange || {}}
+        toolbar={false}
+        formats={{
+          dayFormat: (date, culture, localizer) => localizer.format(date, 'dddd', culture), // Display only the day name
+        }}
       />
       <div>
         <h2>Selected Slots:</h2>

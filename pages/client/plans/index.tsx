@@ -30,6 +30,7 @@ interface Plan {
   enligne: string;
   startDate : string;
   endDate : string
+  
 }
 
 
@@ -48,7 +49,7 @@ const Plans = () => {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [payes, setPayes] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7;
+  const itemsPerPage = 3;
   const [searchQuery, setSearchQuery] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
   const isEmptyname = !name ;
@@ -59,23 +60,24 @@ const Plans = () => {
   const isEmptyradio = !enligne ;
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  
-
   const isValidamount = !isNaN(parseFloat(amount));
   const isValidnbrseance = !isNaN(parseFloat(nbrseance));
   const [showPopup, setShowPopup] = useState(false); // State variable to track whether to show the pop-up form
 const [selectedRowData, setSelectedRowData] = useState<Plan | null>(null);
-const [showDateSelect, setShowDateSelect] = useState(false); // State to manage visibility of date select
-const [selectedDate, setSelectedDate] = useState("");
+
 const [isPersonalized, setIsPersonalized] = useState(false);
 const [hours, setHours] = useState('');
 const [minutes, setMinutes] = useState('');
-const [seconds, setSeconds] = useState('');
+const [isValidDate, setIsValidDate] = useState(true);
 const isEmptyhours = !hours;
 const isEmptyminutes = !minutes;
-const isEmptyseconds = !seconds;
+
 const isEmptyStartDate = !startDate;
 const isEmptyEndDate = !endDate;
+const [plansToDisplay, setPlansToDisplay] = useState<Plan[]>([]);
+const [filteredPlans, setFilteredPlans] = useState<Plan[]>([]);
+
+
 
 
 
@@ -106,16 +108,17 @@ const isEmptyEndDate = !endDate;
         setName(plan.name);
         setType(plan.type);
         setAmount(plan.amount.toString());
+      
         setNbrseance(plan.nbrseance.toString());
         setEnligne(plan.enligne.toString());
-        const [hrs, mins, secs] = plan.duration.split(':');
+        const [hrs, mins] = plan.duration.split(':');
         setHours(hrs);
         setMinutes(mins);
-        setSeconds(secs);
+      
+
       }
     }
   }, [selectedPlanId, plans]);
-  
 
   
   const handleClick = async (planId: number, action: string) => {
@@ -154,11 +157,32 @@ const isEmptyEndDate = !endDate;
   const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
-  const filteredPlans = plans.filter((plan) =>
-  plan.name.toLowerCase().includes(searchQuery.toLowerCase())
-);
+  useEffect(() => {
+    const filtered = plans.filter((plan) => {
+      return (
+       ( plan.name?.toLowerCase().includes(searchQuery.toLowerCase())) 
+   
+      );
+    });
+    
+    setFilteredPlans(filtered);
+    setCurrentPage(1);
+  }, [searchQuery, plans]);
+  useEffect(() => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const plansToDisplay = filteredPlans.slice(indexOfFirstItem, indexOfLastItem);
+    setPlansToDisplay(plansToDisplay);
+  }, [currentPage, filteredPlans]);
   const handlePageChange = (page: number) => {
   setCurrentPage(page);
+};
+const handleHoursChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  setHours(event.target.value);
+};
+
+const handleMinutesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  setMinutes(event.target.value);
 };
 const handlePersonnaliseClick = (rowData: Plan) => {
   setSelectedRowData(rowData);
@@ -180,7 +204,7 @@ const handlePersonnaliseClick = (rowData: Plan) => {
     setEnligne('');
    setHours('');
    setMinutes('');
-   setSeconds('');
+  
     setFormSubmitted(false);
     // Reset form validation states as well if needed
     setFormValid(true);
@@ -196,11 +220,22 @@ setEndDate('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); 
-    const durationString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    setDuration(durationString);
-  
+    // Concatenate hours, minutes, and seconds into a single string representing the duration
+    const durationString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+ 
+
+
+  // Now, you can set the duration state with the concatenated string
+  setDuration(durationString);
+  if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
+    // If start date is after end date, set formValid to false
+    setFormValid(false);
+   
+    return; // Exit the function early to prevent further execution
+  }
+
     if (name && type && amount && duration && nbrseance ) {
-     
+      
       console.log('succesfully created');
       setFormValid(true); 
     } 
@@ -212,15 +247,15 @@ setEndDate('');
           name,
           type,
           amount: parseInt(amount),
-          duration,
+          duration: durationString,
           nbrseance: parseInt(nbrseance),
           enligne,
-          startDate: startDate || null, 
+          startDate: startDate || null, // If startDate is empty, send null instead
   endDate: endDate || null,
           
         });
         
-     
+        // Update local state with modified plan
         const updatedPlans = plans.map(plan => {
           if (plan.id === selectedPlanId) {
             return response.data;
@@ -236,10 +271,10 @@ setEndDate('');
         const response = await axios.post('http://localhost:5000/api/plans', {
           name,
           type,
-          startDate: startDate || null, 
+          startDate: startDate || null, // If startDate is empty, send null instead
           endDate: endDate || null,
           amount: parseInt(amount),
-          duration,
+          duration: durationString,
           nbrseance: parseInt(nbrseance),
           enligne
          
@@ -336,8 +371,8 @@ setEndDate('');
 </button>
                 
 {showEditForm && selectedPlan && (
-       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
-   <div className="h-full overflow-auto pr-4"> 
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+   
        
        <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
          <div className="flex justify-end mt-2.5 mr-4 absolute top-0 right-0">
@@ -376,7 +411,7 @@ setEndDate('');
                className={`shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptytype ? 'border-red-500' : ''}`}
              >
                 <option value=""></option>
-                <option value="jour">Par jour</option>
+                <option value="jour">Par session</option>
                 <option value="mensuel">Mensuel</option>
                <option value="annuel">Annuel</option>
                <option value="personnalisé">Personnalisé</option>
@@ -440,7 +475,7 @@ setEndDate('');
          </div>
          <div className="flex flex-wrap items-center mb-4 relative">
   <label htmlFor="duree" className="block text-gray-700 text-sm font-bold mb-2">
-    Durée (hh:mm:ss):
+    Durée (hh:mm):
   </label>
   <div className="flex">
     <input
@@ -449,7 +484,7 @@ setEndDate('');
       name="hours"
       min="0"
       value={hours}
-      onChange={(e) => setHours(e.target.value)}
+      onChange={handleHoursChange}
       className={`shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyhours ? 'border-red-500' : ''}`}
       placeholder="Heures"
     />
@@ -461,25 +496,14 @@ setEndDate('');
       min="0"
       max="59"
       value={minutes}
-      onChange={(e) => setMinutes(e.target.value)}
+      onChange={handleMinutesChange}
       className={`shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyminutes ? 'border-red-500' : ''}`}
       placeholder="Minutes"
     />
-    <span className="mx-2">:</span>
-    <input
-      type="number"
-      id="seconds"
-      name="seconds"
-      min="0"
-      max="59"
-      value={seconds}
-      onChange={(e) => setSeconds(e.target.value)}
-      className={`shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyseconds ? 'border-red-500' : ''}`}
-      placeholder="Secondes"
-    />
   </div>
 </div>
-{formSubmitted && isEmptyhours && isEmptyminutes && isEmptyseconds &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
+
+{formSubmitted && isEmptyhours && isEmptyminutes &&   <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
 
          <div className="flex flex-wrap items-center mb-4 relative">
            <label htmlFor="nbrseance" className="block text-gray-700 text-sm font-bold mb-2">
@@ -540,7 +564,7 @@ setEndDate('');
           
         </form>
         </div>
-      </div>
+     
     )}
                 </div>
                 </td>
@@ -568,8 +592,8 @@ setEndDate('');
       </div>
 
       {showForm && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '30%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
-        <div className="h-full overflow-auto pr-4">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+   
         <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
           <div className="flex justify-end mt-2.5 mr-4 absolute top-0 right-0">
             <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowForm(false)} className="cursor-pointer" />
@@ -607,7 +631,7 @@ setEndDate('');
                 className={`shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptytype ? 'border-red-500' : ''}`}
               >
                <option value=""></option>
-                <option value="jour">Par jour</option>
+                <option value="jour">Par session</option>
                 <option value="mensuel">Mensuel</option>
                <option value="annuel">Annuel</option>
                <option value="personnalisé">Personnalisé</option>
@@ -634,6 +658,7 @@ setEndDate('');
   onChange={(e) => setStartDate(e.target.value)}
         className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500`}
       />
+     
        {formSubmitted && isEmptyStartDate &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
     </div>
     <div className="mb-2">
@@ -659,14 +684,20 @@ setEndDate('');
               Prix :
             </label>
             <input
-              type="amount"
-              id="amount"
-              name="amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyamount ? 'border-red-500' : ''}`}
-              placeholder="Entrer le prix"
-            />
+  type="amount"
+  id="amount"
+  name="amount"
+  value={amount}
+  onChange={(e) => {
+    const rawValue = e.target.value; // Get the raw input value
+    const numericValue = rawValue.replace(/\D/g, ''); // Remove non-numeric characters
+    const formattedValue = Number(numericValue).toLocaleString('en-US'); // Format the numeric value
+    setAmount(formattedValue); // Update the state with the formatted value
+  }}
+  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyamount ? 'border-red-500' : ''}`}
+  placeholder="Enter the price"
+/>
+
                          {formSubmitted &&!isValidamount && amount.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un prix valide.</p>}
 
 {formSubmitted && isEmptyamount &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
@@ -674,7 +705,7 @@ setEndDate('');
           </div>
           <div className="mb-2">
   <label htmlFor="duree" className="block text-gray-700 text-sm font-bold mb-2">
-    Durée (hh:mm:ss):
+    Durée (hh:mm):
   </label>
   <div className="flex">
     <input
@@ -683,7 +714,7 @@ setEndDate('');
       name="hours"
       min="0"
       value={hours}
-      onChange={(e) => setHours(e.target.value)}
+      onChange={handleHoursChange}
       className={`shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyhours ? 'border-red-500' : ''}`}
       placeholder="Heures"
     />
@@ -695,25 +726,17 @@ setEndDate('');
       min="0"
       max="59"
       value={minutes}
-      onChange={(e) => setMinutes(e.target.value)}
+      onChange={handleMinutesChange}
       className={`shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyminutes ? 'border-red-500' : ''}`}
       placeholder="Minutes"
     />
-    <span className="mx-2">:</span>
-    <input
-      type="number"
-      id="seconds"
-      name="seconds"
-      min="0"
-      max="59"
-      value={seconds}
-      onChange={(e) => setSeconds(e.target.value)}
-      className={`shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyseconds ? 'border-red-500' : ''}`}
-      placeholder="Secondes"
-    />
   </div>
 </div>
-{formSubmitted && isEmptyhours && isEmptyminutes && isEmptyseconds &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
+
+{formSubmitted && isEmptyhours && isEmptyminutes &&   <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
+{formSubmitted && !isValidDate && (
+  <p className="text-red-500 text-xs italic">cette date est invalide</p>
+)}
 
           <div className="mb-2">
             <label htmlFor="nbrseance" className="block text-gray-700 text-sm font-bold mb-2">
@@ -775,7 +798,7 @@ setEndDate('');
           </div>
           
         </form>
-      </div></div>
+      </div>
     )}
 <div className="fixed bottom-6 right-8 mb-0.5 mr-4 mt-40 flex flex-column items-center">
 <button onClick={toggleForm} className="flex items-center button-color font-bold text-white rounded-xl px-4 py-2 mb-2">

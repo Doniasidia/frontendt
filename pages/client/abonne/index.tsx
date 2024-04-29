@@ -1,6 +1,6 @@
 //client/abonné
 "use client";
-import React, { useState, ChangeEvent, useEffect } from "react";
+import React, { useState, ChangeEvent, useEffect, use } from "react";
 import Image from 'next/image'
 import Layout from "../clientLayout";
 import axios from "axios";
@@ -9,6 +9,7 @@ import PaginationBar from "../../../components/PaginationBar";
 import validator from 'email-validator';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import MyCalendar from "../../../components/calendar"
+
 
 const eventsData = [
   {
@@ -80,7 +81,7 @@ interface Subscriber {
   status: string;
   nom: string;
   prenom:string;
-  FirstName:string;
+  firstname:string;
   groupId: number;
   planId: number;
 
@@ -88,8 +89,8 @@ interface Subscriber {
 
 const Subscribers = () => {
   const [showForm, setShowForm] = useState(false);
-  const [nom, setNom] = useState('');
-  const [prenom, setprenom] = useState('');
+  const [username, setUsername] = useState('');
+  const [firstname, setfirstname] = useState('');
   const [telephone, setTelephone] = useState('');
   const [email, setEmail] = useState('');
 
@@ -101,8 +102,8 @@ const Subscribers = () => {
   const [selectedSubscriberId, setSelectedSubscriberId] = useState<number | null>(null);
   const [selectedSubscriber, setSelectedSubscriber] = useState<Subscriber | null>(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const isEmptynom = !nom ;
-  const isEmptyprenom= !prenom ;
+  const isEmptyusername = !username ;
+  const isEmptyfirstname= !firstname ;
   const isEmptytelephone=!telephone ;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -115,7 +116,7 @@ const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 const [telephoneError, setTelephoneError] = useState<string>('');
 const [plans, setPlans] = useState<{ id: number; name: string }[]>([]);
 const [groups, setGroups] = useState<{ id: number; name: string }[]>([]);
-
+const [subscribersToDisplay, setSubscribersToDisplay] = useState<Subscriber[]>([]);
 
 const [selectedPlan, setSelectedPlan] = useState<string>('');
 
@@ -123,6 +124,7 @@ const [selectedGroup, setSelectedGroup] = useState<string>('');
 const [selectedOption, setSelectedOption] = useState("client"); // Default selected option is "client"
 const [showCalendar, setShowCalendar] = useState(false); // Step 1: Track plan selection state
 const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+const [showSuccessNotificationContent, setShowSuccessNotificationContent] = useState<string>('');
 
 const handlePlanSelect = (planId: number) => {
   setSelectedPlan(planId.toString()); 
@@ -182,8 +184,8 @@ useEffect(() => {
       const subscriber = subscribers.find((subscriber) => subscriber.id === selectedSubscriberId);
       if (subscriber) {
         setSelectedSubscriber(subscriber);
-        setNom(subscriber.username);
-        setprenom(subscriber.FirstName);
+        setUsername(subscriber.username);
+        setfirstname(subscriber.firstname);
         setTelephone(subscriber.telephone);
         setEmail(subscriber.email);
       
@@ -230,21 +232,30 @@ useEffect(() => {
     const filtered = subscribers.filter((subscriber) => {
       return (
         subscriber.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        subscriber.FirstName.toLowerCase().includes(searchQuery.toLowerCase())
+        subscriber.firstname.toLowerCase().includes(searchQuery.toLowerCase())
       );
     });
-  
+    
     setFilteredSubscribers(filtered);
+    setCurrentPage(1);
   }, [searchQuery, subscribers]);
+  useEffect(() => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const subscribersToDisplay = filteredSubscribers.slice(indexOfFirstItem, indexOfLastItem);
+    setSubscribersToDisplay(subscribersToDisplay);
+  }, [currentPage, filteredSubscribers]);
   
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const enteredEmail = event.target.value;
-    const emailAlreadyExists = subscribers.some(subscriber => subscriber.email === enteredEmail);
-    setEmailExists(emailAlreadyExists);
-    setEmail(event.target.value);
+    const enteredEmail = event.target.value.toLowerCase(); // Convert entered email to lowercase
+    const emailIsValid = validator.validate(enteredEmail); // Check if the entered email is valid
+    setEmailExists(subscribers.some(subscriber => subscriber.email.toLowerCase() === enteredEmail)); // Check if the entered email already exists
+    setEmailIsValid(emailIsValid); // Update the email validity state
+    setEmail(event.target.value); // Update the email state
+
   };
   
   useEffect(() => {
@@ -271,8 +282,8 @@ useEffect(() => {
   const toggleForm = () => {
     setShowForm(!showForm);
     // Reset form fields to empty values when toggling the form
-    setNom('');
-    setprenom('');
+    setUsername('');
+    setfirstname('');
     setTelephone('');
     setEmail('');
    
@@ -286,9 +297,11 @@ useEffect(() => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const isEdit = selectedSubscriberId !== null;
+
     console.log('Data sent to backend:', {
-      nom,
-      prenom,
+      username,
+      firstname,
       email,
       telephone,
       groupId: selectedGroup,
@@ -313,17 +326,17 @@ useEffect(() => {
     
   
     // Check if all fields are valid
-    if (nom && prenom && email && telephone) {
+    if (username && firstname && email && telephone) {
       try {
         if (selectedSubscriberId !== null) {
           // Update existing subscriber
-          const response = await axios.put(`http://localhost:5000/api/subscribers/${selectedSubscriberId}`, {
-            nom,
-            prenom,
+          const response = await axios.patch(`http://localhost:5000/api/subscribers/${selectedSubscriberId}`, {
+            username,
+            firstname,
             email: email.trim() === '' ? null : email,
             telephone,
-            groupId: selectedGroup, // Use selected group ID
-            planId: selectedPlan // Use selected plan ID
+            groupId: selectedGroup, 
+            planId: selectedPlan 
           });
   
           // Update local state with modified subscriber
@@ -339,8 +352,8 @@ useEffect(() => {
         } else {
           // Create new subscriber
           const response = await axios.post('http://localhost:5000/api/subscribers', {
-            nom,
-            prenom,
+            username,
+            firstname,
             email: email.trim() === '' ? null : email,
             telephone,
             groupId: selectedGroup !== '' ? selectedGroup : undefined, // Include only if not empty
@@ -354,7 +367,7 @@ useEffect(() => {
   
         setFormValid(true);
         setShowSuccessNotification(true);
-      } catch (error) {
+        setShowSuccessNotificationContent(isEdit ? 'Abonné modifié avec succès' : 'Abonné ajouté avec succès');      } catch (error) {
         console.error('Error creating/modifying subscriber:', error);
       }
     }
@@ -372,11 +385,12 @@ useEffect(() => {
   
     return (
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
-       Abonné ajouté avec succès
+        {showSuccessNotificationContent}
       </div>
     );
   };
-
+  
+  
   return (
     <Layout activePage="Abonnés"> 
    <div className="flex justify-center pt-14 mx-2 w-full">
@@ -419,7 +433,7 @@ useEffect(() => {
               <tr className={subscriber.status === 'activated' ? '' : 'deleted-row'} key={subscriber.id}>
 
                 <td className={TdStyle.TdStyle}>{subscriber.username}</td>
-                <td className={TdStyle.TdStyle}>{subscriber.FirstName}</td>
+                <td className={TdStyle.TdStyle}>{subscriber.firstname}</td>
                 <td className={TdStyle.TdStyle}>{subscriber.telephone}</td>
                 <td className={TdStyle.TdStyle}>{subscriber.email}</td>
                 <td className={TdStyle.TdStyle}>{groups.find(group => group.id === subscriber.groupId)?.name}</td>
@@ -433,167 +447,166 @@ useEffect(() => {
 </button>
                 
 {showEditForm && selectedSubscriber && (
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
-        
-        <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
-          
-        
-            <div className="flex justify-end mt-4 mr-4 absolute top-0 right-0">
-              <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowEditForm(false)} className="cursor-pointer" />
-            </div>
+       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+       <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
+         <div className="flex justify-end mt-4 mr-4 absolute top-0 right-0">
+           <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowEditForm(false)} className="cursor-pointer" />
+         </div>
 
-            <h2 className="text-lg font-bold mb-4" style={{ color: 'rgb(27, 158, 246)' }}>Modifier abonné :</h2>
+         <h2 className="text-lg font-bold mb-4 text-center" style={{ color: 'rgb(27, 158, 246)' }}>Modifier abonné :</h2>
 
 
-            <div className="flex flex-wrap items-center mb-4 relative">
-              <label htmlFor="nom" className="block text-gray-700 text-sm font-bold mb-2">
-                Nom *  :
-              </label>
-              <input 
-                type="text"
-                id="nom"
-                name="nom"
-                value={nom}
-                onChange={(e) => setNom(e.target.value)}
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptynom ? 'border-red-500' : ''}`}
-                placeholder="Entrer votre nom "
-              />
-               
-            </div>
-            {formSubmitted && isEmptyprenom &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
-            <div className="flex flex-wrap items-center mb-4 relative">
-              <label htmlFor="prenom" className="block text-gray-700 text-sm font-bold mb-2">
-                Prénom *:
-              </label>
-              <input 
-                type="text"
-                id="prenom"
-                name="prenom"
-                value={prenom}
-                onChange={(e) => setprenom(e.target.value)}
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyprenom ? 'border-red-500' : ''}`}
-                placeholder="Entrer votre prénom "
-              />
-               {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
-            </div>
-           
-            <div className="flex flex-wrap items-center mb-4 relative">
-  <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
-    Téléphone :
-  </label>
-  <div className="relative flex items-center" >
-    
-    {/* PhoneInput component */}
-    <PhoneInput
-      placeholder="Entrez votre numéro de téléphone"
-      value={telephone}
-      onChange={handleTelephoneChange}
-      error={telephoneError}
-      
-      style={{ width: '20%', paddingLeft: '0.75rem' }} // Adjust width and padding as needed
-    />
-  </div>
-  {/* Display error message if telephoneError is not empty */}
-  {telephoneError && formSubmitted && <p className="text-red-500 text-xs italic">{telephoneError}</p>}
-  {/* Display error message if telephone field is empty */}
-  {formSubmitted && isEmptytelephone && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
+         <div className="mb-4">
+           <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">
+             Nom *:
+           </label>
+           <input 
+             type="text"
+             id="username"
+             name="username"
+             value={username}
+             onChange={(e) => setUsername(e.target.value)}
+             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
+             placeholder="Entrer votre nom"
+
+           />
+           {formSubmitted && isEmptyusername && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+         </div>
+         <div className="flex flex-wrap items-center mb-4 relative">
+           <label htmlFor="prenom" className="block text-gray-700 text-sm font-bold mb-2">
+             Prénom * :
+           </label>
+           <input 
+             type="text"
+             id="firstname"
+             name="firstname"
+             value={firstname}
+             onChange={(e) => setfirstname(e.target.value)}
+             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyfirstname ? 'border-red-500' : ''}`}
+             placeholder="Entrer votre prénom "
+           />
+            {formSubmitted && isEmptyfirstname && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+         </div>
+         <div className="flex flex-wrap items-center mb-4 relative">
+<label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
+ Téléphone :
+</label>
+<div className="relative flex items-center" >
+ 
+ {/* PhoneInput component */}
+ <PhoneInput
+   placeholder="Entrez votre numéro de téléphone"
+   value={telephone}
+   onChange={handleTelephoneChange}
+   error={telephoneError}
+   
+   style={{ width: '20%', paddingLeft: '0.75rem' }} // Adjust width and padding as needed
+ />
+</div>
+{/* Display error message if telephoneError is not empty */}
+{telephoneError && formSubmitted && <p className="text-red-500 text-xs italic">{telephoneError}</p>}
+{/* Display error message if telephone field is empty */}
+{formSubmitted && isEmptytelephone && <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
 </div>
 
 
+        
 <EmailInput
-      value={email}
-      onChange={handleEmailChange}
-      isValid={emailIsValid}
-     
-      formSubmitted={formSubmitted}
-      emailExists={emailExists}
-    />
-         
-       
-         <div>
-  <input
-    type="radio"
-    value="group"
-    checked={selectedOption === "group"} // Check if the option is selected
-    onChange={handleOptionChange}
-  />
-  <label htmlFor="group">Groupe</label>
+   value={email}
+   onChange={handleEmailChange}
+   isValid={emailIsValid}
+   
+   formSubmitted={formSubmitted}
+   emailExists={emailExists}
+ />
+<div>
+<input
+ type="radio"
+ value="group"
+ checked={selectedOption === "group"}
+ onChange={handleOptionChange}
+/>
+<label htmlFor="group">Groupe</label>
 </div>
 <div>
-  <input
-    type="radio"
-    value="plan"
-    checked={selectedOption === "plan"} // Check if the option is selected
-    onChange={handleOptionChange}
-  />
-  <label htmlFor="plan">Plan</label>
+<input
+ type="radio"
+ value="plan"
+ checked={selectedOption === "plan"}
+ onChange={handleOptionChange}
+/>
+<label htmlFor="plan">Plan</label>
 </div>
 
 {selectedOption === "group" && (
-  <div className="flex flex-wrap items-center mb-4 relative">
-    <label htmlFor="group" className="block text-gray-700 text-sm font-bold mb-2">
-      Groupe:
-    </label>
-    <select
-      id="group"
-      name="group"
-      value={selectedGroup}
-      onChange={(e) => {
-        setSelectedGroup(e.target.value);
-        setSelectedPlan(""); // Reset selected plan when selecting a group
-      }}
-      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
-    >
-      <option value="">Sélectionner un groupe</option>
-      {/* Render your group options here */}
-      {groups.map((group) => (
-        <option key={group.id} value={group.id}>{group.name}</option>
-      ))}
-    </select>
-  </div>
+<div className="flex flex-wrap items-center mb-4 relative">
+ <label htmlFor="group" className="block text-gray-700 text-sm font-bold mb-2">
+   Groupe:
+ </label>
+ <select
+   id="group"
+   name="group"
+   value={selectedGroup}
+   onChange={(e) => {
+     setSelectedGroup(e.target.value);
+     setSelectedPlan(""); // Reset selected plan when selecting a group
+   }}
+   className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+ >
+   <option value="">Sélectionner un groupe</option>
+   {/* Render your group options here */}
+   {groups.map((group) => (
+     <option key={group.id} value={group.id}>{group.name}</option>
+   ))}
+ </select>
+</div>
 )}
 
 {selectedOption === "plan" && (
-  <div className="flex flex-wrap items-center mb-4 relative">
-    <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
-      Plan:
-    </label>
-    <select
-      id="plan"
-      name="plan"
-      value={selectedPlan}
-      onChange={(e) => {
-        setSelectedPlan(e.target.value);
-        setSelectedGroup(""); // Reset selected group when selecting a plan
-        handlePlanSelect(Number(e.target.value));
-      }}
-      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
-    >
-      <option value="">Sélectionner un plan</option>
-      {/* Render your plan options here */}
-      {plans.map((plan) => (
-        <option key={plan.id} value={plan.id}>{plan.name}</option>
-      ))}
-    </select>
-  </div>
+<div className="flex flex-wrap items-center mb-4 relative">
+ <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
+   Plan:
+ </label>
+ <select
+   id="plan"
+   name="plan"
+   value={selectedPlan}
+   onChange={(e) => {
+     setSelectedPlan(e.target.value);
+     setSelectedGroup(""); // Reset selected group when selecting a plan
+     handlePlanSelect(Number(e.target.value));
+   }}
+   className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+ >
+   <option value="">Sélectionner un plan</option>
+   {/* Render your plan options here */}
+   {plans.map((plan) => (
+     <option key={plan.id} value={plan.id}>{plan.name}</option>
+   ))}
+ </select>
+</div>
+)}
+{showCalendar && selectedPlanId && (
+<div className="mb-8">
+ <MyCalendar selectedPlanId={selectedPlanId} />
+</div>
 )}
 
 
+       
 
-
-
-
-            <div className="flex justify-end">
-              <button
-                className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
-                type="submit"
-              >
-                Modifier
-              </button>
-            </div>
-          
-        </form>
-      </div>
+         
+  
+         <div className="flex justify-end">
+           <button
+             className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
+             type="submit"
+           >
+             Modifier
+           </button>
+         </div>
+       </form>
+     </div>
     )}
                 </div>
                 </td>
@@ -621,7 +634,7 @@ useEffect(() => {
       </div>
 
       {showForm && (
-       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '30%', height: '100%', overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
           <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
             <div className="flex justify-end mt-4 mr-4 absolute top-0 right-0">
               <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowForm(false)} className="cursor-pointer" />
@@ -636,15 +649,15 @@ useEffect(() => {
               </label>
               <input 
                 type="text"
-                id="nom"
-                name="nom"
-                value={nom}
-                onChange={(e) => setNom(e.target.value)}
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptynom ? 'border-red-500' : ''}`}
+                id="username"
+                name="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyusername ? 'border-red-500' : ''}`}
                 placeholder="Entrer votre nom"
 
               />
-              {formSubmitted && isEmptynom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+              {formSubmitted && isEmptyusername && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
             <div className="flex flex-wrap items-center mb-4 relative">
               <label htmlFor="prenom" className="block text-gray-700 text-sm font-bold mb-2">
@@ -652,14 +665,14 @@ useEffect(() => {
               </label>
               <input 
                 type="text"
-                id="prenom"
-                name="prenom"
-                value={prenom}
-                onChange={(e) => setprenom(e.target.value)}
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyprenom ? 'border-red-500' : ''}`}
+                id="firstname"
+                name="firstname"
+                value={firstname}
+                onChange={(e) => setfirstname(e.target.value)}
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyfirstname ? 'border-red-500' : ''}`}
                 placeholder="Entrer votre prénom "
               />
-               {formSubmitted && isEmptyprenom && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+               {formSubmitted && isEmptyfirstname && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
             </div>
             <div className="flex flex-wrap items-center mb-4 relative">
   <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">
@@ -760,11 +773,7 @@ useEffect(() => {
     </select>
   </div>
 )}
-{showCalendar && selectedPlanId && (
-  <div className="mb-8">
-    <MyCalendar selectedPlanId={selectedPlanId} />
-  </div>
-)}
+
 
 
           
@@ -780,6 +789,21 @@ useEffect(() => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+      {showCalendar && selectedPlanId && ( 
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6  rounded-xl shadow-lg w-[720px]" style={{ overflow: 'auto', maxHeight: '500px' }} > {/* Set the width of the popup */}
+                      <MyCalendar selectedPlanId={selectedPlanId} />
+            <div className="flex justify-center mt-4">
+              <button
+                className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
+                onClick={() => setShowCalendar(false)} 
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
