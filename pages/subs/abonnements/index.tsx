@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, ChangeEvent, useEffect } from "react";
 import Image from 'next/image'
-import Layout from "../clientLayout";
+import Layout from "../subsLayout";
 import axios from "axios";
 import PaginationBar from "../../../components/PaginationBar";
 
