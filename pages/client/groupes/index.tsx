@@ -6,6 +6,8 @@ import Layout from "../clientLayout";
 import axios from "axios";
 import PaginationBar from "../../../components/PaginationBar";
 import MyCalendar from "../../../components/calendar"
+import { GROUPS_API, PLANS_API } from "../../../utils/apiUtil";
+import Cookies from "js-cookie";
 
 
 const TdStyle = {
@@ -35,17 +37,10 @@ interface Group {
 const Groups = () => {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
-  const [plan, setPlan] = useState('');
- 
- 
- 
-
   const [formValid, setFormValid] = useState(true);
   const [groups, setGroups] = useState<Group []>([]);
-  const [showEditForm, setShowEditForm] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const [selectedGroup , setSelectedGroup ] = useState<Group  | null>(null);
-  const [payes, setPayes] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,7 +53,7 @@ const Groups = () => {
   const [plans, setPlans] = useState<{ id: number; name: string }[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string>('');
   const [successNotificationActionType, setSuccessNotificationActionType] = useState<string>('');
-  const [showCalendar, setShowCalendar] = useState(false); // Step 1: Track plan selection state
+  const [showCalendar, setShowCalendar] = useState(false); 
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   
 
@@ -68,16 +63,32 @@ const Groups = () => {
     setSelectedPlanId(planId);
     setShowCalendar(true); // Set showCalendar to true when a plan is selected
   };
-
+  useEffect(() => {
+    if (selectedGroupId !== null) {
+      const group = groups.find((group) => group.id === selectedGroupId);
+      if (group) {
+        setSelectedGroup(group);
+        setName(group.name);
+        setSelectedPlan(String(group.planId));
+      }
+    }
+  }, [selectedGroupId, groups]);
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const plansResponse = await axios.get('http://localhost:5000/api/plans');
+        const cookie = Cookies.get("session") || "{}";
+        const session: Session = await JSON.parse(cookie);
+        const headers = {
+          Authorization: `Bearer ${session.access_token}`,
+        };
+        
+        // Fetch plans data
+        const plansResponse = await axios.get(PLANS_API, { headers });
         setPlans(plansResponse.data);
   
     
       } catch (error) {
-        console.error('Error fetching plans and groups:', error);
+        console.error('Error fetching plans', error);
       }
     };
   
@@ -89,13 +100,19 @@ const Groups = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/groups');
+        const cookie = Cookies.get("session") || "{}";
+        const session: Session = await JSON.parse(cookie);
+        const headers = {
+          Authorization: `Bearer ${session.access_token}`,
+        };
+        const response = await axios.get(GROUPS_API, { headers });
         setGroups(response.data);
       } catch (error) {
-        console.error('Error fetching groups:', error);
+        console.error("Error fetching groups:", error);
       }
     };
-  
+
+    // Fetch  from the API when the component mounts
     fetchGroups();
   }, []);
 
@@ -105,7 +122,7 @@ const Groups = () => {
       if (group) {
         setSelectedGroup(group);
         setName(group.name);
-       
+        setSelectedPlan(String(group.planId));
       
      
       
@@ -115,38 +132,6 @@ const Groups = () => {
     }
   }, [selectedGroupId, groups]);
 
-  
-  const handleClick = async (groupId: number, action: string) => {
-    try {
-      if (action === 'edit') {
-        const group = groups.find((group) => group.id === groupId);
-        if (group && group.status === 'activated') {
-          setSelectedGroupId(groupId);
-          setSelectedGroup(group);
-          setShowEditForm(true);
-        }
-      } else if (action === 'toggle') {
-        const updatedGroupIndex = groups.findIndex((group) =>group.id === groupId);
-        if (updatedGroupIndex !== -1) {
-          const updatedGroup = groups[updatedGroupIndex];
-          const newStatus = updatedGroup.status === 'activated' ? 'deactivated' : 'activated';
-          const response = await axios.patch(`http://localhost:5000/api/groups/${groupId}/status`, { status: newStatus });
-          const updatedGroups = [...groups];
-          updatedGroups[updatedGroupIndex] = response.data;
-          setGroups(updatedGroups);
-        }
-      }
-      else if (action === 'delete') {
-        // Supprimer l'entrée de la base de données
-        await axios.delete(`http://localhost:5000/api/groups/${groupId}`);
-        
-        // Mettre à jour l'état local pour supprimer l'élément de la liste des groups
-        setGroups(prevGroups => prevGroups.filter(group => group.id !== groupId));
-      }
-    } catch (error) {
-      console.error('Error handling action:', error);
-    }
-  };
   
   useEffect(() => {
     const filtered = groups.filter((group) => {
@@ -172,17 +157,12 @@ const Groups = () => {
   const handlePageChange = (page: number) => {
   setCurrentPage(page);
 };
-
- 
-
-
-  
   
   const toggleForm = () => {
     setShowForm(!showForm);
     // Reset form fields to empty values when toggling the form
     setName('');
-   
+   setSelectedPlan('');
   
    
   
@@ -202,8 +182,8 @@ const Groups = () => {
     // Convert the entered name to lowercase
     const lowercaseName = name.toLowerCase();
     // Check if any existing name matches the lowercase version of the entered name
-    const nameExistsInGroups = groups.some(group => group.name.toLowerCase() === lowercaseName);
-    setNameExists(nameExistsInGroups);
+    const nameExistsInGroups = groups.some(group => group.name.toLowerCase() === lowercaseName && group.id !== selectedGroupId);
+  setNameExists(nameExistsInGroups);
    
     if (name     && !nameExistsInGroups && selectedPlan ) {
       
@@ -217,14 +197,21 @@ const Groups = () => {
     try {
       if (selectedGroupId !== null) {
         // Update existing group
-        const response = await axios.patch(`http://localhost:5000/api/groups/${selectedGroupId}`, {
-          name,
+        const cookie = Cookies.get("session") || "{}";
+        const session: Session = await JSON.parse(cookie);
+        const headers = {
+          Authorization: `Bearer ${session.access_token}`,
+        };
+        const response = await axios.patch(
+          `${GROUPS_API}/${selectedGroupId}`,
+          {
+            name,
          
           planId: selectedPlan
-         
+          },
+          { headers }
+        );
       
-    
-        });
         
         // Update local state with modified group
         const updatedGroups = groups.map(group => {
@@ -235,18 +222,24 @@ const Groups = () => {
         });
   
         setGroups(updatedGroups);
-        setShowEditForm(false);
+      
+
       } else {
-        // Create new group
-        const response = await axios.post('http://localhost:5000/api/groups', {
-          name,
-          planId: selectedPlan
-   
-       
-          
-         
-        });
-  
+        const cookie = Cookies.get("session") || "{}";
+        const session: Session = await JSON.parse(cookie);
+        const headers = {
+          Authorization: `Bearer ${session.access_token}`,
+        };
+
+        const response = await axios.post(
+          GROUPS_API,
+          {
+            name,
+            planId: selectedPlan
+          },
+          { headers }
+        );
+        
         // Update local state with newly created group
         setGroups([...groups, response.data]);
         setShowForm(false);
@@ -261,7 +254,9 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifié" : "ajout�
   };
 
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPlan(event.target.value); 
+    const selectedPlanId = Number(event.target.value); // Convert string to number
+    setSelectedPlanId(selectedPlanId); // Update selectedPlanId state
+    setSelectedPlan(String(selectedPlanId)); // Update selectedPlan state
   };
   const SuccessNotification = ({ actionType }: { actionType: string }) => {
     useEffect(() => {
@@ -273,7 +268,7 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifié" : "ajout�
   
     return (
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
-        {actionType === "ajouté" ? "Client ajouté avec succès" : "Client modifié avec succès"}
+        {actionType === "ajouté" ? "Groupe ajouté avec succès" : "Groupe modifié avec succès"}
       </div>
     );
   };
@@ -307,8 +302,6 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifié" : "ajout�
                
                
                
-                <th className={TdStyle.ThStyle}> </th>
-                <th className={TdStyle.ThStyle}> </th>
               </tr>
             </thead>
             <tbody>
@@ -326,88 +319,6 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifié" : "ajout�
 
               
               
-                <td className={TdStyle.TdStyle}> 
-                <div className="flex items-center justify-center">
-                <button onClick={() => handleClick(group.id, 'edit')}>
-  <Image src='/file-pen.svg' alt='edit' width={20} height={20} />
-</button>
-                
-{showEditForm && selectedGroup && (
-       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2  -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%',overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
-       {/* Form contents */}
-       <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
-         <div className="flex justify-end mt-2.5 mr-4 absolute top-0 right-0">
-           <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowEditForm(false)} className="cursor-pointer" />
-         </div>
-
-         <h2 className="text-lg font-bold mb-4" style={{ color: 'rgb(27, 158, 246)' }}> Ajouter groupe:</h2>
-
-         <div className="flex flex-wrap items-center mb-4 relative">
-           <label htmlFor="nom" className="block text-gray-700 text-sm font-bold mb-2">
-             Nom:
-           </label>
-           <input 
-             type="text"
-             id="name"
-             name="name"
-             value={name}
-             onChange={(e) => setName(e.target.value)}
-             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyname ? 'border-red-500' : ''}`}
-             placeholder="Entrer le nom"
-           />
-            {formSubmitted && isEmptyname &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
-            {formSubmitted && nameExists && <p className="text-red-500 text-xs italic">Ce nom existe déjà.</p>}
-         </div>
-         <div className="flex flex-wrap items-center mb-4 relative">
-  <label htmlFor="plan" className="block text-gray-700 text-sm font-bold mb-2">
-    Plan:
-  </label>
-  <select
-  id="plan"
-  name="plan"
-  value={selectedPlan}
-  onChange={handleTypeChange}
-  className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
->
-  <option value="">Sélectionner un plan</option>
-  {plans.map((plan) => (
-    <option key={plan.id} value={plan.id}>{plan.name}</option>
-  ))}
-</select>
-
-
-</div>
-       
-        
-
-         
-
-         <div className="flex justify-end">
-           <button
-             className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
-             type="submit"
-           >
-             Modifier
-           </button>
-         </div>
-          
-        </form>
-      </div>
-    )}
-                </div>
-                </td>
-              
-                <td className={TdStyle.TdStyle}><div className="flex items-center justify-center">
-    {/* Toggle button */}
-    <button onClick={() => handleClick(group.id, 'toggle')} className="toggle-button">
-  <div className={`toggle-switch ${group.status === 'activated' ? 'active' : ''}`}></div>
-</button>
-
-
-
-
-
-  </div></td>
   
               </tr>
             ))}

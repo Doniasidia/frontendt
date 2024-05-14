@@ -5,6 +5,8 @@ import Image from 'next/image'
 import Layout from "../clientLayout";
 import axios from "axios";
 import PaginationBar from "../../../components/PaginationBar";
+import { GROUPS_API, PLANS_API, SUBSCRIBERS_API } from "../../../utils/apiUtil";
+import Cookies from "js-cookie";
 
 
 
@@ -68,7 +70,7 @@ const [selectedRowData, setSelectedRowData] = useState<Plan | null>(null);
 const [isPersonalized, setIsPersonalized] = useState(false);
 const [hours, setHours] = useState('');
 const [minutes, setMinutes] = useState('');
-const [isValidDate, setIsValidDate] = useState(true);
+const [isValidDate, setIsValidDate] = useState(false);
 const isEmptyhours = !hours;
 const isEmptyminutes = !minutes;
 
@@ -87,18 +89,24 @@ const [filteredPlans, setFilteredPlans] = useState<Plan[]>([]);
 
 
 
-  useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/plans');
-        setPlans(response.data);
-      } catch (error) {
-        console.error('Error fetching plans:', error);
-      }
-    };
-  
-    fetchPlans();
-  }, []);
+useEffect(() => {
+  const fetchPlans = async () => {
+    try {
+      const cookie = Cookies.get("session") || "{}";
+      const session: Session = await JSON.parse(cookie);
+      const headers = {
+        Authorization: `Bearer ${session.access_token}`,
+      };
+      const response = await axios.get(PLANS_API, { headers });
+      setPlans(response.data);
+    } catch (error) {
+      console.error("Error fetching plans:", error);
+    }
+  };
+
+  // Fetch  from the API when the component mounts
+  fetchPlans();
+}, []);
 
   useEffect(() => {
     if (selectedPlanId !== null) {
@@ -135,19 +143,21 @@ const [filteredPlans, setFilteredPlans] = useState<Plan[]>([]);
         if (updatedPlanIndex !== -1) {
           const updatedPlan = plans[updatedPlanIndex];
           const newStatus = updatedPlan.status === 'activated' ? 'deactivated' : 'activated';
-          const response = await axios.patch(`http://localhost:5000/api/plans/${planId}/status`, { status: newStatus });
+          const cookie = Cookies.get("session") || "{}";
+          const session: Session = await JSON.parse(cookie);
+          const headers = {
+            Authorization: `Bearer ${session.access_token}`,
+          };
+          const response = await axios.patch(
+            `${PLANS_API}/${planId}/status`,
+            { status: newStatus, headers }
+          );           
           const updatedPlans = [...plans];
           updatedPlans[updatedPlanIndex] = response.data;
           setPlans(updatedPlans);
         }
       }
-      else if (action === 'delete') {
-        // Supprimer l'entrée de la base de données
-        await axios.delete(`http://localhost:5000/api/plans/${planId}`);
-        
-        // Mettre à jour l'état local pour supprimer l'élément de la liste des plans
-        setPlans(prevPlans => prevPlans.filter(plan => plan.id !== planId));
-      }
+      
     } catch (error) {
       console.error('Error handling action:', error);
     }
@@ -227,11 +237,18 @@ setEndDate('');
 
   // Now, you can set the duration state with the concatenated string
   setDuration(durationString);
-  if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
-    // If start date is after end date, set formValid to false
-    setFormValid(false);
-   
-    return; // Exit the function early to prevent further execution
+  if (startDate && endDate) {
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+
+    if (startDateObj >= endDateObj) {
+      setFormValid(false); // Set form to invalid state
+      setIsValidDate(false); // Set a dedicated state for date validation error
+      return; // Exit the function if dates are invalid
+    } else {
+      setFormValid(true); // Reset form valid state if dates are valid
+      setIsValidDate(true);
+    }
   }
 
     if (name && type && amount && duration && nbrseance ) {
@@ -242,9 +259,15 @@ setEndDate('');
     setFormSubmitted(true);
     try {
       if (selectedPlanId !== null) {
-        // Update existing plan
-        const response = await axios.patch(`http://localhost:5000/api/plans/${selectedPlanId}`, {
-          name,
+        const cookie = Cookies.get("session") || "{}";
+        const session: Session = await JSON.parse(cookie);
+        const headers = {
+          Authorization: `Bearer ${session.access_token}`,
+        };
+        const response = await axios.patch(
+          `${PLANS_API}/${selectedPlanId}`,
+          {
+            name,
           type,
           amount: parseInt(amount),
           duration: durationString,
@@ -252,8 +275,10 @@ setEndDate('');
           enligne,
           startDate: startDate || null, // If startDate is empty, send null instead
   endDate: endDate || null,
-          
-        });
+          },
+          { headers }
+        );
+      
         
         // Update local state with modified plan
         const updatedPlans = plans.map(plan => {
@@ -267,18 +292,27 @@ setEndDate('');
         setShowEditForm(false);
       } else {
        
-        
-        const response = await axios.post('http://localhost:5000/api/plans', {
-          name,
-          type,
-          startDate: startDate || null, // If startDate is empty, send null instead
-          endDate: endDate || null,
-          amount: parseInt(amount),
-          duration: durationString,
-          nbrseance: parseInt(nbrseance),
-          enligne
-         
-        });
+        const cookie = Cookies.get("session") || "{}";
+        const session: Session = await JSON.parse(cookie);
+        const headers = {
+          Authorization: `Bearer ${session.access_token}`,
+        };
+
+        const response = await axios.post(
+          PLANS_API,
+          {
+            name,
+            type,
+            startDate: startDate || null, // If startDate is empty, send null instead
+            endDate: endDate || null,
+            amount: parseInt(amount),
+            duration: durationString,
+            nbrseance: parseInt(nbrseance),
+            enligne
+          },
+          { headers }
+        );
+       
   
         // Update local state with newly created plan
         setPlans([...plans, response.data]);
@@ -341,10 +375,9 @@ setEndDate('');
                 <th className={TdStyle.ThStyle}> Type </th>
                 <th className={TdStyle.ThStyle}> Prix </th>
                 <th className={TdStyle.ThStyle}> Durée de la séance </th>
-                <th className={TdStyle.ThStyle}> Nombre de séance </th>
-                <th className={TdStyle.ThStyle}> En ligne </th>
-                <th className={TdStyle.ThStyle}> </th>
-                <th className={TdStyle.ThStyle}> </th>
+                <th className={TdStyle.ThStyle}> Nombre des séances </th>
+                <th className={TdStyle.ThStyle}> Paiement en ligne </th>
+               
               </tr>
             </thead>
             <tbody>
@@ -360,226 +393,7 @@ setEndDate('');
                 <td className={TdStyle.TdStyle}>{plan.duration}</td>
                 <td className={TdStyle.TdStyle}>{plan.nbrseance}</td>
                 <td className={TdStyle.TdStyle}>{plan.enligne === 'oui' ? 'Oui' : 'Non'}</td>
-
-
               
-              
-                <td className={TdStyle.TdStyle}> 
-                <div className="flex items-center justify-center">
-                <button onClick={() => handleClick(plan.id, 'edit')}>
-  <Image src='/file-pen.svg' alt='edit' width={20} height={20} />
-</button>
-                
-{showEditForm && selectedPlan && (
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '28%', height: '100%', overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
-   
-       
-       <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
-         <div className="flex justify-end mt-2.5 mr-4 absolute top-0 right-0">
-           <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowEditForm(false)} className="cursor-pointer" />
-         </div>
-
-         <h2 className="text-lg font-bold mb-4" style={{ color: 'rgb(27, 158, 246)' }}> Ajouter plan d'abonnement :</h2>
-
-         <div className="flex flex-wrap items-center mb-4 relative">
-           <label htmlFor="nom" className="block text-gray-700 text-sm font-bold mb-2">
-             Nom:
-           </label>
-           <input 
-             type="text"
-             id="name"
-             name="name"
-             value={name}
-             onChange={(e) => setName(e.target.value)}
-             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyname ? 'border-red-500' : ''}`}
-             placeholder="Entrer le nom"
-           />
-            {formSubmitted && isEmptyname &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
-
-         </div>
-         {/* Select Box */}
-         <div className="flex flex-wrap items-center mb-4 relative">
-           <label htmlFor="type" className="block text-gray-700 text-sm font-bold mb-2">
-             Type:
-             </label> 
-           <div className="relative" style={{ width: '100%' }}>
-             <select
-               id="type"
-               name="type"
-               value={type} 
-               onChange={handleTypeChange}
-               className={`shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptytype ? 'border-red-500' : ''}`}
-             >
-                <option value=""></option>
-                <option value="jour">Par session</option>
-                <option value="mensuel">Mensuel</option>
-               <option value="annuel">Annuel</option>
-               <option value="personnalisé">Personnalisé</option>
-              
-             </select>
-            
-           </div>
-           {formSubmitted && isEmptytype &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
-         </div>
-       
-         {isPersonalized && (
-  <>
-    <div className="mb-2">
-      <label htmlFor="startDate" className="block text-gray-700 text-sm font-bold mb-2">
-        Date de début :
-      </label>
-      <input
-        type="date"
-        id="startDate"
-        name="startDate"
-        value={startDate}
-  onChange={(e) => setStartDate(e.target.value)}
-        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500`}
-      />
-       {formSubmitted && isEmptyStartDate &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
-    </div>
-    <div className="mb-2">
-      <label htmlFor="endDate" className="block text-gray-700 text-sm font-bold mb-2">
-        Date de fin :
-      </label>
-      <input
-        type="date"
-        id="endDate"
-        name="endDate"
-        value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
-        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500`}
-      />
-       {formSubmitted && isEmptyEndDate && <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
-    </div>
-  </>
-)}
-
-
-         <div className="flex flex-wrap items-center mb-4 relative">
-           <label htmlFor="amount" className="block text-gray-700 text-sm font-bold mb-2">
-             Prix :
-           </label>
-           <input
-             type="amount"
-             id="amount"
-             name="amount"
-             value={amount}
-             onChange={(e) => setAmount(e.target.value)}
-             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyamount ? 'border-red-500' : ''}`}
-             placeholder="Entrer le prix"
-           />
-          {formSubmitted &&!isValidamount && amount.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer prix valide.</p>}
-
-           {formSubmitted && isEmptyamount &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
-         </div>
-         <div className="flex flex-wrap items-center mb-4 relative">
-  <label htmlFor="duree" className="block text-gray-700 text-sm font-bold mb-2">
-    Durée (hh:mm):
-  </label>
-  <div className="flex">
-    <input
-      type="number"
-      id="hours"
-      name="hours"
-      min="0"
-      value={hours}
-      onChange={handleHoursChange}
-      className={`shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyhours ? 'border-red-500' : ''}`}
-      placeholder="Heures"
-    />
-    <span className="mx-2">:</span>
-    <input
-      type="number"
-      id="minutes"
-      name="minutes"
-      min="0"
-      max="59"
-      value={minutes}
-      onChange={handleMinutesChange}
-      className={`shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyminutes ? 'border-red-500' : ''}`}
-      placeholder="Minutes"
-    />
-  </div>
-</div>
-
-{formSubmitted && isEmptyhours && isEmptyminutes &&   <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
-
-         <div className="flex flex-wrap items-center mb-4 relative">
-           <label htmlFor="nbrseance" className="block text-gray-700 text-sm font-bold mb-2">
-             Nbr des séances par mois:
-           </label>
-           <input
-             type="nbrseance"
-             id="nbrseance"
-             name="nbrseance"
-             value={nbrseance}
-             onChange={(e) => setNbrseance(e.target.value)}
-             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptynbrseance ? 'border-red-500' : ''}`}
-             placeholder="Entrer le nombre des séances"
-           />
-           
-         </div>
-         {formSubmitted &&!isValidnbrseance && nbrseance.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un nombre valide.</p>}
-
-{formSubmitted && isEmptynbrseance &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
-         <div className="flex items-center mb-4">
-  <span className="block text-gray-700 text-sm font-bold mr-2">Paiement en ligne :</span>
-  <label className="inline-flex items-center">
-    <input
-      type="radio"
-      name="enLigne"
-      value="oui"
-      checked={enligne === 'oui'}
-      onChange={(e) => setEnligne(e.target.value)}
-      className="form-radio h-5 w-5 text-blue-600"
-    />
-    <span className="ml-2 text-gray-700">Oui</span>
-  </label>
-  <label className="inline-flex items-center ml-4">
-    <input
-      type="radio"
-      name="enLigne"
-      value="non"
-      checked={enligne === 'non'}
-      onChange={(e) => setEnligne(e.target.value)}
-      className="form-radio h-5 w-5 text-blue-600"
-    />
-    <span className="ml-2 text-gray-700">Non</span>
-  </label>
-</div>
-{formSubmitted && isEmptyradio && (
-  (enligne.trim() === '') &&
-  <p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>
-)}
-
-         <div className="flex justify-end">
-           <button
-             className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
-             type="submit"
-           >
-             Modifier
-           </button>
-         </div>
-          
-        </form>
-        </div>
-     
-    )}
-                </div>
-                </td>
-              
-                <td className={TdStyle.TdStyle}><div className="flex items-center justify-center">
-    {/* Toggle button */}
-    <button onClick={() => handleClick(plan.id, 'toggle')} className="toggle-button">
-  <div className={`toggle-switch ${plan.status === 'activated' ? 'active' : ''}`}></div>
-</button>
-
-
-
-
-
-  </div></td>
   
               </tr>
             ))}
@@ -631,7 +445,7 @@ setEndDate('');
                 className={`shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptytype ? 'border-red-500' : ''}`}
               >
                <option value=""></option>
-                <option value="jour">Par session</option>
+                <option value="Par session">Par session</option>
                 <option value="mensuel">Mensuel</option>
                <option value="annuel">Annuel</option>
                <option value="personnalisé">Personnalisé</option>
@@ -673,7 +487,9 @@ setEndDate('');
         onChange={(e) => setEndDate(e.target.value)}
         className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500`}
       />
-       {formSubmitted && isEmptyEndDate &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
+       {formSubmitted && !isValidDate && 
+  <p className="text-red-500 text-xs italic">cette date est invalide</p>}
+       {formSubmitted && isEmptyEndDate && isEmptyStartDate&&<p className="text-red-500 text-xs italic">Ce champ est obligatoire.</p>}
     </div>
   </>
 )}
@@ -695,7 +511,7 @@ setEndDate('');
     setAmount(formattedValue); // Update the state with the formatted value
   }}
   className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyamount ? 'border-red-500' : ''}`}
-  placeholder="Enter the price"
+  placeholder="Enter le prix"
 />
 
                          {formSubmitted &&!isValidamount && amount.trim() !== '' && <p className="text-red-500 text-xs italic">Veuillez entrer un prix valide.</p>}
@@ -734,9 +550,7 @@ setEndDate('');
 </div>
 
 {formSubmitted && isEmptyhours && isEmptyminutes &&   <p className="text-red-500 text-xs italic">ce champ est obligatoire </p>}
-{formSubmitted && !isValidDate && (
-  <p className="text-red-500 text-xs italic">cette date est invalide</p>
-)}
+
 
           <div className="mb-2">
             <label htmlFor="nbrseance" className="block text-gray-700 text-sm font-bold mb-2">

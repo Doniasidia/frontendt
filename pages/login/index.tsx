@@ -1,70 +1,123 @@
+//login
 "use client";
-import axios from 'axios';
-import { useState } from 'react';
-import { useRouter } from 'next/router'; // Import useRouter from next/router
-
+import axios from "axios";
+import { useState } from "react";
+import { useRouter } from "next/router"; // Import useRouter from next/router
+import Cookies from "js-cookie";
+import { LOGIN_API } from "../../utils/apiUtil";
 
 const Login = () => {
-  const [email, setEmail] = useState(''); // Corrected variable name to setEmail
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loginStatus, setLoginStatus] = useState('login');
+  const [email, setEmail] = useState(""); // Corrected variable name to setEmail
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loginStatus, setLoginStatus] = useState("login");
   const [forgotPassword, setForgotPassword] = useState(false);
-  const [recoveryInfo, setRecoveryInfo] = useState('');
+  const [recoveryInfo, setRecoveryInfo] = useState("");
   const router = useRouter(); // Initialize useRouter hook
-
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     try {
-
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
-       email : email,
+      const response = await axios.post(LOGIN_API, {
+        email: email,
         password: password,
       });
-      console.log('Login successful!', response.data);
-      const redirectTo = response.data.redirectTo;
+  
+      const { access_token, role, redirectTo, username, userId } = response.data;
+      console.log("Response Data:", response.data);
+
+      // Store user ID in cookie if available
+      if (userId !== null && userId !== undefined) {
+        Cookies.set("userId", userId);
+        console.log("User ID stored in cookie:", userId);
+      }
+  
+      Cookies.set("session", JSON.stringify({
+        access_token: access_token,
+        role: role,
+        redirectTo: redirectTo,
+        username: username,
+        userId: userId,
+      }));
+  
+      console.log("Login successful!", response.data);
       router.push(redirectTo);
     } catch (error) {
-      console.error('Login failed:', error);
-      setError('Email ou mot de passe incorrect');
-      setLoginStatus('error');
+      console.error("Login failed:", error);
+      setError("Email ou mot de passe incorrect");
+      setLoginStatus("error");
     }
   };
-
   const handleForgotPasswordClick = () => {
     setForgotPassword(true);
-    setError('');
+    setError("");
   };
 
   const handleRecoverySubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Simulate recovery logic
-    console.log('Recovery information submitted:', recoveryInfo);
+    console.log("Recovery information submitted:", recoveryInfo);
   };
 
   return (
     <div className="flex justify-center items-center h-screen">
       {/* Image Container */}
       <div className="flex-1 hidden md:block h-full">
-        {loginStatus === 'login' && !forgotPassword && <img src="/vert.svg" alt="Vertical Image" className="h-full w-full object-cover" />}
-        {loginStatus === 'error' && !forgotPassword && <img src="/error img.svg" alt="Error Image" className="h-full w-full object-cover" />}
-        {forgotPassword && <img src="/forget password.svg" alt="Forgot Password Image" className="h-full w-full object-cover" />}
+        {loginStatus === "login" && !forgotPassword && (
+          <img
+            src="/fff.jpg"
+            alt="Vertical Image"
+            className="h-full w-full object-cover"
+          />
+        )}
+        {loginStatus === "error" && !forgotPassword && (
+          <img
+            src="/mdperror.jpg"
+            alt="Error Image"
+            className="h-full w-full object-cover"
+          />
+        )}
+        {forgotPassword && (
+          <img
+            src="/mdperror.jpg"
+            alt="Forgot Password Image"
+            className="h-full w-full object-cover"
+          />
+        )}
       </div>
       {/* Login Form Container */}
       <div className="flex-1 max-w-md h-full flex flex-col justify-center items-center errorImg">
         {!forgotPassword && (
-          <form onSubmit={handleSubmit} className="px-4 pt-6 pb-8 mb-4" noValidate>
-            <h2 className={`text-center text-2xl mb-6 font-bold ${loginStatus === 'error' && 'text-red-500'}`}>
-              {loginStatus === 'login' ? 'Connexion' : loginStatus === 'error' ? 'Erreur' : 'Connexion réussie'}
+          <form
+            onSubmit={handleSubmit}
+            className="px-4 pt-6 pb-8 mb-4"
+            noValidate
+          >
+            <h2
+              className={`text-center text-2xl mb-6 font-bold ${
+                loginStatus === "error" && "text-red-500"
+              }`}
+            >
+              {loginStatus === "login"
+                ? "Connexion"
+                : loginStatus === "error"
+                ? "Erreur"
+                : "Connexion réussie"}
             </h2>
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email"> {/* Changed htmlFor to email */}
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="email"
+              >
+                {" "}
+                {/* Changed htmlFor to email */}
                 Email ou numéro de téléphone :
               </label>
               <input
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${error && 'border-red-500'}`}
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+                  error && "border-red-500"
+                }`}
                 id="email" // Changed id to email
                 type="text"
                 value={email}
@@ -74,11 +127,16 @@ const Login = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="password"
+              >
                 Mot de passe:
               </label>
               <input
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${error && 'border-red-500'}`}
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${
+                  error && "border-red-500"
+                }`}
                 id="password"
                 type="password"
                 value={password}
@@ -86,7 +144,9 @@ const Login = () => {
                 placeholder="Mot de passe"
                 required
               />
-              {loginStatus === 'error' && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
+              {loginStatus === "error" && (
+                <p className="text-red-500 text-xs italic mb-4">{error}</p>
+              )}
             </div>
             <div className="flex items-center justify-center">
               <button
@@ -96,22 +156,41 @@ const Login = () => {
                 Se connecter
               </button>
             </div>
-            {loginStatus === 'login' && (
+            {loginStatus === "login" && (
               <p className="text-center mt-4">
-                Vous n'avez pas un compte ?{' '}
+                Vous n'avez pas un compte ?{" "}
                 <a href="#" className="text-blue-500 hover:text-blue-700">
                   S'inscrire
                 </a>
               </p>
             )}
-            {loginStatus === 'error' && <p className="text-center mt-4"><a href="#" onClick={handleForgotPasswordClick} className="text-blue-500 hover:text-blue-700">Mot de passe oublié ?</a></p>}
+            {loginStatus === "error" && (
+              <p className="text-center mt-4">
+                <a
+                  href="#"
+                  onClick={handleForgotPasswordClick}
+                  className="text-blue-500 hover:text-blue-700"
+                >
+                  Mot de passe oublié ?
+                </a>
+              </p>
+            )}
           </form>
         )}
         {forgotPassword && (
-          <form onSubmit={handleRecoverySubmit} className="px-4 pb-14 mb-14" noValidate>
-            <h2 className="text-center text-2xl mb-14 font-bold">Mot de passe oublié</h2>
+          <form
+            onSubmit={handleRecoverySubmit}
+            className="px-4 pb-14 mb-14"
+            noValidate
+          >
+            <h2 className="text-center text-2xl mb-14 font-bold">
+              Mot de passe oublié
+            </h2>
             <div className="mb-10">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="recoveryInfo">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="recoveryInfo"
+              >
                 Email ou numéro de téléphone:
               </label>
               <input
