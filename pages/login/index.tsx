@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/router"; // Import useRouter from next/router
 import Cookies from "js-cookie";
 import { LOGIN_API } from "../../utils/apiUtil";
+import { FORGOT_PASSWORD_API } from "../../utils/apiUtil";
+
 
 const Login = () => {
   const [email, setEmail] = useState(""); // Corrected variable name to setEmail
@@ -58,6 +60,21 @@ const Login = () => {
     e.preventDefault();
     // Simulate recovery logic
     console.log("Recovery information submitted:", recoveryInfo);
+  };
+  const handleForgotPasswordSubmit = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    e.preventDefault();
+
+    try {
+      // Send a request to your backend to initiate password reset
+      const response = await axios.post(FORGOT_PASSWORD_API, { email });
+      console.log("Forgot Password Request Sent:", response.data);
+
+      // Provide feedback to the user (e.g., display a success message)
+      // Redirect the user to a confirmation page or display a success message
+    } catch (error) {
+      console.error("Forgot Password Request Failed:", error);
+      setError("Failed to initiate password reset. Please try again.");
+    }
   };
 
   return (
@@ -168,7 +185,7 @@ const Login = () => {
               <p className="text-center mt-4">
                 <a
                   href="#"
-                  onClick={handleForgotPasswordClick}
+                  onClick={handleForgotPasswordSubmit}
                   className="text-blue-500 hover:text-blue-700"
                 >
                   Mot de passe oublié ?

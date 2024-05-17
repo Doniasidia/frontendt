@@ -447,6 +447,7 @@ const Subscribers = () => {
 
     setFormSubmitted(true);
   };
+  
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedPlanId = Number(event.target.value); // Convert string to number
     setSelectedPlanId(selectedPlanId); // Update selectedPlanId state
@@ -458,15 +459,16 @@ const Subscribers = () => {
         setShowSuccessNotification(false);
       }, 3000);
       return () => clearTimeout(timer);
-    }, []);
+    }, [showSuccessNotification]); // Add showSuccessNotification as a dependency
 
     return (
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
-        {showSuccessNotificationContent}
-      </div>
+      showSuccessNotification && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
+          {showSuccessNotificationContent}
+        </div>
+      )
     );
   };
-
   return (
     <Layout activePage="Abonnés">
       <div className="flex justify-center pt-14 mx-2 w-full">

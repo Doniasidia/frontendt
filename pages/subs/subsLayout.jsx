@@ -1,3 +1,4 @@
+//subsLayout
 import Link from 'next/link';
 import Cookies from "js-cookie";
 import { SUBSCRIBERS_API } from "../../utils/apiUtil";
@@ -121,11 +122,14 @@ const Layout = ({ children, activePage }) => {
                             <Link href="/subs/abonner">
                                 <button className={activePage === 'abonner' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>Liste des clients</button>
                             </Link>
+                            <Link href="/subs/chat">
+                                <button className={activePage === 'chat' ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300": "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"}>chat</button>
+                            </Link>
                            
                         </div>
                     </div>
                     <div className="flex justify-center">
-                        <div className="border-t border-gray-400 p-3 w-60"></div>
+                        <div className="border-t border-gray-300 p-3 w-60"></div>
                     </div>
                     <div className="flex justify-center items-center mb-4"> {/* Centered Logout button */}
                     <div className="flex justify-center items-center mb-4">
@@ -152,72 +156,76 @@ const Layout = ({ children, activePage }) => {
             {/* User image and name */}
             <div className="ml-auto flex items-center space-x-2">
               {/* Photo selection and display */}
-              <label htmlFor="profilePhoto">
-                <div className="h-10 w-10 rounded-full bg-gray-300 cursor-pointer">
-                  {selectedPhoto && <img src={URL.createObjectURL(selectedPhoto)} alt="Selected Photo" className="h-10 w-10 rounded-full object-cover" />}
-                </div>
-              </label>
-              <input type="file" accept="image/*" id="profilePhoto" onChange={handlePhotoChange} hidden />
-              {showForm && (
-  <div className="absolute inset-0 flex items-center justify-center">
-<form className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" onSubmit={handleSubmit}>
-      <div> {/* Username input field */}
-      <label htmlFor="username" className="block text-gray-700 font-medium mb-1">Nom:</label>
+              <img
+                  src="/avatar.svg" // Path to your image in the public folder
+                  className="w-10 h-10 rounded-full mr-2"
+                />
+             {showForm && (
+   <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg">
+   <h2 className="text-2xl font-bold mb-4">Modifier vos informations</h2>
+   <form onSubmit={handleSubmit}>
+      <div className="mb-4">
+        <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur :</label>
         <input
           type="text"
-          value={username || ""}
+          id="username"
+          value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 w-full"
         />
       </div>
-      <div> {/* firstname input field */}
-      <label htmlFor="firstname" className="block text-gray-700 font-medium mb-1">Nom:</label>
+      <div className="mb-4">
+        <label htmlFor="firstname" className="block text-sm font-medium text-gray-700 mb-1">Prénom :</label>
         <input
           type="text"
-          value={firstname || ""}
+          id="firstname"
+          value={firstname}
           onChange={(e) => setFirstname(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 w-full"
         />
       </div>
-      <div> 
-      <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Email:</label>
+      <div className="mb-4">
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email :</label>
         <input
           type="email"
-          value={email || ""}
+          id="email"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 w-full"
         />
       </div>
-      <div> 
-      <label htmlFor="telephone" className="block text-gray-700 font-medium mb-1">Téléphone:</label>
+      <div className="mb-4">
+        <label htmlFor="telephone" className="block text-sm font-medium text-gray-700 mb-1">Téléphone :</label>
         <input
           type="tel"
-          value={telephone || ""}
+          id="telephone"
+          value={telephone}
           onChange={(e) => setTelephone(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 w-full"
         />
       </div>
-      <div> 
-      <label htmlFor="password" className="block text-gray-700 font-medium mb-1">Mot de passe :</label>
+      <div className="mb-4">
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Mot de passe :</label>
         <input
           type="password"
-          value={password || ""}
+          id="password"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 w-full"
         />
       </div>
       <div className="text-right">
-        {/* Move the button to the right */}
         <button
           type="submit"
-          className="bg-green-500 text-white py-2 px-4 rounded-lg transition-colors duration-300"
+          className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-300"
         >
-          Modifier
+      Modifier
         </button>
       </div>
     </form>
   </div>
 )}
+
 
               <p className="font-medium" onClick={handleUsernameClick}>
                 {username ? username : "Loading..."}

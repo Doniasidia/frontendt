@@ -57,8 +57,6 @@ const Groups = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   
 
-
-
   const handlePlanSelect = (planId: number) => {
     setSelectedPlanId(planId);
     setShowCalendar(true); // Set showCalendar to true when a plan is selected
@@ -124,10 +122,6 @@ const Groups = () => {
         setName(group.name);
         setSelectedPlan(String(group.planId));
       
-     
-      
-
-
       }
     }
   }, [selectedGroupId, groups]);
@@ -164,17 +158,12 @@ const Groups = () => {
     setName('');
    setSelectedPlan('');
   
-   
-  
-  
     setFormSubmitted(false);
     // Reset form validation states as well if needed
     setFormValid(true);
    
-   
   };
   
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); 
    
@@ -253,11 +242,7 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
     }
   };
 
-  const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedPlanId = Number(event.target.value); // Convert string to number
-    setSelectedPlanId(selectedPlanId); // Update selectedPlanId state
-    setSelectedPlan(String(selectedPlanId)); // Update selectedPlan state
-  };
+
   const SuccessNotification = ({ actionType }: { actionType: string }) => {
     useEffect(() => {
       const timer = setTimeout(() => {
@@ -298,10 +283,7 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
               <tr >
                 <th className={TdStyle.ThStyle}> Nom  </th>
                 <th className={TdStyle.ThStyle}> Plan </th>
-            
-               
-               
-               
+                <th className={TdStyle.ThStyle}> abonn√©s </th>
               </tr>
             </thead>
             <tbody>
@@ -312,14 +294,8 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
 
                 <td className={TdStyle.TdStyle}>{group.name}</td>
                 <td className={TdStyle.TdStyle}>{plans.find(plan => plan.id === group.planId)?.name}</td>
-               
-            
-             
+                <td className={TdStyle.TdStyle}>{group.name}</td>
 
-
-              
-              
-  
               </tr>
             ))}
             
@@ -376,14 +352,6 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
   ))}
 </select>
 </div>
-
-
-          
-         
-          
-        
-         
-          
 
           <div className="flex justify-end">
             <button

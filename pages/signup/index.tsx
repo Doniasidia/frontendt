@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/router"; // Import useRouter from next/router
 import Cookies from "js-cookie";
 import { LOGIN_API, SUBSCRIBERS_API } from "../../utils/apiUtil";
+import { EMAIL_VERIFI_API} from "../../utils/apiUtil";
 
 const Signup= () => {
     const [email, setEmail] = useState(""); // Corrected variable name to setEmail
@@ -33,8 +34,9 @@ const Signup= () => {
           });
           console.log("Subscriber created:", response.data);
     
-          // Redirect the user to a success page or perform other actions
+          await axios.post(EMAIL_VERIFI_API, { email });
           router.push("/signup-success");
+          console.log('email');
         } catch (error) {
           console.error("Signup failed:", error);
           setSignupError("Failed to create subscriber. Please try again.");

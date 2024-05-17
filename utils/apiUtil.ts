@@ -9,5 +9,9 @@ export const PLAN_API = `${BASE_URL}/plans/allplans`;
 export const GROUPS_API = `${BASE_URL}/groups`;
 export const SUBSCRIBERS_API = `${BASE_URL}/subscribers`;
 export const INvOICES_API = `${BASE_URL}/invoices`;
+export const EMAIL_VERIFY_API = `${BASE_URL}/auth/email/verify`;
+export const FORGOT_PASSWORD_API = `${BASE_URL}/auth/forgot-password`;
+export const EMAIL_SIGNUP_API = `${BASE_URL}/auth/email/verification`;
+export const EMAIL_VERIFI_API = `${BASE_URL}/auth/email/verifi`;
 
 

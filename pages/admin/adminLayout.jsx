@@ -61,10 +61,21 @@ const Layout = ({ children, activePage }) => {
                   parametres
                 </button>
               </Link>
+              <Link href="/admin/chat">
+                <button
+                  className={
+                    activePage === "chat"
+                      ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300"
+                      : "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"
+                  }
+                >
+                  chat
+                </button>
+              </Link>
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="border-t border-gray-400 p-3 w-60"></div>
+            <div className="border-t border-gray-300 p-3 w-60"></div>
           </div>
           <div className="flex justify-center items-center mb-4">
             {/* Centered Logout button */}

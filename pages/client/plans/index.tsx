@@ -129,40 +129,7 @@ useEffect(() => {
   }, [selectedPlanId, plans]);
 
   
-  const handleClick = async (planId: number, action: string) => {
-    try {
-      if (action === 'edit') {
-        const plan = plans.find((plan) => plan.id === planId);
-        if (plan && plan.status === 'activated') {
-          setSelectedPlanId(planId);
-          setSelectedPlan(plan);
-          setShowEditForm(true);
-        }
-      } else if (action === 'toggle') {
-        const updatedPlanIndex = plans.findIndex((plan) => plan.id === planId);
-        if (updatedPlanIndex !== -1) {
-          const updatedPlan = plans[updatedPlanIndex];
-          const newStatus = updatedPlan.status === 'activated' ? 'deactivated' : 'activated';
-          const cookie = Cookies.get("session") || "{}";
-          const session: Session = await JSON.parse(cookie);
-          const headers = {
-            Authorization: `Bearer ${session.access_token}`,
-          };
-          const response = await axios.patch(
-            `${PLANS_API}/${planId}/status`,
-            { status: newStatus, headers }
-          );           
-          const updatedPlans = [...plans];
-          updatedPlans[updatedPlanIndex] = response.data;
-          setPlans(updatedPlans);
-        }
-      }
-      
-    } catch (error) {
-      console.error('Error handling action:', error);
-    }
-  };
-  
+ 
   
   const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);

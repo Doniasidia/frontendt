@@ -22,7 +22,6 @@ const Paiements = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]); 
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-  
 
 
 
@@ -80,6 +79,7 @@ const Paiements = () => {
                   <th className={TdStyle.ThStyle}>Date d'échéance de la facture</th>
                   <th className={TdStyle.ThStyle}>Status de paiement</th>
                   <th className={TdStyle.ThStyle}>Méthode de paiement</th>
+                  <th className={TdStyle.ThStyle}>date de paiement</th>
                   <th className={TdStyle.ThStyle}></th>
                   <th className={TdStyle.ThStyle}></th>
                 </tr>
@@ -91,6 +91,7 @@ const Paiements = () => {
                     <td className={TdStyle.TdStyle}>{invoice.amount}</td>
                     <td className={TdStyle.TdStyle}>{invoice.createdAt}</td>
                     <td className={TdStyle.TdStyle}>{invoice.dueDate}</td>
+                    <td className={TdStyle.TdStyle}></td>
                     <td className={TdStyle.TdStyle}></td>
                     <td className={TdStyle.TdStyle}></td>
                     <td className={TdStyle.TdStyle}>

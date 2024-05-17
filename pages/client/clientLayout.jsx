@@ -1,3 +1,4 @@
+//clientlayout
 "use client";
 import Link from "next/link";
 import Cookies from "js-cookie";
@@ -183,10 +184,21 @@ const Layout = ({ children, activePage }) => {
                   Paramètres
                 </button>
               </Link>
+              <Link href="/client/chat">
+                <button
+                  className={
+                    activePage === "chat"
+                      ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300"
+                      : "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"
+                  }
+                >
+                  chat
+                </button>
+              </Link>
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="border-t border-gray-400 p-3 w-60"></div>
+            <div className="border-t border-gray-300 p-3 w-60"></div>
           </div>
           <div className="flex justify-center items-center mb-4">
             {/* Centered Logout button */}
@@ -198,7 +210,7 @@ const Layout = ({ children, activePage }) => {
     // Redirect to the login page
     window.location.href = "/login";
   }}
-  className="hover:bg-sky-500 hover:text-white py-2 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400"
+  className="hover:bg-sky-500 hover:text-white py-4 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400"
 >
   Déconnecter
 </button>
@@ -213,16 +225,15 @@ const Layout = ({ children, activePage }) => {
             {/* User image and name */}
             <div className="ml-auto flex items-center space-x-2">
               {/* Photo selection and display */}
-              <label htmlFor="profilePhoto">
-                <div className="h-10 w-10 rounded-full bg-gray-300 cursor-pointer">
-                  {selectedPhoto && <img src={URL.createObjectURL(selectedPhoto)} alt="Selected Photo" className="h-10 w-10 rounded-full object-cover" />}
-                </div>
-              </label>
-              <input type="file" accept="image/*" id="profilePhoto" onChange={handlePhotoChange} hidden />
+              <img
+                  src="/avatar.svg" // Path to your image in the public folder
+                  className="w-10 h-10 rounded-full mr-2"
+                />
               {showForm && (
-  <div className="absolute inset-0 flex items-center justify-center">
-<form className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" onSubmit={handleSubmit}>
-      <div> {/* Username input field */}
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg">
+   <h2 className="text-2xl font-bold mb-4">Modifier vos informations</h2>
+<form onSubmit={handleSubmit}>
+<div className="mb-4">
       <label htmlFor="username" className="block text-gray-700 font-medium mb-1">Nom:</label>
         <input
           type="text"
@@ -231,7 +242,7 @@ const Layout = ({ children, activePage }) => {
           className="border border-gray-300 rounded px-3 py-2 w-full"
         />
       </div>
-      <div> 
+      <div className="mb-4"> 
       <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Email:</label>
         <input
           type="email"
@@ -239,9 +250,8 @@ const Layout = ({ children, activePage }) => {
           onChange={(e) => setEmail(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 w-full"
         />
-        
       </div>
-      <div> 
+      <div className="mb-4">
       <label htmlFor="telephone" className="block text-gray-700 font-medium mb-1">Téléphone:</label>
         <input
           type="tel"
@@ -250,7 +260,7 @@ const Layout = ({ children, activePage }) => {
           className="border border-gray-300 rounded px-3 py-2 w-full"
         />
       </div>
-      <div> 
+      <div className="mb-4">
       <label htmlFor="password" className="block text-gray-700 font-medium mb-1">Mot de passe :</label>
         <input
           type="password"
@@ -259,7 +269,7 @@ const Layout = ({ children, activePage }) => {
           className="border border-gray-300 rounded px-3 py-2 w-full"
         />
       </div>
-      <div>
+      <div className="mb-4">
       
       <label htmlFor="addressLine" className="block text-gray-700 font-medium mb-1"> Lien:</label>
 <input
@@ -273,7 +283,7 @@ const Layout = ({ children, activePage }) => {
         {/* Move the button to the right */}
         <button
           type="submit"
-          className="bg-green-500 text-white py-2 px-4 rounded-lg transition-colors duration-300"
+          className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-300"
         >
           Modifier
         </button>
