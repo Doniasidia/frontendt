@@ -2,13 +2,13 @@ import React from 'react';
 
 const Publicite = () => {
   return (
-    <div className="overflow-hidden bg-gradient-to-r from-blue-500 to-indigo-500 py-24 px-8 lg:px-16">
+    <div className="overflow-hidden bg-gradient-to-r  from-cyan-600 to-sky-600  lg:px-16">
       <div className="max-w-7xl mx-auto flex flex-col items-center justify-center h-screen relative">
         {/* Background Image */}
         <img
-          src="" 
+          src="/publicite.jpg" 
           alt=""
-          className="absolute inset-0 w-full h-full object-cover blur-sm opacity-20 z-0"
+          className="absolute inset-0 w-full h-full object-cover blur-sm opacity-50 z-0"
         />
 
         <div className="relative z-10 text-center space-y-8">
@@ -16,7 +16,7 @@ const Publicite = () => {
             Gérez <span className="text-indigo-200">vos</span> abonnements <br />
             en toute simplicité
           </h1>
-          <p className="text-xl text-white lg:text-2xl text-center px-16">
+          <p className="text-xl text-white lg:text-2xl text-center px-16 ">
             Oubliez la gestion fastidieuse des abonnements. Notre plateforme élégante et intuitive vous aide à simplifier votre vie et celle de vos abonnés.
           </p>
           <div className="flex flex-col items-center space-y-4">
@@ -26,7 +26,7 @@ const Publicite = () => {
               </p>
               <a
                 href="tel:1234567890"
-                className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+                className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-gradient-to-r from-cyan-900 to-sky-700  text-white font-bold shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
               >
                 Contactez l'administrateur
                 <svg
@@ -45,7 +45,7 @@ const Publicite = () => {
               </p>
               <a
                 href="/signup"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-to-r from-cyan-900 to-sky-700  text-white font-bold shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
               >
                 Créer un compte
                 <svg
@@ -66,7 +66,7 @@ const Publicite = () => {
           <div className="flex flex-col items-center mt-8">
             <a
               href="#"
-              className="inline-flex items-center justify-center px-5 py-8 bg-white text-indigo-600 font-bold text-lg rounded-full shadow-lg hover:bg-indigo-700 hover:text-white transition duration-300 ease-in-out transform hover:scale-105"
+              className="inline-flex items-center justify-center px-5 py-4 bg-white text-cyan-700 font-bold text-lg rounded-full shadow-lg hover:bg-cyan-800 hover:text-white transition duration-300 ease-in-out transform hover:scale-105"
               >
                 Découvrez nos établissements
                 <svg

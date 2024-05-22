@@ -1,14 +1,14 @@
-//confirmationmdp
+//reset_password
 "use client";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router"; // Import useRouter from next/router
-import Cookies from "js-cookie";
 import {
+  BASE_URL,
   CLIENTS_API,
-  CLIENT_VERIFY_API,
+  CLIENT_REGISTER_PASSWORD_API,
   SUBSCRIBERS_API,
-  SUBSCRIBER_VERIFY_API,
+  SUBSCRIBER_REGISTER_PASSWORD_API,
 } from "../../utils/apiUtil";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
@@ -20,65 +20,31 @@ const Signup = () => {
   const router = useRouter();
   const [signupError, setSignupError] = useState("");
 
-  useEffect(() => {
-    const verifyEmail = async () => {
-      try {
-        const emailToken = params?.get("token");
-        if (emailToken) {
-          const isClient = params?.get("client");
-
-          let basePath = SUBSCRIBER_VERIFY_API;
-          if (isClient === "true") {
-            basePath = CLIENT_VERIFY_API;
-          }
-
-          const response = await axios.get(`${basePath}/${emailToken}`);
-
-          if (response.data.success === true && response.data.code === 1) {
-            toast.success("Your email has been successfully verified!");
-          } else {
-            toast.error("Email verification failed. Please try again.");
-            router.replace("/login");
-          }
-        }
-      } catch (error) {
-        toast.error(
-          "An error occurred during email verification. Please try again."
-        );
-        router.replace("/login");
-      }
-    };
-
-    // Fetch  from the API when the component mounts
-    verifyEmail();
-  }, [params]);
-
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password && password === confirmation) {
       try {
+        const token = params?.get("token");
         const isClient = params?.get("client");
-        const email = params?.get("email");
 
-        let baseApi = SUBSCRIBERS_API;
+        let baseUrl = SUBSCRIBER_REGISTER_PASSWORD_API;
+
         if (isClient === "true") {
-          baseApi = CLIENTS_API;
+          baseUrl = CLIENT_REGISTER_PASSWORD_API;
         }
-        const response = await axios.patch(`${baseApi}/${email}/add-password`, {
+
+        const response = await axios.patch(`${baseUrl}/${token}`, {
           password: password,
         });
 
-        if (
-          response.status === 200 &&
-          response.data.email === params?.get("email")
-        ) {
-          toast.success("Password added successfully!");
+        if (response.data.success && response.data.code === 1) {
+          toast.success("Password Updated successfully!");
           router.replace("/login");
         } else {
-          toast.error("Failed to add password. Please try again later.");
+          toast.error("Failed to update password. Please try again later.");
         }
       } catch (error) {
-        toast.error("Failed to add password. Please try again later.");
+        toast.error("Failed to update password. Please try again later.");
       }
     } else {
       toast.error("Passwords do not match. Please re-enter your password.");
@@ -86,18 +52,15 @@ const Signup = () => {
   };
 
   return (
+    <div className="flex justify-center items-center h-screen">
+      {/* Image Container */}
+      <div className="flex-1 hidden md:block h-full">
+        <img src="/" alt="Error Image" className="h-full w-full object-cover" />
+      </div>
 
-    <div className="overflow-hidden bg-gradient-to-r from-cyan-600 to-sky-600 lg:px-16 min-h-screen flex items-start justify-center pt-20 relative">
-    {/* Background Image */}
-    <img
-      src="/MDPTTT.jpg"
-      alt=""
-      className="absolute inset-0 w-full h-full object-cover blur-sm opacity-50 z-0"
-    />
-
-    {/* Form Container */}
-    <div className="relative z-10 bg-white p-16 rounded-lg shadow-lg max-w-lg w-full mx-auto mt-20">
-        <form onSubmit={handleSignup} className="w-full">
+      {/* Form Container */}
+      <div className="flex-1 flex justify-center items-center">
+        <form onSubmit={handleSignup} className="w-full max-w-sm">
           <div className="mb-4">
             <label
               htmlFor="password"
@@ -119,10 +82,10 @@ const Signup = () => {
               htmlFor="confirmation"
               className="block text-gray-700 text-sm font-bold mb-2"
             >
-              Confirmation de mot de passe:
+              Confirmation de mot de passe :
             </label>
             <input
-              type="password"
+              type="confirmation"
               id="confirmation"
               value={confirmation}
               onChange={(e) => setConfirmation(e.target.value)}
@@ -131,9 +94,9 @@ const Signup = () => {
             />
           </div>
           <div className="flex items-center justify-center">
-          <button
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-xl focus:outline-none focus:shadow-outline"
               type="submit"
-              className="w-full bg-gradient-to-r from-cyan-900 to-sky-700  text-white font-semibold py-2 px-4 rounded-md shadow-sm hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Valider
             </button>

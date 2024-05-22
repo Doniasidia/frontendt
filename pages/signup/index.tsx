@@ -4,126 +4,125 @@ import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/router"; // Import useRouter from next/router
 import Cookies from "js-cookie";
-import { LOGIN_API, SUBSCRIBERS_API } from "../../utils/apiUtil";
-import { EMAIL_VERIFI_API} from "../../utils/apiUtil";
+import {
+  LOGIN_API,
+  REGISTER_SUBSCRIBER_API,
+  SUBSCRIBERS_API,
+} from "../../utils/apiUtil";
+import { EMAIL_VERIFI_API } from "../../utils/apiUtil";
+import { toast } from "react-toastify";
 
-const Signup= () => {
-    const [email, setEmail] = useState(""); // Corrected variable name to setEmail
-    const [password, setPassword] = useState("");
-    
-    const [recoveryInfo, setRecoveryInfo] = useState("");
-    const [username, setUsername] = useState("");
-    const [firstname, setFirstname] = useState("");
-    const [telephone, setTelephone] = useState("");
-    const [signupError, setSignupError] = useState("");
-    const router = useRouter(); // Initialize useRouter hook
+const Signup = () => {
+  const [email, setEmail] = useState(""); // Corrected variable name to setEmail
+  const [password, setPassword] = useState("");
 
+  const [recoveryInfo, setRecoveryInfo] = useState("");
+  const [username, setUsername] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [telephone, setTelephone] = useState("");
+  const [signupError, setSignupError] = useState("");
+  const router = useRouter(); // Initialize useRouter hook
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      // Send a POST request to create a new subscriber
+      const response = await axios.post(`${REGISTER_SUBSCRIBER_API}`, {
+        email,
+        username,
+        firstname,
+        telephone,
+      });
+      console.log("Subscriber created:", response.data);
+      if (response.data.success && response.data.code === 1) {
+        toast.success(
+          "A verification link has been sent to your email address. Please check your email to complete the registration."
+        );
+        router.push("/");
+      } else {
+        toast.error(response.data.error.message);
+      }
+    } catch (error) {
+      console.error("Signup failed:", error);
+      toast.error("An error occurred during registration. Please try again.");
+      setSignupError("Failed to create subscriber. Please try again.");
+    }
+  };
+  return (
 
-   
-      const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        try {
-          // Send a POST request to create a new subscriber
-          const response = await axios.post(`${SUBSCRIBERS_API}/register`, {
-            email,
-            password,
-            username,
-            firstname,
-            telephone,
-          });
-          console.log("Subscriber created:", response.data);
-    
-          await axios.post(EMAIL_VERIFI_API, { email });
-          router.push("/signup-success");
-          console.log('email');
-        } catch (error) {
-          console.error("Signup failed:", error);
-          setSignupError("Failed to create subscriber. Please try again.");
-        }
-      };
-      return (
-        <div className="flex justify-center items-center h-screen">
-          {/* Image Container */}
-          <div className="flex-1 hidden md:block h-full">
-            <img
-              src="/photo.jpg"
-              alt="Error Image"
-              className="h-full w-full object-cover"
+    <div className="flex justify-center items-center min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('/signup.jpg')" }}>
+      <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full ">
+        <h2 className="text-2xl font-semibold text-center text-sky-950 mb-6">
+          Créer un compte
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-2">
+          <div>
+            <label htmlFor="username" className="block text-gray-700 text-sm font-medium">
+              Nom :
+            </label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              required
             />
           </div>
-    
-          {/* Form Container */}
-          <div className="flex-1 flex justify-center items-center">
-          <form onSubmit={handleSubmit} className="w-full max-w-sm">
-              
-              <div className="mb-4">
-                <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">Nom:</label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="firstname" className="block text-gray-700 text-sm font-bold mb-2">Prénom:</label>
-                <input
-                  type="text"
-                  id="firstname"
-                  value={firstname}
-                  onChange={(e) => setFirstname(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Email:</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="telephone" className="block text-gray-700 text-sm font-bold mb-2">Téléphone:</label>
-                <input
-                  type="tel"
-                  id="telephone"
-                  value={telephone}
-                  onChange={(e) => setTelephone(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">Mot de passe:</label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div className="flex items-center justify-center">
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-xl focus:outline-none focus:shadow-outline"
-                type="submit"
-              >
-              S'inscrire
-              </button>
-            </div>
-              {signupError && <div className="text-red-500">{signupError}</div>}
-            </form>
+          <div>
+            <label htmlFor="firstname" className="block text-gray-700 text-sm font-medium">
+              Prénom :
+            </label>
+            <input
+              type="text"
+              id="firstname"
+              value={firstname}
+              onChange={(e) => setFirstname(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
           </div>
-        </div>
-      );
-    };
-    
-    export default Signup;
+          <div>
+            <label htmlFor="email" className="block text-gray-700 text-sm font-medium">
+              Email :
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="telephone" className="block text-gray-700 text-sm font-medium">
+              Téléphone :
+            </label>
+            <input
+              type="tel"
+              id="telephone"
+              value={telephone}
+              onChange={(e) => setTelephone(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="w-full bg-cyan-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              S'inscrire
+            </button>
+          </div>
+          {signupError && (
+            <div className="text-red-500 text-center mt-4">{signupError}</div>
+          )}
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Signup;

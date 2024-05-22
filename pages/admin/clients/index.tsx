@@ -84,21 +84,22 @@ interface Client {
   email: string;
   telephone: string;
   status: string;
+
+  
   password: string;
   typepack?: string;
   addressLine?: string;
-  description : string;
+  description: string;
 }
 
 const Clients = () => {
   const [showForm, setShowForm] = useState(false);
   const [username, setusername] = useState("");
-  const [password, setPassword] = useState("");
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
-  const [typepack, setPack] = useState<string | undefined>(""); 
-  const [addressLine, setAddressLine] = useState<string | undefined>(""); 
-  const [description, setdescription] = useState<string | undefined>(""); 
+  const [typepack, setPack] = useState<string | undefined>("");
+  const [addressLine, setAddressLine] = useState<string | undefined>("");
+  const [description, setdescription] = useState<string | undefined>("");
 
   const [telephoneIsValid, setTelephoneIsValid] = useState(true);
   const [emailIsValid, setEmailIsValid] = useState(true);
@@ -110,7 +111,6 @@ const Clients = () => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const isEmptyusername = !username;
-  const isEmptypassword = !password;
 
   const [isEmptyEmail, setIsEmptyemail] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -151,8 +151,7 @@ const Clients = () => {
         setEmail(client.email);
         setTelephone(client.telephone);
         setPack(client.typepack);
-        setAddressLine(client.addressLine);
-        setPassword(client.password || ""); // Use client's password or empty string if undefined
+        setAddressLine(client.addressLine); // Use client's password or empty string if undefined
       }
     }
   }, [selectedClientId, clients]);
@@ -259,7 +258,7 @@ const Clients = () => {
     setusername("");
     setEmail("");
     setTelephone("");
-    setPassword("");
+
     setPack("");
     setAddressLine("");
     // Reset form validation states as well if needed
@@ -300,10 +299,9 @@ const Clients = () => {
             email,
             telephone,
             typepack: typepack || undefined,
-            password,
-            addressLine: addressLine|| undefined,
-            description: description|| undefined,
 
+            addressLine: addressLine || undefined,
+            description: description || undefined,
           }
         );
 
@@ -324,7 +322,6 @@ const Clients = () => {
           email,
           telephone,
           typepack,
-          password,
           addressLine,
           description,
         });
@@ -346,10 +343,7 @@ const Clients = () => {
   };
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPack(event.target.value);
- 
   };
-  
-
 
   const SuccessNotification = ({ actionType }: { actionType: string }) => {
     useEffect(() => {
@@ -419,12 +413,17 @@ const Clients = () => {
                       <td className={TdStyle.TdStyle}>{client.typepack}</td>
 
                       <td className={TdStyle.TdStyle}>
-                        <a href={`http://${client.addressLine}`}target="_blank" rel="noopener noreferrer" className="link">
-    {client.addressLine}
-  </a></td>
-  <td className={TdStyle.TdStyle}> {client.description}</td>
+                        <a
+                          href={`http://${client.addressLine}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="link"
+                        >
+                          {client.addressLine}
+                        </a>
+                      </td>
+                      <td className={TdStyle.TdStyle}> {client.description}</td>
                       <td className={TdStyle.TdStyle}>
-                      
                         <div className="flex items-center justify-center">
                           <button
                             onClick={() => handleClick(client.id, "edit")}
@@ -549,47 +548,6 @@ const Clients = () => {
                                     </p>
                                   )}
                                 </div>
-                                <div className="mb-6 relative">
-                                  <label
-                                    htmlFor="password"
-                                    className="block text-gray-700 text-sm font-bold mb-2"
-                                  >
-                                    Mot de passe :
-                                  </label>
-                                  <input
-                                    type={showPassword ? "text" : "password"}
-                                    id="password"
-                                    name="password"
-                                    value={password}
-                                    onChange={(e) =>
-                                      setPassword(e.target.value)
-                                    }
-                                    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${
-                                      formSubmitted && isEmptypassword
-                                        ? "border-red-500"
-                                        : ""
-                                    }`}
-                                    placeholder="Entrer votre mot de passe"
-                                  />
-                                  <button
-                                    type="button"
-                                    className="absolute inset-y-7 right-0 flex items-center px-3 py-5 bg-white-200 text-gray-700 hover:text-gray-900 focus:outline-none"
-                                    onClick={() =>
-                                      setShowPassword(!showPassword)
-                                    }
-                                  >
-                                    {showPassword ? (
-                                      <HiEye className="text-gray-400" />
-                                    ) : (
-                                      <HiEyeOff className="text-gray-400" />
-                                    )}
-                                  </button>
-                                </div>
-                                {formSubmitted && isEmptypassword && (
-                                  <p className="text-red-500 text-xs italic">
-                                    ce champ est obligatoire.
-                                  </p>
-                                )}
 
                                 <div className="flex flex-wrap items-center mb-4 relative">
                                   <label
@@ -612,7 +570,9 @@ const Clients = () => {
                                       <option value=""></option>
                                       <option value="100 SMS">100 SMS</option>
                                       <option value="500 SMS">500 SMS</option>
-                                      <option value="1000 SMS">10000 SMS</option>
+                                      <option value="1000 SMS">
+                                        10000 SMS
+                                      </option>
                                     </select>
                                   </div>
                                 </div>
@@ -634,7 +594,6 @@ const Clients = () => {
                                     className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500  `}
                                     placeholder="Entrer votre lien"
                                   />
-                                 
                                 </div>
 
                                 <div className="flex justify-end">
@@ -775,41 +734,6 @@ const Clients = () => {
                   </p>
                 )}
               </div>
-              <div className="mb-6 relative">
-                <label
-                  htmlFor="password"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Mot de passe :
-                </label>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${
-                    formSubmitted && isEmptypassword ? "border-red-500" : ""
-                  }`}
-                  placeholder="Entrer votre mot de passe"
-                />
-                {formSubmitted && isEmptypassword && (
-                  <p className="text-red-500 text-xs italic">
-                    ce champ est obligatoire.
-                  </p>
-                )}
-                <button
-                  type="button"
-                  className="absolute inset-y-7 right-0 flex items-center px-3 py-5 bg-white-200 text-gray-700 hover:text-gray-900 focus:outline-none"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <HiEye className="text-gray-400" />
-                  ) : (
-                    <HiEyeOff className="text-gray-400" />
-                  )}
-                </button>
-              </div>
 
               <div className="flex items-center mb-4">
                 <label
@@ -835,45 +759,39 @@ const Clients = () => {
                 </div>
               </div>
               <div className="flex flex-wrap items-center mb-4 relative">
-                                  <label
-                                    htmlFor="addressLine"
-                                    className="block text-gray-700 text-sm font-bold mb-2"
-                                  >
-                                    site web ou page :
-                                  </label>
-                                  <input
-                                    type="text"
-                                    id="addressLine"
-                                    name="addressLine"
-                                    value={addressLine}
-                                    onChange={(e) =>
-                                      setAddressLine(e.target.value)
-                                    }
-                                    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500  `}
-                                    placeholder="Entrer votre lien de site web ou page"
-                                  />
-                                 
-                                </div>
-                                <div className="flex flex-wrap items-center mb-4 relative">
-                                  <label
-                                    htmlFor="description"
-                                    className="block text-gray-700 text-sm font-bold mb-2"
-                                  >
-                                    description :
-                                  </label>
-                                  <input
-                                    type="text"
-                                    id="description"
-                                    name="description"
-                                    value={description}
-                                    onChange={(e) =>
-                                      setdescription(e.target.value)
-                                    }
-                                    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500  `}
-                                    placeholder="Entrer une description"
-                                  />
-                                 
-                                </div>
+                <label
+                  htmlFor="addressLine"
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                >
+                  site web ou page :
+                </label>
+                <input
+                  type="text"
+                  id="addressLine"
+                  name="addressLine"
+                  value={addressLine}
+                  onChange={(e) => setAddressLine(e.target.value)}
+                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500  `}
+                  placeholder="Entrer votre lien de site web ou page"
+                />
+              </div>
+              <div className="flex flex-wrap items-center mb-4 relative">
+                <label
+                  htmlFor="description"
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                >
+                  description :
+                </label>
+                <input
+                  type="text"
+                  id="description"
+                  name="description"
+                  value={description}
+                  onChange={(e) => setdescription(e.target.value)}
+                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500  `}
+                  placeholder="Entrer une description"
+                />
+              </div>
               <div className="flex justify-end">
                 <button
                   className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"

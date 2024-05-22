@@ -7,7 +7,6 @@ import Cookies from "js-cookie";
 import { LOGIN_API } from "../../utils/apiUtil";
 import { FORGOT_PASSWORD_API } from "../../utils/apiUtil";
 
-
 const Login = () => {
   const [email, setEmail] = useState(""); // Corrected variable name to setEmail
   const [password, setPassword] = useState("");
@@ -19,14 +18,15 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
+
     try {
       const response = await axios.post(LOGIN_API, {
         email: email,
         password: password,
       });
-  
-      const { access_token, role, redirectTo, username, userId } = response.data;
+
+      const { access_token, role, redirectTo, username, userId } =
+        response.data;
       console.log("Response Data:", response.data);
 
       // Store user ID in cookie if available
@@ -34,15 +34,21 @@ const Login = () => {
         Cookies.set("userId", userId);
         console.log("User ID stored in cookie:", userId);
       }
-  
-      Cookies.set("session", JSON.stringify({
-        access_token: access_token,
-        role: role,
-        redirectTo: redirectTo,
-        username: username,
-        userId: userId,
-      }));
-  
+      if (username) {
+        Cookies.set("username", username);
+        console.log("Username stored in cookie:", username);
+      }
+      Cookies.set(
+        "session",
+        JSON.stringify({
+          access_token: access_token,
+          role: role,
+          redirectTo: redirectTo,
+          username: username,
+          userId: userId,
+        })
+      );
+
       console.log("Login successful!", response.data);
       router.push(redirectTo);
     } catch (error) {
@@ -61,12 +67,14 @@ const Login = () => {
     // Simulate recovery logic
     console.log("Recovery information submitted:", recoveryInfo);
   };
-  const handleForgotPasswordSubmit = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+  const handleForgotPasswordSubmit = async (
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
     e.preventDefault();
 
     try {
       // Send a request to your backend to initiate password reset
-      const response = await axios.post(FORGOT_PASSWORD_API, { email });
+      const response = await axios.get(`${FORGOT_PASSWORD_API}/${email}`);
       console.log("Forgot Password Request Sent:", response.data);
 
       // Provide feedback to the user (e.g., display a success message)
@@ -80,35 +88,35 @@ const Login = () => {
   return (
     <div className="flex justify-center items-center h-screen">
       {/* Image Container */}
-      <div className="flex-1 hidden md:block h-full">
+      <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
         {loginStatus === "login" && !forgotPassword && (
           <img
-            src="/fff.jpg"
+            src="/signup.jpg"
             alt="Vertical Image"
-            className="h-full w-full object-cover"
+             className="flex justify-center items-center min-h-screen bg-cover bg-center"
           />
         )}
         {loginStatus === "error" && !forgotPassword && (
           <img
-            src="/mdperror.jpg"
+            src="/signup.jpg"
             alt="Error Image"
-            className="h-full w-full object-cover"
+            className="flex justify-center items-center min-h-screen bg-cover bg-center"
           />
         )}
         {forgotPassword && (
           <img
             src="/mdperror.jpg"
             alt="Forgot Password Image"
-            className="h-full w-full object-cover"
+            className="flex justify-center items-center min-h-screen bg-cover bg-center"
           />
         )}
       </div>
       {/* Login Form Container */}
-      <div className="flex-1 max-w-md h-full flex flex-col justify-center items-center errorImg">
+      <div className="absolute max-w-md w-full bg-white shadow-lg rounded-lg p-8 ">
+
         {!forgotPassword && (
           <form
-            onSubmit={handleSubmit}
-            className="px-4 pt-6 pb-8 mb-4"
+            onSubmit={handleSubmit }
             noValidate
           >
             <h2
@@ -167,16 +175,16 @@ const Login = () => {
             </div>
             <div className="flex items-center justify-center">
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-20 rounded-xl focus:outline-none focus:shadow-outline"
-                type="submit"
-              >
-                Se connecter
-              </button>
+              type="submit"
+              className="w-full bg-gradient-to-r from-cyan-900 to-sky-700  text-white font-semibold py-2 px-4 rounded-md shadow-sm hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Valider
+            </button>
             </div>
             {loginStatus === "login" && (
               <p className="text-center mt-4">
                 Vous n'avez pas un compte ?{" "}
-                <a href="#" className="text-blue-500 hover:text-blue-700">
+                <a href="/signup" className="text-cyan-700 hover:text-cyan-600">
                   S'inscrire
                 </a>
               </p>
@@ -235,4 +243,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login;

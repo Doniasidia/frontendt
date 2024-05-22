@@ -51,7 +51,7 @@ const Plans = () => {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [payes, setPayes] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3;
+  const itemsPerPage = 7;
   const [searchQuery, setSearchQuery] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
   const isEmptyname = !name ;
@@ -236,7 +236,7 @@ setEndDate('');
           {
             name,
           type,
-          amount: parseInt(amount),
+          amount: parseFloat(amount), // Parse amount to float
           duration: durationString,
           nbrseance: parseInt(nbrseance),
           enligne,
@@ -272,7 +272,7 @@ setEndDate('');
             type,
             startDate: startDate || null, // If startDate is empty, send null instead
             endDate: endDate || null,
-            amount: parseInt(amount),
+            amount: parseFloat(amount), // Parse amount to float
             duration: durationString,
             nbrseance: parseInt(nbrseance),
             enligne
@@ -467,16 +467,12 @@ setEndDate('');
               Prix :
             </label>
             <input
-  type="amount"
+  type="number"
   id="amount"
   name="amount"
   value={amount}
-  onChange={(e) => {
-    const rawValue = e.target.value; // Get the raw input value
-    const numericValue = rawValue.replace(/\D/g, ''); // Remove non-numeric characters
-    const formattedValue = Number(numericValue).toLocaleString('en-US'); // Format the numeric value
-    setAmount(formattedValue); // Update the state with the formatted value
-  }}
+  onChange={(e) => setAmount((e.target.value))}
+
   className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyamount ? 'border-red-500' : ''}`}
   placeholder="Enter le prix"
 />
