@@ -11,9 +11,12 @@ import Cookies from "js-cookie";
 
 
 const TdStyle = {
-  ThStyle : 'border-l border-transparent py-2 px-3 text-base font-medium lg:py-4 lg:px-4 bg-custom-blue' ,
-  TdStyle: 'text-dark border-b border-l border-transparent border-[#E8E8E8] bg-sky-100 dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium',
-  TdButton: 'inline-block px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium',
+  ThStyle:
+    "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-cyan-700",
+  TdStyle:
+    "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
+  TdButton:
+    "inline-block bg-blue-300 px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
 };
 interface InputProps {
   value: string;
@@ -260,26 +263,26 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
   
   return (
     <Layout activePage="Groups"> 
-   <div className="flex justify-center pt-14 mx-2 w-full">
-    <div className="relative flex items-center ">
-        <input
+    <div className="flex justify-center pt-8 mx-2 w-full">
+        <div className="relative flex items-center ">
+          <input
             type="text"
             value={searchQuery}
             onChange={handleSearchQueryChange}
             placeholder="rechercher par nom "
             className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
-        />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-4 pb-4">
-            <Image src='/searchbar.svg' alt='search' width={15} height={40} />
+          />
+          <div className="absolute inset-y-0 right-0 flex items-center pr-4 pb-4">
+            <Image src="/searchbar.svg" alt="search" width={15} height={40} />
+          </div>
         </div>
-    </div>
-</div>
+      </div>
 
-<div className=" table-wrapper">
-      <div className='flex justify-center mx-2 w-full'>
-        <div className='w-full max-w-[90%] rounded-xl rounded-b-none table-wrapper'>
-          <table className='w-full table-auto border-collapse '>
-            <thead className='text-center bg-primary'>
+<div className="table-wrapper ">
+        <div className='flex justify-center mx-2 w-full'>
+          <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
+            <table className='w-full table-auto border-collapse'>
+              <thead className='text-center'>
               <tr >
                 <th className={TdStyle.ThStyle}> Nom  </th>
                 <th className={TdStyle.ThStyle}> Plan </th>
@@ -307,13 +310,16 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
       </div>
 
       {showForm && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '30%', height: '98%',overflowY: 'scroll', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
+  <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg" style={{ width: '30%', height: '95%', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)' }}>
         <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit}>
           <div className="flex justify-end mt-2.5 mr-4 absolute top-0 right-0">
             <Image src='/close.svg' alt='close' width={15} height={15} onClick={() => setShowForm(false)} className="cursor-pointer" />
           </div>
 
-          <h2 className="text-lg font-bold mb-4" style={{ color: 'rgb(27, 158, 246)' }}> Ajouter groupe :</h2>
+          <h2
+                                  className="text-lg font-bold mb-4 text-center"
+                                  style={{ color: "rgb(27, 158, 246)" }}
+                          >Ajouter un groupe</h2>
 
           <div className="mb-2">
             <label htmlFor="nom" className="block text-gray-700 text-sm font-bold mb-2">
@@ -325,7 +331,7 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
               name="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${formSubmitted && isEmptyname ? 'border-red-500' : ''}`}
+              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline  ${formSubmitted && isEmptyname ? 'border-red-500' : ''}`}
               placeholder="Entrer le nom"
             />
                         {formSubmitted && isEmptyname &&  <p className="text-red-500 text-xs italic">ce champ est obligatoire.</p>}
@@ -344,7 +350,7 @@ setSuccessNotificationActionType(selectedGroupId !== null ? "modifi√©" : "ajout√
     
     handlePlanSelect(Number(e.target.value));
   }}
-  className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+  className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline "
 >
   <option value="">S√©lectionner un plan</option>
   {plans.map((plan) => (

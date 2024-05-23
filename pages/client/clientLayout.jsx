@@ -1,8 +1,7 @@
-//clientlayout
 "use client";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { useState , useEffect } from "react";
+import { useState, useEffect } from "react";
 import { CLIENTS_API } from "../../utils/apiUtil";
 import axios from "axios";
 
@@ -16,7 +15,6 @@ const Layout = ({ children, activePage }) => {
   const [clientId, setClientId] = useState(null);
   const [addressLine, setAddressLine] = useState(""); // Remove explicit type declaration
 
- 
   useEffect(() => {
     const fetchUserData = async () => {
       const loggedInUserId = Cookies.get("userId");
@@ -24,11 +22,11 @@ const Layout = ({ children, activePage }) => {
       if (!loggedInUserId) {
         return;
       }
-  
+
       try {
         const response = await axios.get(`${CLIENTS_API}/${loggedInUserId}`);
-        const userData = response.data; 
-        const { username, email, telephone, password,addressLine  } = userData;
+        const userData = response.data;
+        const { username, email, telephone, password, addressLine } = userData;
         setUsername(username);
         setEmail(email);
         setTelephone(telephone);
@@ -41,32 +39,27 @@ const Layout = ({ children, activePage }) => {
 
     fetchUserData();
   }, []);
- 
-  
- 
- 
+
   const handlePhotoChange = (event) => {
     const file = event.target.files[0]; // Get the first selected file
     setSelectedPhoto(file); // Update state with the selected file
   };
-  
 
   const handleUsernameClick = () => {
     // Toggle the visibility of the form
     setShowForm(!showForm);
   };
 
-  
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     // Ensure loggedInUserId is retrieved before sending the request
     const loggedInUserId = Cookies.get("userId");
     if (!loggedInUserId) {
       console.error("Missing loggedInUserId for update request");
       return; // Handle the case where user ID is not available (e.g., display an error message)
     }
-  
+
     try {
       const response = await axios.patch(`${CLIENTS_API}/${loggedInUserId}`, {
         username,
@@ -76,23 +69,23 @@ const Layout = ({ children, activePage }) => {
         addressLine,
       });
       console.log("User data updated:", response.data);
-  
+
       // Update the state with the new data (optional)
       setUsername(response.data.username);
       setEmail(response.data.email);
       setTelephone(response.data.telephone);
       setAddressLine(response.data.addressLine);
-  
+
       // Close the form after successful update
-      setShowForm(false); 
+      setShowForm(false);
     } catch (error) {
       console.error("Error updating user data:", error);
-  
+
       // Handle the error here (e.g., display a more specific error message to the user)
       alert(getErrorMsg(error)); // Call a function to handle error messages
     }
   };
-  
+
   // Function to handle error messages based on error object (optional)
   function getErrorMsg(error) {
     if (error.response && error.response.data) {
@@ -101,9 +94,7 @@ const Layout = ({ children, activePage }) => {
       return "An unexpected error occurred.";
     }
   }
-  
-  
- 
+
   return (
     <div className="flex h-screen bg-sky-50 p-4">
       {/* Main container */}
@@ -173,17 +164,8 @@ const Layout = ({ children, activePage }) => {
                   Groupes
                 </button>
               </Link>
-              <Link href="/client/parametres">
-                <button
-                  className={
-                    activePage === "Parametres"
-                      ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300"
-                      : "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"
-                  }
-                >
-                  Paramètres
-                </button>
-              </Link>
+            
+              
               <Link href="/client/chat">
                 <button
                   className={
@@ -203,17 +185,17 @@ const Layout = ({ children, activePage }) => {
           <div className="flex justify-center items-center mb-4">
             {/* Centered Logout button */}
             <button
-  onClick={(e) => {
-    e.preventDefault();
-    // Clear the session cookie by setting an empty object with an expired expiry date
-    Cookies.set("session", JSON.stringify({}), { expires: new Date(0) });
-    // Redirect to the login page
-    window.location.href = "/login";
-  }}
-  className="hover:bg-sky-500 hover:text-white py-4 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400"
->
-  Déconnecter
-</button>
+              onClick={(e) => {
+                e.preventDefault();
+                // Clear the session cookie by setting an empty object with an expired expiry date
+                Cookies.set("session", JSON.stringify({}), { expires: new Date(0) });
+                // Redirect to the login page
+                window.location.href = "/login";
+              }}
+              className="hover:bg-gray-300 hover:text-white py-2 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400 "
+              >
+              Déconnecter
+            </button>
           </div>
         </div>
       </div>
@@ -226,76 +208,78 @@ const Layout = ({ children, activePage }) => {
             <div className="ml-auto flex items-center space-x-2">
               {/* Photo selection and display */}
               <img
-                  src="/avatar.svg" // Path to your image in the public folder
-                  className="w-10 h-10 rounded-full mr-2"
-                />
+                src="/utilisateur.png" // Path to your image in the public folder
+                className="w-10 h-10 rounded-full mr-2"
+              />
               {showForm && (
-                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg">
-   <h2 className="text-2xl font-bold mb-4">Modifier vos informations</h2>
-<form onSubmit={handleSubmit}>
-<div className="mb-4">
-      <label htmlFor="username" className="block text-gray-700 font-medium mb-1">Nom:</label>
-        <input
-          type="text"
-          value={username || ""}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-        />
-      </div>
-      <div className="mb-4"> 
-      <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Email:</label>
-        <input
-          type="email"
-          value={email || ""}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-        />
-      </div>
-      <div className="mb-4">
-      <label htmlFor="telephone" className="block text-gray-700 font-medium mb-1">Téléphone:</label>
-        <input
-          type="tel"
-          value={telephone || ""}
-          onChange={(e) => setTelephone(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-        />
-      </div>
-      <div className="mb-4">
-      <label htmlFor="password" className="block text-gray-700 font-medium mb-1">Mot de passe :</label>
-        <input
-          type="password"
-          value={password || ""}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-        />
-      </div>
-      <div className="mb-4">
-      
-      <label htmlFor="addressLine" className="block text-gray-700 font-medium mb-1"> Lien:</label>
-<input
-  type="text"
-  value={addressLine || ""} // Use addressLine state or empty string if not set
-  onChange={(e) => setAddressLine(e.target.value)}
-  className="border border-gray-300 rounded px-3 py-2 w-full"
-/>
-    </div>
-      <div className="text-right">
-        {/* Move the button to the right */}
-        <button
-          type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-300"
-        >
-          Modifier
-        </button>
-      </div>
-    </form>
-  </div>
-)}
+                <div
+                  className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-70 z-50"
+                >
+                  <div className="bg-white p-8 rounded-xl shadow-lg w-96">
+                    <h2 className="text-2xl font-bold mb-4">Modifier vos informations</h2>
+                    <form onSubmit={handleSubmit}>
+                      <div className="mb-4">
+                        <label htmlFor="username" className="block text-gray-700 font-medium mb-1">Nom:</label>
+                        <input
+                          type="text"
+                          value={username || ""}
+                          onChange={(e) => setUsername(e.target.value)}
+                          className="border border-gray-300 rounded px-3 py-2 w-full"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Email:</label>
+                        <input
+                          type="email"
+                          value={email || ""}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="border border-gray-300 rounded px-3 py-2 w-full"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <label htmlFor="telephone" className="block text-gray-700 font-medium mb-1">Téléphone:</label>
+                        <input
+                          type="tel"
+                          value={telephone || ""}
+                          onChange={(e) => setTelephone(e.target.value)}
+                          className="border border-gray-300 rounded px-3 py-2 w-full"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <label htmlFor="password" className="block text-gray-700 font-medium mb-1">Mot de passe :</label>
+                        <input
+                          type="password"
+                          value={password || ""}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="border border-gray-300 rounded px-3 py-2 w-full"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <label htmlFor="addressLine" className="block text-gray-700 font-medium mb-1">Lien:</label>
+                        <input
+                          type="text"
+                          value={addressLine || ""}
+                          onChange={(e) => setAddressLine(e.target.value)}
+                          className="border border-gray-300 rounded px-3 py-2 w-full"
+                        />
+                      </div>
+                      <div className="text-right">
+                        {/* Move the button to the right */}
+                        <button
+            type="submit"
+            className="bg-cyan-700 text-white py-2 px-4 rounded-lg hover:bg-cyan-900 transition-colors duration-300"
+          >
+            Modifier
+          </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
 
-<p className="font-medium" onClick={handleUsernameClick} style={{ cursor: 'pointer' }}>
-  {username ? username : "Loading..."}
-</p>
-
+              <p className="font-medium" onClick={handleUsernameClick} style={{ cursor: 'pointer' }}>
+                {username ? username : "Loading..."}
+              </p>
             </div>
           </div>
         </div>
@@ -307,4 +291,4 @@ const Layout = ({ children, activePage }) => {
     </div>
   );
 };
-export default Layout;
+export default Layout;

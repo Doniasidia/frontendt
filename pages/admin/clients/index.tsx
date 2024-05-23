@@ -12,11 +12,11 @@ import { CLIENTS_API } from "../../../utils/apiUtil";
 
 const TdStyle = {
   ThStyle:
-    "border-l border-transparent py-2 px-3 text-base font-medium lg:py-4 lg:px-4 bg-custom-blue",
+    "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-cyan-700",
   TdStyle:
-    "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-sky-100 dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
+    "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
   TdButton:
-    "inline-block px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
+    "inline-block bg-blue-300 px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
 };
 interface InputProps {
   value: string;
@@ -364,7 +364,7 @@ const Clients = () => {
 
   return (
     <Layout activePage="clients">
-      <div className="flex justify-center pt-14 mx-2 w-full">
+      <div className="flex justify-center pt-8 mx-2 w-full">
         <div className="relative flex items-center ">
           <input
             type="text"
@@ -378,11 +378,11 @@ const Clients = () => {
           </div>
         </div>
       </div>
-      <div className=" table-wrapper">
-        <div className="flex justify-center mx-2 w-full  ">
-          <div className="w-full max-w-[90%] rounded-xl rounded-b-none table-wrapper">
-            <table className="w-full table-auto border-collapse ">
-              <thead className="text-center bg-primary">
+      <div className="table-wrapper ">
+        <div className='flex justify-center mx-2 w-full'>
+          <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
+            <table className='w-full table-auto border-collapse'>
+              <thead className='text-center'>
                 <tr>
                   <th className={TdStyle.ThStyle}> Nom établissement </th>
                   <th className={TdStyle.ThStyle}> Email </th>

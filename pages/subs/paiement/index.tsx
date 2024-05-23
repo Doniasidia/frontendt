@@ -1,3 +1,4 @@
+//subs/paiement
 import Layout from "../subsLayout";
 import React, { useEffect, useState, ChangeEvent } from "react";
 import Cookies from "js-cookie";
@@ -16,16 +17,18 @@ interface Invoice {
 
 const TdStyle = {
   ThStyle:
-    'py-4 px-6 text-base font-medium text-white bg-blue-600',
+    "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-cyan-700",
   TdStyle:
-    'py-3 px-6 text-sm font-medium text-gray-700 bg-white border-b border-gray-200',
+    "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
+  TdButton:
+    "inline-block bg-green-500 px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
 };
 
-const paiement = () => {
+const Paiement = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [invoicesToDisplay, setInvoicesToDisplay] = useState<Invoice[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filteredInvoices, setfilteredInvoices] = useState<Invoice[]>([]);
+  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
 
@@ -34,7 +37,7 @@ const paiement = () => {
       return invoice.clientName.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
-    setfilteredInvoices(filtered);
+    setFilteredInvoices(filtered);
     setCurrentPage(1);
   }, [searchQuery, invoices]);
 
@@ -64,17 +67,17 @@ const paiement = () => {
         const response = await axios.get(INVOICES_API, { headers });
         setInvoices(response.data);
       } catch (error) {
-        console.error("Error fetching subscribers:", error);
+        console.error("Error fetching invoices:", error);
       }
     };
 
-    // Fetch  from the API when the component mounts
+    // Fetch from the API when the component mounts
     fetchInvoices();
   }, []);
 
   return (
     <Layout activePage="paiement">
-      <div className="flex justify-center pt-14 mx-2 w-full">
+      <div className="flex justify-center pt-8 mx-2 w-full">
         <div className="relative flex items-center ">
           <input
             type="text"
@@ -86,14 +89,14 @@ const paiement = () => {
           <FaSearch className="absolute right-4 text-gray-400" />
         </div>
       </div>
-      <div className="table-wrapper mt-8">
+      <div className="table-wrapper ">
         <div className='flex justify-center mx-2 w-full'>
           <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
             <table className='w-full table-auto border-collapse'>
               <thead className='text-center'>
                 <tr>
-                  <th className={TdStyle.ThStyle}>Établissement</th>
-                  <th className={TdStyle.ThStyle}>Prix d'abonnement</th>
+                  <th className={TdStyle.ThStyle} >Établissement</th>
+                  <th className={TdStyle.ThStyle} >Prix d'abonnement</th>
                   <th className={TdStyle.ThStyle}>Date de création de facture</th>
                   <th className={TdStyle.ThStyle}>Date d'échéance de la facture</th>
                   <th className={TdStyle.ThStyle}>Status de paiement</th>
@@ -102,24 +105,19 @@ const paiement = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredInvoices
-                  .slice(
-                    (currentPage - 1) * itemsPerPage,
-                    currentPage * itemsPerPage
-                  )
-                  .map((invoice: Invoice) => (
-                    <tr key={invoice.clientName} className="bg-white hover:bg-gray-50">
-                      <td className={TdStyle.TdStyle}>{invoice.clientName}</td>
-                      <td className={TdStyle.TdStyle}>{invoice.amount}</td>
-                      <td className={TdStyle.TdStyle}>{new Date(invoice.createdAt).toLocaleDateString()}</td>
-                      <td className={TdStyle.TdStyle}>{new Date(invoice.dueDate).toLocaleDateString()}</td>
-                      <td className={TdStyle.TdStyle}><FaCheckCircle className="text-green-500" /></td>
-                      <td className={TdStyle.TdStyle}>Carte de crédit</td>
-                      <td className={TdStyle.TdStyle}>
-                        <button className="bg-green-500 text-white px-3 py-1 rounded-md shadow-sm">Payé</button>
-                      </td>
-                    </tr>
-                  ))}
+                {invoicesToDisplay.map((invoice: Invoice) => (
+                  <tr key={invoice.clientName} className="bg-white hover:bg-gray-50">
+                     <td className={TdStyle.TdStyle}>{invoice.clientName}</td>
+                    <td className={TdStyle.TdStyle}>{invoice.amount}</td>
+                    <td className={TdStyle.TdStyle}>{new Date(invoice.createdAt).toLocaleDateString()}</td>
+                    <td className={TdStyle.TdStyle}>{new Date(invoice.dueDate).toLocaleDateString()}</td>
+                    <td className={TdStyle.TdStyle}><FaCheckCircle className="text-green-500" /></td>
+                    <td className={TdStyle.TdStyle}>Carte de crédit</td>
+                    <td className={TdStyle.TdStyle}>
+                      <button className={TdStyle.TdButton}>Payer</button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -137,4 +135,4 @@ const paiement = () => {
   );
 };
 
-export default paiement;
+export default Paiement;

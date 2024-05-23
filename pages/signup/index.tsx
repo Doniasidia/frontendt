@@ -50,8 +50,8 @@ const Signup = () => {
   };
   return (
 
-    <div className="flex justify-center items-center min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('/signup.jpg')" }}>
-      <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full ">
+    <div className="flex justify-center items-center h-screen bg-gradient-to-b from-cyan-500 to-sky-700  bg-opacity-50">
+    <div className="absolute max-w-md w-full bg-white shadow-lg rounded-lg p-8 ">
         <h2 className="text-2xl font-semibold text-center text-sky-950 mb-6">
           Créer un compte
         </h2>
@@ -111,7 +111,7 @@ const Signup = () => {
           <div className="flex justify-center">
             <button
               type="submit"
-              className="w-full bg-cyan-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="w-full bg-gradient-to-r from-cyan-900 to-sky-700  text-white font-semibold py-2 px-4 rounded-md shadow-sm hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               S'inscrire
             </button>

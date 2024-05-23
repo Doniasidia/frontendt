@@ -1,8 +1,9 @@
+//index.tsx
 import React from 'react';
 
 const Publicite = () => {
   return (
-    <div className="overflow-hidden bg-gradient-to-r  from-cyan-600 to-sky-600  lg:px-16">
+    <div className="overflow-hidden bg-gradient-to-r  from-cyan-400 to-sky-500  lg:px-16">
       <div className="max-w-7xl mx-auto flex flex-col items-center justify-center h-screen relative">
         {/* Background Image */}
         <img

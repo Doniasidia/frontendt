@@ -86,30 +86,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      {/* Image Container */}
-      <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
-        {loginStatus === "login" && !forgotPassword && (
-          <img
-            src="/signup.jpg"
-            alt="Vertical Image"
-             className="flex justify-center items-center min-h-screen bg-cover bg-center"
-          />
-        )}
-        {loginStatus === "error" && !forgotPassword && (
-          <img
-            src="/signup.jpg"
-            alt="Error Image"
-            className="flex justify-center items-center min-h-screen bg-cover bg-center"
-          />
-        )}
-        {forgotPassword && (
-          <img
-            src="/mdperror.jpg"
-            alt="Forgot Password Image"
-            className="flex justify-center items-center min-h-screen bg-cover bg-center"
-          />
-        )}
+    <div className="flex justify-center items-center h-screen bg-gradient-to-b from-cyan-500 to-sky-700  bg-opacity-50">
+    <div className="absolute max-w-md w-full bg-white shadow-lg rounded-lg p-8 ">
+       
+       
       </div>
       {/* Login Form Container */}
       <div className="absolute max-w-md w-full bg-white shadow-lg rounded-lg p-8 ">
@@ -137,7 +117,7 @@ const Login = () => {
               >
                 {" "}
                 {/* Changed htmlFor to email */}
-                Email ou numéro de téléphone :
+                Email  :
               </label>
               <input
                 className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${

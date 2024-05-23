@@ -4,10 +4,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router"; // Import useRouter from next/router
 import {
-  BASE_URL,
-  CLIENTS_API,
   CLIENT_REGISTER_PASSWORD_API,
-  SUBSCRIBERS_API,
   SUBSCRIBER_REGISTER_PASSWORD_API,
 } from "../../utils/apiUtil";
 import { toast } from "react-toastify";
@@ -52,14 +49,16 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      {/* Image Container */}
-      <div className="flex-1 hidden md:block h-full">
-        <img src="/" alt="Error Image" className="h-full w-full object-cover" />
-      </div>
+    <div className="overflow-hidden bg-gradient-to-r from-cyan-600 to-sky-600 lg:px-16 min-h-screen flex items-start justify-center pt-20 relative">
+    {/* Background Image */}
+    <img
+      src="/MDPTTT.jpg"
+      alt=""
+      className="absolute inset-0 w-full h-full object-cover blur-sm opacity-50 z-0"
+    />
 
       {/* Form Container */}
-      <div className="flex-1 flex justify-center items-center">
+      <div className="relative z-10 bg-white p-16 rounded-lg shadow-lg max-w-lg w-full mx-auto mt-20">
         <form onSubmit={handleSignup} className="w-full max-w-sm">
           <div className="mb-4">
             <label
@@ -94,9 +93,9 @@ const Signup = () => {
             />
           </div>
           <div className="flex items-center justify-center">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-xl focus:outline-none focus:shadow-outline"
+          <button
               type="submit"
+              className="w-full bg-gradient-to-r from-cyan-900 to-sky-700  text-white font-semibold py-2 px-4 rounded-md shadow-sm hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Valider
             </button>

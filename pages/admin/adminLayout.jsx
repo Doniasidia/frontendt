@@ -39,39 +39,6 @@ const Layout = ({ children, activePage }) => {
                   clients
                 </button>
               </Link>
-              <Link href="/admin/abonnements">
-                <button
-                  className={
-                    activePage === "abonnements"
-                      ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300"
-                      : "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"
-                  }
-                >
-                  abonnements
-                </button>
-              </Link>
-              <Link href="/admin/parametres">
-                <button
-                  className={
-                    activePage === "parametres"
-                      ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300"
-                      : "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"
-                  }
-                >
-                  parametres
-                </button>
-              </Link>
-              <Link href="/admin/chat">
-                <button
-                  className={
-                    activePage === "chat"
-                      ? "navBarButton-bgcolor text-white py-2 px-4 rounded transition-colors duration-300"
-                      : "navBarButton-hover-bgcolor hover:text-white py-2 px-4 rounded transition-colors duration-300 bg-white text-gray-800"
-                  }
-                >
-                  chat
-                </button>
-              </Link>
             </div>
           </div>
           <div className="flex justify-center">
@@ -85,8 +52,8 @@ const Layout = ({ children, activePage }) => {
                 Cookies.set("session", JSON.stringify({}));
                 window.location.href = "/login";
               }}
-              className="hover:bg-sky-500 hover:text-white py-2 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400 "
-            >
+              className="hover:bg-gray-300 hover:text-white py-2 px-12 rounded-lg transition-colors duration-300 bg-white text-gray-600 border border-gray-400 "
+              >
               Déconnecter
             </button>
           </div>

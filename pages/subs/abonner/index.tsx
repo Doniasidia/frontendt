@@ -1,3 +1,4 @@
+//subs/abonner
 import React, { useState, useEffect, ChangeEvent } from "react";
 import Layout from "../subsLayout";
 import axios from "axios";
@@ -23,7 +24,7 @@ interface Client {
 
 const TdStyle = {
   ThStyle:
-    'py-4 px-6 text-base font-medium text-white bg-blue-600',
+    'py-4 px-6 text-base font-medium text-white bg-cyan-700',
   TdStyle:
     'py-3 px-6 text-sm font-medium text-gray-700 bg-white border-b border-gray-200',
   TdButton:
@@ -137,7 +138,7 @@ const Abonner = () => {
 
   return (
     <Layout activePage="abonner">
-      <div className="flex justify-center pt-14 mx-2 w-full">
+      <div className="flex justify-center pt-8 mx-2 w-full">
         <div className="relative flex items-center">
           <input
             type="text"
@@ -149,7 +150,7 @@ const Abonner = () => {
           <FaSearch className="absolute right-4 text-gray-400" />
         </div>
       </div>
-      <div className="table-wrapper mt-8">
+      <div className="table-wrapper ">
         <div className='flex justify-center mx-2 w-full'>
           <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
             <table className='w-full table-auto border-collapse'>

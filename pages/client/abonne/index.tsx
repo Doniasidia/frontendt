@@ -11,44 +11,37 @@ import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import MyCalendar from "../../../components/calendar";
 import { GROUPS_API, PLANS_API, SUBSCRIBERS_API } from "../../../utils/apiUtil";
 import Cookies from "js-cookie";
-
-
-
 const TdStyle = {
   ThStyle:
-    "border-l border-transparent py-2 px-3 text-base font-medium lg:py-4 lg:px-4 bg-custom-blue",
+    "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-cyan-700",
   TdStyle:
-    "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-sky-100 dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
+    "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
   TdButton:
-    "inline-block px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
+    "inline-block bg-blue-300 px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
 };
 interface InputProps {
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  isValid: boolean;
-}
-
+  isValid: boolean;}
 const EmailInput: React.FC<
   InputProps & { formSubmitted: boolean; emailExists: boolean }
 > = ({ value, onChange, isValid, formSubmitted, emailExists }) => {
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange(event); // Propagate the change event to parent component
+    onChange(event); 
   };
   return (
     <div className="flex flex-wrap items-center mb-4 relative">
       <label
         htmlFor="email"
-        className="block text-gray-700 text-sm font-bold mb-2"
-      >
+        className="block text-gray-700 text-sm font-bold mb-2">
         Email :
       </label>
-
       <input
         id="email"
         name="email"
         value={value}
         onChange={handleEmailChange} 
-        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${
+        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
           formSubmitted && !isValid ?  "border-red-500" : ""
         }`}
         placeholder="Enter votre email"
@@ -84,33 +77,25 @@ interface Subscriber {
   groupId: number;
   planId: number;
 }
-
 const Subscribers = () => {
   const [showForm, setShowForm] = useState(false);
   const [username, setUsername] = useState("");
   const [firstname, setfirstname] = useState("");
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
-
   const [telephoneIsValid, setTelephoneIsValid] = useState(true);
   const [emailIsValid, setEmailIsValid] = useState(true);
   const [formValid, setFormValid] = useState(true);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [showEditForm, setShowEditForm] = useState(false);
-  const [selectedSubscriberId, setSelectedSubscriberId] = useState<
-    number | null
-  >(null);
-  const [selectedSubscriber, setSelectedSubscriber] =
-    useState<Subscriber | null>(null);
+  const [selectedSubscriberId, setSelectedSubscriberId] = useState< number | null >(null);
+  const [selectedSubscriber, setSelectedSubscriber] = useState<Subscriber | null>(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const isEmptyusername = !username;
   const isEmptyfirstname = !firstname;
   const isEmptytelephone = !telephone;
-
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>(
-    []
-  );
+  const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>( [] );
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
   const [emailExists, setEmailExists] = useState(false);
@@ -119,15 +104,11 @@ const Subscribers = () => {
   const [telephoneError, setTelephoneError] = useState<string>("");
   const [plans, setPlans] = useState<{ id: number; name: string }[]>([]);
   const [groups, setGroups] = useState<{ id: number; name: string }[]>([]);
-  const [subscribersToDisplay, setSubscribersToDisplay] = useState<
-    Subscriber[]
-  >([]);
-
+  const [subscribersToDisplay, setSubscribersToDisplay] = useState<Subscriber[] >([]);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
-
   const [selectedGroup, setSelectedGroup] = useState<string>("");
-  const [selectedOption, setSelectedOption] = useState("client"); // Default selected option is "client"
-  const [showCalendar, setShowCalendar] = useState(false); // Step 1: Track plan selection state
+  const [selectedOption, setSelectedOption] = useState("client"); 
+  const [showCalendar, setShowCalendar] = useState(false); 
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   const [showSuccessNotificationContent, setShowSuccessNotificationContent] =
     useState<string>("");
@@ -135,24 +116,18 @@ const Subscribers = () => {
   const handlePlanSelect = (planId: number) => {
     setSelectedPlan(planId.toString());
     setSelectedPlanId(planId);
-    setShowCalendar(true); // Set showCalendar to true when a plan is selected
-  };
+    setShowCalendar(true); };
   const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = event.target.value;
     setSelectedOption(selectedValue);
-
-    // Update selectedGroup and selectedPlan based on the selected option
     if (selectedValue === "group") {
-      setSelectedGroup(""); // Clear selected group
+      setSelectedGroup(""); 
     } else if (selectedValue === "plan") {
-      setSelectedPlan(""); // Clear selected plan
+      setSelectedPlan(""); 
     }
   };
   useEffect(() => {
-    // Check if the selectedSubscriber exists and has a groupId or planId
     if (selectedSubscriber && (selectedSubscriber.groupId || selectedSubscriber.planId)) {
-      // If the subscriber has a groupId, set selectedOption to "group" and selectedGroup to the subscriber's groupId
-      // Otherwise, set selectedOption to "plan" and selectedPlan to the subscriber's planId
       if (selectedSubscriber.groupId) {
         setSelectedOption("group");
         setSelectedGroup(selectedSubscriber.groupId.toString());
@@ -162,34 +137,24 @@ const Subscribers = () => {
       }
     }
   }, [selectedSubscriber]);
-  
-
   useEffect(() => {
     const fetchPlansAndGroups = async () => {
       try {
-        // Fetch session data from cookies
         const cookie = Cookies.get("session") || "{}";
         const session: Session = await JSON.parse(cookie);
         const headers = {
           Authorization: `Bearer ${session.access_token}`,
         };
-        
-        // Fetch plans data
         const plansResponse = await axios.get(PLANS_API, { headers });
         setPlans(plansResponse.data);
-        
-        // Fetch groups data
         const groupsResponse = await axios.get(GROUPS_API, { headers });
         setGroups(groupsResponse.data);
       } catch (error) {
         console.error("Error fetching plans and groups:", error);
       }
     };
-  
     fetchPlansAndGroups();
   }, []);
-  
-
   useEffect(() => {
     const fetchSubscribers = async () => {
       try {
@@ -465,14 +430,12 @@ const Subscribers = () => {
       showSuccessNotification && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white py-4 px-8 rounded-xl shadow-lg text-xl">
           {showSuccessNotificationContent}
-        </div>
-      )
-    );
+        </div>));
   };
   return (
     <Layout activePage="Abonnés">
-      <div className="flex justify-center pt-14 mx-2 w-full">
-        <div className="relative flex items-center  ">
+       <div className="flex justify-center pt-8 mx-2 w-full">
+        <div className="relative flex items-center ">
           <input
             type="text"
             value={searchQuery}
@@ -485,12 +448,11 @@ const Subscribers = () => {
           </div>
         </div>
       </div>
-
-      <div className=" table-wrapper">
-        <div className="flex justify-center mx-2 w-full  ">
-          <div className="w-full max-w-[90%] rounded-xl  table-wrapper">
-            <table className="w-full table-auto border-collapse rounded-xl ">
-              <thead className="text-center bg-primary">
+      <div className="table-wrapper ">
+        <div className='flex justify-center mx-2 w-full'>
+          <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
+            <table className='w-full table-auto border-collapse'>
+              <thead className='text-center'>
                 <tr>
                   <th className={TdStyle.ThStyle}> Nom </th>
                   <th className={TdStyle.ThStyle}> Prénom </th>
@@ -498,7 +460,6 @@ const Subscribers = () => {
                   <th className={TdStyle.ThStyle}> Email </th>
                   <th className={TdStyle.ThStyle}> Groupe </th>
                   <th className={TdStyle.ThStyle}>Plans </th>
-
                   <th className={TdStyle.ThStyle}> </th>
                   <th className={TdStyle.ThStyle}> </th>
                   <th className={TdStyle.ThStyle}> </th>
@@ -535,10 +496,8 @@ const Subscribers = () => {
                       <td className={TdStyle.TdStyle}>
                         {
                           plans.find((plan) => plan.id === subscriber.planId)
-                            ?.name
-                        }
+                            ?.name}
                       </td>
-
                       <td className={TdStyle.TdStyle}> </td>
                       <td className={TdStyle.TdStyle}>
                         <div className="flex items-center justify-center">
@@ -552,17 +511,15 @@ const Subscribers = () => {
                               height={20}
                             />
                           </button>
-
                           {showEditForm && selectedSubscriber && (
-                            <div
-                              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg"
-                              style={{
-                                width: "28%",
-                                height: "100%",
-                                overflowY: "scroll",
-                                boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.2)",
-                              }}
-                            >
+                             <div
+                             className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg overflow-y-auto"
+                             style={{
+                               width: "30%",
+                               maxHeight: "95%",
+                               boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.2)",
+                             }}
+                           >
                               <form
                                 className="flex flex-col justify-between h-full"
                                 onSubmit={handleSubmit}
@@ -575,17 +532,14 @@ const Subscribers = () => {
                                     height={15}
                                     onClick={() => setShowEditForm(false)}
                                     className="cursor-pointer"
-                                  />
-                                </div>
-
+                                  /></div>
                                 <h2
                                   className="text-lg font-bold mb-4 text-center"
                                   style={{ color: "rgb(27, 158, 246)" }}
-                                >
+                          >
                                   Modifier abonné :
                                 </h2>
-
-                                <div className="mb-4">
+                                <div className="flex flex-wrap items-center mb-4 relative">
                                   <label
                                     htmlFor="username"
                                     className="block text-gray-700 text-sm font-bold mb-2"
@@ -598,9 +552,8 @@ const Subscribers = () => {
                                     name="username"
                                     value={username}
                                     onChange={(e) =>
-                                      setUsername(e.target.value)
-                                    }
-                                    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${
+                                      setUsername(e.target.value)}
+                                    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
                                       formSubmitted && isEmptyusername
                                         ? "border-red-500"
                                         : ""
@@ -610,8 +563,7 @@ const Subscribers = () => {
                                   {formSubmitted && isEmptyusername && (
                                     <p className="text-red-500 text-xs italic">
                                       ce champ est obligatoire.
-                                    </p>
-                                  )}
+                                    </p>  )}
                                 </div>
                                 <div className="flex flex-wrap items-center mb-4 relative">
                                   <label
@@ -626,9 +578,8 @@ const Subscribers = () => {
                                     name="firstname"
                                     value={firstname}
                                     onChange={(e) =>
-                                      setfirstname(e.target.value)
-                                    }
-                                    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${
+                                      setfirstname(e.target.value)  }
+                                    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline  ${
                                       formSubmitted && isEmptyfirstname
                                         ? "border-red-500"
                                         : ""
@@ -644,12 +595,11 @@ const Subscribers = () => {
                                 <div className="flex flex-wrap items-center mb-4 relative">
                                   <label
                                     htmlFor="telephone"
-                                    className="block text-gray-700 text-sm font-bold mb-2"
+                                    className="block text-gray-700 text-sm font-bold mb-6"
                                   >
-                                    Téléphone :
+                                    Téléphone * :
                                   </label>
                                   <div className="relative flex items-center">
-                                    {/* PhoneInput component */}
                                     <PhoneInput
                                       placeholder="Entrez votre numéro de téléphone"
                                       value={telephone}
@@ -658,23 +608,19 @@ const Subscribers = () => {
                                       style={{
                                         width: "20%",
                                         paddingLeft: "0.75rem",
-                                      }} // Adjust width and padding as needed
+                                      }} 
+                                      
                                     />
                                   </div>
-                                  {/* Display error message if telephoneError is not empty */}
                                   {telephoneError && formSubmitted && (
                                     <p className="text-red-500 text-xs italic">
                                       {telephoneError}
-                                    </p>
-                                  )}
-                                  {/* Display error message if telephone field is empty */}
+                                    </p>)}
                                   {formSubmitted && isEmptytelephone && (
                                     <p className="text-red-500 text-xs italic">
                                       Ce champ est obligatoire.
-                                    </p>
-                                  )}
+                                    </p> )}
                                 </div>
-
                                 <EmailInput
                                   value={email}
                                   onChange={handleEmailChange}
@@ -682,7 +628,7 @@ const Subscribers = () => {
                                   formSubmitted={formSubmitted}
                                   emailExists={emailExists}
                                 />
-                                <div>
+                                <div className="flex flex-wrap items-center mb-4 relative">
                                   <input
                                     type="radio"
                                     value="group"
@@ -691,7 +637,7 @@ const Subscribers = () => {
                                   />
                                   <label htmlFor="group">Groupe</label>
                                 </div>
-                                <div>
+                                <div className="flex flex-wrap items-center mb-4 relative">
                                   <input
                                     type="radio"
                                     value="plan"
@@ -700,7 +646,6 @@ const Subscribers = () => {
                                   />
                                   <label htmlFor="plan">Plan</label>
                                 </div>
-
                                 {selectedOption === "group" && (
                                   <div className="flex flex-wrap items-center mb-4 relative">
                                     <label
@@ -715,24 +660,21 @@ const Subscribers = () => {
                                       value={selectedGroup}
                                       onChange={(e) => {
                                         setSelectedGroup(e.target.value);
-                                        setSelectedPlan(""); // Reset selected plan when selecting a group
+                                        setSelectedPlan(""); 
                                         handleTypeChange;
                                       }}
-                                      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                                      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline "
                                     >
                                       <option value="">
                                         Sélectionner un groupe
                                       </option>
-                                      {/* Render your group options here */}
                                       {groups.map((group) => (
                                         <option key={group.id} value={group.id}>
                                           {group.name}
                                         </option>
                                       ))}
                                     </select>
-                                  </div>
-                                )}
-
+                                  </div>)}
                                 {selectedOption === "plan" && (
                                   <div className="flex flex-wrap items-center mb-4 relative">
                                     <label
@@ -753,7 +695,7 @@ const Subscribers = () => {
                                         );
                                         handleTypeChange;
                                       }}
-                                      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
+                                      className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline "
                                     >
                                       <option value="">
                                         Sélectionner un plan
@@ -774,7 +716,6 @@ const Subscribers = () => {
                                     />
                                   </div>
                                 )}
-
                                 <div className="flex justify-end">
                                   <button
                                     className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
@@ -788,7 +729,6 @@ const Subscribers = () => {
                           )}
                         </div>
                       </td>
-
                       <td className={TdStyle.TdStyle}>
                         <div className="flex items-center justify-center">
                           <button
@@ -801,106 +741,91 @@ const Subscribers = () => {
                                   ? "active"
                                   : ""
                               }`}
-                            ></div>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            ></div> </button></div> </td></tr>))}
               </tbody>
             </table>
           </div>
         </div>
-
         {showForm && (
-          <div
-            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg"
-            style={{
-              width: "30%",
-              height: "100%",
-              overflowY: "scroll",
-              boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.2)",
-            }}
-          >
-            <form
-              className="flex flex-col justify-between h-full"
-              onSubmit={handleSubmit}
-            >
-              <div className="flex justify-end mt-4 mr-4 absolute top-0 right-0">
-                <Image
-                  src="/close.svg"
-                  alt="close"
-                  width={15}
-                  height={15}
-                  onClick={() => setShowForm(false)}
-                  className="cursor-pointer"
-                />
-              </div>
-
-              <h2
-                className="text-lg font-bold mb-4 text-center"
-                style={{ color: "rgb(27, 158, 246)" }}
-              >
-                Ajouter abonné :
-              </h2>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="nom"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Nom *:
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${
-                    formSubmitted && isEmptyusername ? "border-red-500" : ""
-                  }`}
-                  placeholder="Entrer votre nom"
-                />
-                {formSubmitted && isEmptyusername && (
-                  <p className="text-red-500 text-xs italic">
-                    ce champ est obligatoire.
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-wrap items-center mb-4 relative">
-                <label
-                  htmlFor="prenom"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Prénom * :
-                </label>
-                <input
-                  type="text"
-                  id="firstname"
-                  name="firstname"
-                  value={firstname}
-                  onChange={(e) => setfirstname(e.target.value)}
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500 ${
-                    formSubmitted && isEmptyfirstname ? "border-red-500" : ""
-                  }`}
-                  placeholder="Entrer votre prénom "
-                />
-                {formSubmitted && isEmptyfirstname && (
-                  <p className="text-red-500 text-xs italic">
-                    ce champ est obligatoire.
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-wrap items-center mb-4 relative">
+  <div
+    className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg overflow-y-auto"
+    style={{
+      width: "30%",
+      maxHeight: "95%",
+      boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.2)",
+    }}
+  >
+    <div className="flex justify-end mb-2">
+      <Image
+        src="/close.svg"
+        alt="close"
+        width={20}
+        height={20}
+        onClick={() => setShowForm(false)}
+        className="cursor-pointer"
+      />
+    </div>
+    <h2
+                                  className="text-lg font-bold mb-4 text-center"
+                                  style={{ color: "rgb(27, 158, 246)" }}
+                          >Ajouter abonné</h2>
+    <form className="space-y-6" onSubmit={handleSubmit}>
+      <div>
+        <label
+          htmlFor="username"
+          className="block text-gray-700 text-sm font-bold mb-2"
+        >
+          Nom *
+        </label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+            formSubmitted && isEmptyusername ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Entrer votre nom"
+        />
+        {formSubmitted && isEmptyusername && (
+          <p className="text-red-500 text-xs italic">
+            Ce champ est obligatoire.
+          </p>
+        )}
+      </div>
+      <div>
+        <label
+          htmlFor="firstname"
+          className="block text-gray-700 text-sm font-bold mb-2"
+        >
+          Prénom *
+        </label>
+        <input
+          type="text"
+          id="firstname"
+          name="firstname"
+          value={firstname}
+          onChange={(e) => setfirstname(e.target.value)}
+          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+            formSubmitted && isEmptyfirstname ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Entrer votre prénom"
+        />
+        {formSubmitted && isEmptyfirstname && (
+          <p className="text-red-500 text-xs italic">
+            Ce champ est obligatoire.
+          </p>
+        )}
+      </div>
+      <div className="flex flex-wrap items-center mb-4 relative">
                 <label
                   htmlFor="telephone"
                   className="block text-gray-700 text-sm font-bold mb-2"
                 >
                   Téléphone :
                 </label>
-                <div className="relative flex items-center">
-                  {/* PhoneInput component */}
+                <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                   <PhoneInput
                     placeholder="Entrez votre numéro de téléphone"
                     value={telephone}
@@ -923,128 +848,123 @@ const Subscribers = () => {
                 )}
               </div>
 
-              <EmailInput
-                value={email}
-                onChange={handleEmailChange}
-                isValid={emailIsValid}
-                formSubmitted={formSubmitted}
-                emailExists={emailExists}
-              />
-              <div>
-                <input
-                  type="radio"
-                  value="group"
-                  checked={selectedOption === "group"}
-                  onChange={handleOptionChange}
-                />
-                <label htmlFor="group">Groupe</label>
-              </div>
-              <div>
-                <input
-                  type="radio"
-                  value="plan"
-                  checked={selectedOption === "plan"}
-                  onChange={handleOptionChange}
-                />
-                <label htmlFor="plan">Plan</label>
-              </div>
+      <EmailInput
+        value={email}
+        onChange={handleEmailChange}
+        isValid={emailIsValid}
+        formSubmitted={formSubmitted}
+        emailExists={emailExists}
+      />
+      <div className="flex items-center mb-4">
+        <input
+          type="radio"
+          id="groupOption"
+          value="group"
+          checked={selectedOption === "group"}
+          onChange={handleOptionChange}
+          className="mr-2"
+        />
+        <label htmlFor="groupOption"  className="block text-gray-700 text-sm font-bold mb-2">
+          Groupe
+        </label>
+      </div>
+      <div className="flex items-center mb-4">
+        <input
+          type="radio"
+          id="planOption"
+          value="plan"
+          checked={selectedOption === "plan"}
+          onChange={handleOptionChange}
+          className="mr-2"
+        />
+        <label htmlFor="planOption"   className="block text-gray-700 text-sm font-bold mb-2">
+          Plan
+        </label>
+      </div>
+      {selectedOption === "group" && (
+        <div>
+          <label
+            htmlFor="group"
+            className="block text-gray-700 font-medium mb-1"
+          >
+            Groupe
+          </label>
+          <select
+            id="group"
+            name="group"
+            value={selectedGroup}
+            onChange={(e) => {
+              setSelectedGroup(e.target.value);
+              setSelectedPlan("");
+            }}
+            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-gray-300"
+          >
+            <option value="">Sélectionner un groupe</option>
+            {groups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      {selectedOption === "plan" && (
+        <div>
+          <label
+            htmlFor="plan"
+            className="block text-gray-700 font-medium mb-1"
+          >
+            Plan
+          </label>
+          <select
+            id="plan"
+            name="plan"
+            value={selectedPlan}
+            onChange={(e) => {
+              setSelectedPlan(e.target.value);
+              setSelectedGroup("");
+              handlePlanSelect(Number(e.target.value));
+            }}
+            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-gray-300"
+          >
+            <option value="">Sélectionner un plan</option>
+            {plans.map((plan) => (
+              <option key={plan.id} value={plan.id}>
+                {plan.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div className="flex justify-end mt-6">
+        <button
+          className="bg-blue-500 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline hover:bg-blue-600 transition duration-300"
+          type="submit"
+        >
+          Ajouter
+        </button>
+      </div>
+    </form>
+  </div>
+)}
 
-              {selectedOption === "group" && (
-                <div className="flex flex-wrap items-center mb-4 relative">
-                  <label
-                    htmlFor="group"
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    Groupe:
-                  </label>
-                  <select
-                    id="group"
-                    name="group"
-                    value={selectedGroup}
-                    onChange={(e) => {
-                      setSelectedGroup(e.target.value);
-                      setSelectedPlan(""); // Reset selected plan when selecting a group
-                    }}
-                    className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
-                  >
-                    <option value="">Sélectionner un groupe</option>
-                    {/* Render your group options here */}
-                    {groups.map((group) => (
-                      <option key={group.id} value={group.id}>
-                        {group.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
 
-              {selectedOption === "plan" && (
-                <div className="flex flex-wrap items-center mb-4 relative">
-                  <label
-                    htmlFor="plan"
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    Plan:
-                  </label>
-                  <select
-                    id="plan"
-                    name="plan"
-                    value={selectedPlan}
-                    onChange={(e) => {
-                      setSelectedPlan(e.target.value);
-                      setSelectedGroup(""); // Reset selected group when selecting a plan
-                      handlePlanSelect(Number(e.target.value));
-                    }}
-                    className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-500"
-                  >
-                    <option value="">Sélectionner un plan</option>
-                    {/* Render your plan options here */}
-                    {plans.map((plan) => (
-                      <option key={plan.id} value={plan.id}>
-                        {plan.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div className="flex justify-end">
-                <button
-                  className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
-                  type="submit"
-                >
-                  Ajouter
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
         {showCalendar && selectedPlanId && (
           <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
             <div
               className="bg-white p-6  rounded-xl shadow-lg w-[720px]"
               style={{ overflow: "auto", maxHeight: "500px" }}
-            >
-              {" "}
-              {/* Set the width of the popup */}
+            >{" "}
               <MyCalendar selectedPlanId={selectedPlanId} />
               <div className="flex justify-center mt-4">
                 <button
                   className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
-                  onClick={() => setShowCalendar(false)}
-                >
-                  Fermer
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="fixed bottom-6 right-8 mb-4 mr-4">
+                  onClick={() => setShowCalendar(false)} >
+                  Fermer   </button></div> </div>    </div>        )}
+<div className="fixed bottom-6 right-8 mb-4 mr-4">
           <button
             onClick={toggleForm}
-            className="flex items-center button-color font-bold text-white rounded-xl px-4 py-2"
-          >
+            className="flex items-center button-color font-bold text-white rounded-xl px-4 py-2">
             <span className="mr-2">Ajouter abonné</span>
             <Image
               src="/Add User Male.svg"
@@ -1052,20 +972,13 @@ const Subscribers = () => {
               width={20}
               height={20}
             ></Image>
-          </button>
-        </div>
+          </button></div>
         <div className="flex justify-center mt-50">
           <PaginationBar
             totalItems={filteredSubscribers.length}
             itemsPerPage={itemsPerPage}
             onPageChange={handlePageChange}
-            currentPage={currentPage}
-          />
-        </div>
-      </div>
+            currentPage={currentPage} /></div></div>
       {showSuccessNotification && <SuccessNotification />}
-    </Layout>
-  );
-};
-
+    </Layout>);};
 export default Subscribers;

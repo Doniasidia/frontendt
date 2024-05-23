@@ -1,3 +1,4 @@
+//client/paiement
 import React, { useEffect, useState } from "react";
 import Layout from "../clientLayout";
 import { INVOICES_API, NOTIFICATION_API } from "../../../utils/apiUtil";
@@ -21,8 +22,12 @@ interface Notification {
 }
 
 const TdStyle = {
-  ThStyle: 'border-l border-transparent py-2 px-3 text-base font-medium lg:py-4 lg:px-4 bg-custom-blue',
-  TdStyle: 'text-dark border-b border-l border-transparent border-[#E8E8E8] bg-sky-100 dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium',
+  ThStyle:
+    "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-cyan-700",
+  TdStyle:
+    "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
+  TdButton:
+    "inline-block bg-blue-300 px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
 };
 
 const NotificationPopup: React.FC<{ notifications: Notification[], onClose: () => void }> = ({ notifications, onClose }) => (
@@ -110,11 +115,11 @@ const Paiements = () => {
 
   return (
     <Layout activePage="paiement">
-      <div className="table-wrapper mt-20">
+     <div className="table-wrapper mt-20">
         <div className='flex justify-center mx-2 w-full'>
-          <div className='w-full max-w-[90%] rounded-xl table-wrapper'>
-            <table className='w-full table-auto border-collapse rounded-xl'>
-              <thead className='text-center bg-primary'>
+          <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
+            <table className='w-full table-auto border-collapse'>
+              <thead className='text-center'>
                 <tr>
                   <th className={TdStyle.ThStyle}>Nom d'abonné</th>
                   <th className={TdStyle.ThStyle}>Prix</th>
@@ -138,7 +143,7 @@ const Paiements = () => {
                     <td className={TdStyle.TdStyle}></td>
                     <td className={TdStyle.TdStyle}></td>
                     <td className={TdStyle.TdStyle}>
-                      <button onClick={openPopupPayment} className="bg-green-500 text-white px-3 py-1 rounded-md mr-2">Payé</button>
+                      <button onClick={openPopupPayment} className="bg-green-500 text-white px-3 py-1 rounded-md mr-2">Payer</button>
                     </td>
                     <td className={TdStyle.TdStyle}>
                       <button onClick={() => openPopupNotification(invoice.subscriberId)} className="bg-blue-500 text-white px-3 py-1 rounded-md">Notification</button>
