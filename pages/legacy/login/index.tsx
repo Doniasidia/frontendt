@@ -4,8 +4,9 @@ import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/router"; // Import useRouter from next/router
 import Cookies from "js-cookie";
-import { LOGIN_API } from "../../utils/apiUtil";
-import { FORGOT_PASSWORD_API } from "../../utils/apiUtil";
+
+import Link from "next/link";
+import {FORGOT_PASSWORD_API, LOGIN_API} from "@/utils/apiUtil";
 
 const Login = () => {
   const [email, setEmail] = useState(""); // Corrected variable name to setEmail
@@ -163,10 +164,10 @@ const Login = () => {
             </div>
             {loginStatus === "login" && (
               <p className="text-center mt-4">
-                Vous n'avez pas un compte ?{" "}
-                <a href="/signup" className="text-cyan-700 hover:text-cyan-600">
-                  S'inscrire
-                </a>
+                {"Vous n'avez pas un compte ?"}
+                <Link href="/signup" className="text-cyan-700 hover:text-cyan-600">
+                  {"S'inscrire"}
+                </Link>
               </p>
             )}
             {loginStatus === "error" && (

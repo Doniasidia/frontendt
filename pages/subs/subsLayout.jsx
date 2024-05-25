@@ -1,7 +1,7 @@
 //subsLayout
 import Link from 'next/link';
 import Cookies from "js-cookie";
-import { SUBSCRIBERS_API } from "../../utils/apiUtil";
+import { SUBSCRIBERS_API } from "@/utils/apiUtil";
 import axios from "axios";
 import { useState , useEffect } from "react";
 

@@ -8,8 +8,8 @@ import {
   LOGIN_API,
   REGISTER_SUBSCRIBER_API,
   SUBSCRIBERS_API,
-} from "../../utils/apiUtil";
-import { EMAIL_VERIFI_API } from "../../utils/apiUtil";
+} from "@/utils/apiUtil";
+import { EMAIL_VERIFI_API } from "@/utils/apiUtil";
 import { toast } from "react-toastify";
 
 const Signup = () => {
@@ -48,6 +48,7 @@ const Signup = () => {
       setSignupError("Failed to create subscriber. Please try again.");
     }
   };
+
   return (
 
     <div className="flex justify-center items-center h-screen bg-gradient-to-b from-cyan-500 to-sky-700  bg-opacity-50">

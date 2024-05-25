@@ -5,7 +5,7 @@ import React, { useState, useEffect, ChangeEvent } from "react";
 import Layout from "../subsLayout";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { SUBSCRIPTIONS_API } from "../../../utils/apiUtil";
+import { SUBSCRIPTIONS_API } from "@/utils/apiUtil";
 import PaginationBar from "../../../components/PaginationBar";
 
 interface Subscription {

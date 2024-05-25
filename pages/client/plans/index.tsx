@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Layout from "../clientLayout";
 import axios from "axios";
 import PaginationBar from "../../../components/PaginationBar";
-import { GROUPS_API, PLANS_API, SUBSCRIBERS_API } from "../../../utils/apiUtil";
+import { GROUPS_API, PLANS_API, SUBSCRIBERS_API } from "@/utils/apiUtil";
 import Cookies from "js-cookie";
 
 

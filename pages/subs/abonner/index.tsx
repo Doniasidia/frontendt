@@ -2,7 +2,7 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import Layout from "../subsLayout";
 import axios from "axios";
-import { PLANS_API, SUBSCRIPTIONS_API } from "../../../utils/apiUtil";
+import { PLANS_API, SUBSCRIPTIONS_API } from "@/utils/apiUtil";
 import PaginationBar from "../../../components/PaginationBar";
 import Cookies from "js-cookie";
 import { FaSearch } from "react-icons/fa";

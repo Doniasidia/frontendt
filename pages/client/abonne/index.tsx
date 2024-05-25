@@ -9,7 +9,7 @@ import PaginationBar from "../../../components/PaginationBar";
 import validator from "email-validator";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import MyCalendar from "../../../components/calendar";
-import { GROUPS_API, PLANS_API, SUBSCRIBERS_API } from "../../../utils/apiUtil";
+import { GROUPS_API, PLANS_API, SUBSCRIBERS_API } from "@/utils/apiUtil";
 import Cookies from "js-cookie";
 const TdStyle = {
   ThStyle:

@@ -9,7 +9,7 @@ import {
   CHAT_SOCKET_API,
   CLIENTS_API,
   SUBSCRIBERS_API,
-} from "../../../utils/apiUtil";
+} from "@/utils/apiUtil";
 
 interface Client {
   id: number;

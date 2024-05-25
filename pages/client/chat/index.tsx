@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { CLIENTS_API, SUBSCRIBERS_API } from "../../../utils/apiUtil";
+import { CLIENTS_API, SUBSCRIBERS_API } from "@/utils/apiUtil";
 import Layout from "../clientLayout";
 
 interface Subscriber {

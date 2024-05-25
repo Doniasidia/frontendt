@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
-import { CLIENTS_API } from "../../utils/apiUtil";
+import { CLIENTS_API } from "@/utils/apiUtil";
 import axios from "axios";
 
 const Layout = ({ children, activePage }) => {

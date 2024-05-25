@@ -8,7 +8,7 @@ import { HiEye, HiEyeOff, HiMail } from "react-icons/hi";
 import PaginationBar from "../../../components/PaginationBar";
 import validator from "email-validator";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
-import { CLIENTS_API } from "../../../utils/apiUtil";
+import { CLIENTS_API } from "@/utils/apiUtil";
 
 const TdStyle = {
   ThStyle:

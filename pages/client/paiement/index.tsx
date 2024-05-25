@@ -1,7 +1,7 @@
 //client/paiement
 import React, { useEffect, useState } from "react";
 import Layout from "../clientLayout";
-import { INVOICES_API, NOTIFICATION_API } from "../../../utils/apiUtil";
+import { INVOICES_API, NOTIFICATION_API } from "@/utils/apiUtil";
 import axios from "axios";
 import Cookies from "js-cookie";
 

@@ -1,5 +1,6 @@
 //index.tsx
 import React from 'react';
+import Link from "next/link";
 
 const Publicite = () => {
   return (
@@ -18,18 +19,18 @@ const Publicite = () => {
             en toute simplicité
           </h1>
           <p className="text-xl text-white lg:text-2xl text-center px-16 ">
-            Oubliez la gestion fastidieuse des abonnements. Notre plateforme élégante et intuitive vous aide à simplifier votre vie et celle de vos abonnés.
+            {"Oubliez la gestion fastidieuse des abonnements. Notre plateforme élégante et intuitive vous aide à simplifier votre vie et celle de vos abonnés."}
           </p>
           <div className="flex flex-col items-center space-y-4">
             <div className="flex items-center space-x-4">
               <p className="text-lg text-white">
-                Pour les propriétaires d'établissements:
+                {"Pour les propriétaires d'établissements:"}
               </p>
               <a
                 href="tel:1234567890"
                 className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-gradient-to-r from-cyan-900 to-sky-700  text-white font-bold shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
               >
-                Contactez l'administrateur
+                {"Contactez l'administrateur"}
                 <svg
                   className="ml-2 h-4 w-4"
                   xmlns="http://www.w3.org/2000/svg"
@@ -44,7 +45,7 @@ const Publicite = () => {
               <p className="text-lg text-white">
                 Pour les abonnés:
               </p>
-              <a
+              <Link
                 href="/signup"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-to-r from-cyan-900 to-sky-700  text-white font-bold shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
               >
@@ -61,7 +62,7 @@ const Publicite = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
           <div className="flex flex-col items-center mt-8">
@@ -89,7 +90,7 @@ const Publicite = () => {
                 </svg>
               </a>
               <p className="text-white text-sm mt-2">
-                Découvrez une variété d'établissements où vous pouvez vous abonner pour profiter de nos services.
+                {"Découvrez une variété d'établissements où vous pouvez vous abonner pour profiter de nos services."}
               </p>
             </div>
           </div>

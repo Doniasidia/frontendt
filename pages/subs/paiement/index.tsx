@@ -3,7 +3,7 @@ import Layout from "../subsLayout";
 import React, { useEffect, useState, ChangeEvent } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { INVOICES_API } from "../../../utils/apiUtil";
+import { INVOICES_API } from "@/utils/apiUtil";
 import PaginationBar from "../../../components/PaginationBar";
 import { FaSearch, FaCheckCircle } from "react-icons/fa";
 

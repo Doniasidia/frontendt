@@ -6,7 +6,7 @@ import Layout from "../clientLayout";
 import axios from "axios";
 import PaginationBar from "../../../components/PaginationBar";
 import MyCalendar from "../../../components/calendar"
-import { GROUPS_API, PLANS_API } from "../../../utils/apiUtil";
+import { GROUPS_API, PLANS_API } from "@/utils/apiUtil";
 import Cookies from "js-cookie";
 
 
