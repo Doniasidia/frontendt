@@ -22,10 +22,10 @@ type FormValues = {
 
 const words = [
     {
-        text: "Welcome",
+        text: "Bienvenue",
     },
     {
-        text: "to",
+        text: "chez",
     },
     {
         text: "Usms",
@@ -84,8 +84,8 @@ export default function SignUpPage() {
                             <TypewriterEffect words={words}/>
                         </h1>
                         <p className="text-lg text-white">
-                            Streamline your subscription management and create an account with
-                            our innovative platform.
+                        Rationalisez la gestion de vos abonnements grâce à notre
+                             plateforme.
                         </p>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
@@ -109,10 +109,10 @@ export default function SignUpPage() {
                 <div className="w-full max-w-md space-y-6 px-4 py-12 sm:px-6 lg:px-8">
                     <div className="space-y-2 text-center">
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-                            Create an Account
+                        Créer un compte
                         </h2>
                         <p className="text-gray-700">
-                            Get started with Usms by creating an account.
+                        Démarrez avec Usms en créant un compte.
                         </p>
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)}>
@@ -120,12 +120,12 @@ export default function SignUpPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <Label className="text-gray-900" htmlFor="firstname">
-                                        First Name
+                                    Prénom :
                                     </Label>
                                     <Input
                                         className="mt-1 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-[#00a8e8] focus:ring-[#00a8e8]"
                                         id="firstname"
-                                        placeholder="Enter your first name"
+                                        placeholder="Entrez votre prénom"
                                         type="text"
                                         {...register("firstname", {
                                             required: "this is a required",
@@ -140,12 +140,12 @@ export default function SignUpPage() {
                                 </div>
                                 <div>
                                     <Label className="text-gray-900" htmlFor="lastname">
-                                        Last Name
+                                        Nom :
                                     </Label>
                                     <Input
                                         className="mt-1 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-[#00a8e8] focus:ring-[#00a8e8]"
                                         id="lastname"
-                                        placeholder="Enter your last name"
+                                        placeholder="Entrez votre nom"
                                         type="text"
                                         {...register("lastname", {
                                             required: "this is required",
@@ -161,7 +161,7 @@ export default function SignUpPage() {
                             </div>
                             <div>
                                 <Label className="text-gray-900" htmlFor="email">
-                                    Email
+                                    Email:
                                 </Label>
                                 <Input
                                     className="mt-1 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-[#00a8e8] focus:ring-[#00a8e8]"
@@ -180,12 +180,12 @@ export default function SignUpPage() {
                             </div>
                             <div>
                                 <Label className="text-gray-900" htmlFor="tel">
-                                    Phone
+                                    Téléphone :
                                 </Label>
                                 <Input
                                     className="mt-1 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-[#00a8e8] focus:ring-[#00a8e8]"
                                     id="tel"
-                                    placeholder="Enter your phone number"
+                                    placeholder="Entrez votre téléphone"
                                     type="tel"
                                     {...register("tel", {
                                         required: "this is required",
@@ -203,15 +203,15 @@ export default function SignUpPage() {
                                 className="w-full bg-[#00a8e8] text-white hover:bg-[#0077b6]"
                                 type="submit"
                             >
-                                Create Account
+                                S'inscrire
                             </Button>
                             <div className="text-center text-gray-700">
-                                Already have an account?
+                            Vous avez déjà un compte?
                                 <Link
                                     className="text-[#00a8e8] ml-2 hover:underline"
                                     href="/login"
                                 >
-                                    Sign in
+                                 Se connecter
                                 </Link>
                             </div>
                         </div>

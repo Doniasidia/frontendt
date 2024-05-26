@@ -1,4 +1,5 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/tailwindUtil";
+import React from "react";
 
 interface BorderBeamProps {
   className?: string;

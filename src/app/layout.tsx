@@ -1,15 +1,7 @@
-import { Libre_Franklin } from "next/font/google";
-
 import "@/components/globals.css";
 import React from "react";
-import { cn } from "@/lib/utils";
-import ToastProvider from "@/providers/toast-provider";
-
-const libre_franklin = Libre_Franklin({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-libre_franklin",
-});
+import { cn } from "@/utils/tailwindUtil";
+import { libre_franklin } from "@/components/fonts";
 
 export default function RootLayout({
   children,

@@ -1,3 +1,5 @@
+import React from "react";
+
 export function CalendarIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -425,4 +427,67 @@ export function UserIcon(props: React.SVGProps<SVGSVGElement>) {
       <circle cx="12" cy="7" r="4" />
     </svg>
   );
+}
+
+export function ArrowUpIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+      <svg
+          {...props}
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+      >
+        <path d="m5 12 7-7 7 7" />
+        <path d="M12 19V5" />
+      </svg>
+  )
+}
+
+
+export function MoveHorizontalIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+      <svg
+          {...props}
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+      >
+        <polyline points="18 8 22 12 18 16" />
+        <polyline points="6 8 2 12 6 16" />
+        <line x1="2" x2="22" y1="12" y2="12" />
+      </svg>
+  )
+}
+
+
+export function PlusIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+      <svg
+          {...props}
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+      >
+        <path d="M5 12h14" />
+        <path d="M12 5v14" />
+      </svg>
+  )
 }

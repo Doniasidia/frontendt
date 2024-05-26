@@ -11,7 +11,7 @@ import axios from "axios";
 import {FORGOT_PASSWORD_API, LOGIN_API} from "@/utils/apiUtil";
 import Cookies from "js-cookie";
 import {toast} from "react-toastify";
-import {cn} from "@/lib/utils";
+import {cn} from "@/utils/tailwindUtil";
 import {TypewriterEffect} from "@/components/typewriter-effect";
 import {Spotlight} from "@/components/spotlight";
 import React, {useState} from "react";
@@ -20,10 +20,10 @@ import {PasswordInput} from "@/components/passwordInput";
 
 const words = [
     {
-        text: "Welcome",
+        text: "Bienvenue",
     },
     {
-        text: "to",
+        text: "chez",
     },
     {
         text: "Usms",
@@ -126,8 +126,8 @@ export default function LoginPage() {
                             <TypewriterEffect words={words}/>
                         </h1>
                         <p className="text-md text-white">
-                            Streamline your subscription management with our innovative
-                            platform.
+                        Rationalisez la gestion de vos abonnements grâce à notre
+                             plateforme.
                         </p>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
@@ -151,16 +151,16 @@ export default function LoginPage() {
                 <div className="w-full max-w-md space-y-6 px-4 py-12 sm:px-6 lg:px-8">
                     <div className="space-y-2 text-center">
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-                            Sign in to your account
+                            Se connecter
                         </h2>
                         <p className="text-gray-700">
-                            Enter your email and password to access the Usms platform.
+                        Entrez votre email et votre mot de passe pour accéder à la plateforme Usms.
                         </p>
                     </div>
                     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                         <div>
                             <Label className="text-gray-900" htmlFor="email">
-                                Email address
+                                Email :
                             </Label>
                             <Input
                                 className={cn(
@@ -168,7 +168,7 @@ export default function LoginPage() {
                                     errors?.email && "border-red-500"
                                 )}
                                 id="email"
-                                placeholder="name@example.com"
+                                placeholder=""
                                 type="email"
                                 required
                                 {...register("email", {
@@ -188,14 +188,14 @@ export default function LoginPage() {
                         <div>
                             <div className="flex items-center justify-between">
                                 <Label className="text-gray-900" htmlFor="password">
-                                    Password
+                                    Mot de passe :
                                 </Label>
                                 <Link
                                     onClick={handleForgotPasswordSubmit}
                                     className="text-sm font-medium text-gray-900 hover:text-gray-700 underline"
                                     href="#"
                                 >
-                                    Forgot password?
+                                    Mot de passe oublié?
                                 </Link>
                             </div>
                             <PasswordInput
@@ -223,8 +223,15 @@ export default function LoginPage() {
                             className="w-full bg-[#00a8e8] text-white hover:bg-[#0077b6]"
                             type="submit"
                         >
-                            Sign in
+                           se connecter
                         </Button>
+                       <h4>si vous n'avez pas de compte
+ <Link
+              className=" items-center justify-center px-6 py-3 bg-transparent    hover:text-blue text-blue-500 font-medium rounded-md transition-colors duration-300"
+              href="/signup"
+            >
+             S'inscrire
+            </Link> </h4>
                     </form>
                 </div>
             </div>
