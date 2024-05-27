@@ -23,7 +23,7 @@ interface Notification {
 
 const TdStyle = {
     ThStyle:
-        "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-cyan-700",
+        "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-slate-500",
     TdStyle:
         "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
     TdButton:
@@ -117,7 +117,7 @@ const Paiements = () => {
         <>
             <div className="table-wrapper mt-20">
                 <div className='flex justify-center mx-2 w-full'>
-                    <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
+                    <div className='w-full w-fit rounded-xl overflow-hidden shadow-lg'>
                         <table className='w-full table-auto border-collapse'>
                             <thead className='text-center'>
                             <tr>
@@ -139,9 +139,9 @@ const Paiements = () => {
                                     <td className={TdStyle.TdStyle}>{invoice.amount}</td>
                                     <td className={TdStyle.TdStyle}>{invoice.createdAt}</td>
                                     <td className={TdStyle.TdStyle}>{invoice.dueDate}</td>
-                                    <td className={TdStyle.TdStyle}></td>
-                                    <td className={TdStyle.TdStyle}></td>
-                                    <td className={TdStyle.TdStyle}></td>
+                                    <td className={TdStyle.TdStyle}>payé</td>
+                                    <td className={TdStyle.TdStyle}>en ligne</td>
+                                    <td className={TdStyle.TdStyle}>2024-05-28</td>
                                     <td className={TdStyle.TdStyle}>
                                         <button onClick={openPopupPayment} className="bg-green-500 text-white px-3 py-1 rounded-md mr-2">Payer</button>
                                     </td>

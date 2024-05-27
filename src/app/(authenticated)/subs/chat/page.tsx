@@ -106,7 +106,7 @@ export default function Page() {
                         <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                        <div className="font-medium">John Doe</div>
+                        <div className="font-medium">Farah Miladi</div>
                         <div className="text-sm text-gray-500">Online</div>
                     </div>
                     <DropdownMenu>

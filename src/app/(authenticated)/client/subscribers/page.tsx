@@ -794,7 +794,7 @@ const Subscribers = () => {
                         </div>
                         <h2
                             className="text-lg font-bold mb-4 text-center"
-                            style={{color: "rgb(27, 158, 246)"}}
+                            style={{ color: "#083344" }}
                         >Ajouter abonné</h2>
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div>

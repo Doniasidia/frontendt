@@ -25,11 +25,11 @@ interface Client {
 
 const TdStyle = {
     ThStyle:
-        'py-4 px-6 text-base font-medium text-white bg-cyan-700',
+        'py-4 px-6 text-base font-medium text-white bg-slate-500',
     TdStyle:
         'py-3 px-6 text-sm font-medium text-gray-700 bg-white border-b border-gray-200',
     TdButton:
-        'bg-green-500 text-white px-3 py-1 rounded-md shadow-sm hover:bg-green-600 transition-colors duration-300',
+        'bg-green-500 text-white px-3 py-1 rounded-md shadow-sm hover:bg-slate-500 transition-colors duration-300',
 };
 
 const Abonner = () => {
@@ -153,7 +153,7 @@ const Abonner = () => {
             </div>
             <div className="table-wrapper ">
                 <div className='flex justify-center mx-2 w-full'>
-                    <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
+                    <div className='w-full max-w-[100%] rounded-xl overflow-hidden shadow-lg'>
                         <table className='w-full table-auto border-collapse'>
                             <thead className='text-center'>
                             <tr>
@@ -236,7 +236,7 @@ export default function Page() {
     return (
         <main>
             <Breadcrumbs
-                breadcrumbs={[{label: "Liste de clients", href: "/subs/client-list"}]}
+                breadcrumbs={[{label: "Explorez Nos Plans d'Abonnement", href: "/subs/client-list"}]}
             />
             <Abonner/>
         </main>

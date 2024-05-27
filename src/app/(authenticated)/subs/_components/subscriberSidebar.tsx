@@ -1,6 +1,6 @@
 "use client";
 
-import {ContactIcon, ContactRound, CreditCardIcon, PowerIcon, UserRound, UsersIcon,} from "lucide-react";
+import {ContactIcon, ContactRound, CreditCardIcon, PowerIcon, UserCog, UserRound, UsersIcon,} from "lucide-react";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import React from "react";
@@ -11,7 +11,7 @@ const links: NavItem[] = [
   {
     name: "Mon profile",
     href: "/subs/profile",
-    icon: ContactIcon,
+    icon: UserCog,
   },
     {
     name: "Abonnements",
@@ -24,7 +24,7 @@ const links: NavItem[] = [
     icon: CreditCardIcon,
   },
   {
-    name: "Lise de clients",
+    name: "Catalogue d'Abonnements",
     href: "/subs/client-list",
     icon: ContactRound,
   },

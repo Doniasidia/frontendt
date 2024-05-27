@@ -381,7 +381,7 @@ const Clients = () => {
             </div>
             <div className="table-wrapper ">
                 <div className='flex justify-center mx-2 w-full'>
-                    <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
+                    <div className='w-full max-w-[180%] rounded-xl overflow-hidden shadow-lg'>
                         <table className='w-full table-auto border-collapse'>
                             <thead className='text-center'>
                             <tr>

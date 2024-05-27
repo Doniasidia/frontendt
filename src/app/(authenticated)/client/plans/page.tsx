@@ -390,7 +390,7 @@ const Plans = () => {
 
                             <h2
                                 className="text-lg font-bold mb-4 text-center"
-                                style={{ color: "rgb(27, 158, 246)" }}
+                                style={{ color: "#083344" }}
                             >{"Ajouter un plan d'abonnement"}</h2>
 
                             <div className="mb-2">

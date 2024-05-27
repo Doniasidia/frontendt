@@ -3,7 +3,7 @@ import axios from 'axios';
 import {unstable_noStore as noStore} from 'next/cache';
 import {cookies} from 'next/headers';
 import {sum} from "lodash";
-
+   
 export async function fetchCardData() {
     noStore();
     const cookiesInfo = cookies();

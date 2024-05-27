@@ -16,7 +16,7 @@ interface Subscription {
 
 const TdStyle = {
     ThStyle:
-        "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-cyan-700",
+        "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-slate-500",
     TdStyle:
         "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
     TdButton:

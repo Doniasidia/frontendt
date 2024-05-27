@@ -8,6 +8,8 @@ import {
   ContactIcon,
   PowerIcon,
   UserRound,
+  UserCog,
+  
 } from "lucide-react";
 import Cookies from "js-cookie";
 import Link from "next/link";
@@ -16,6 +18,11 @@ import UsmsLogo from "@/components/usms-logo";
 import NavLinks, {NavItem} from "@/components/nav-links";
 
 const links: NavItem[] = [
+  {
+    name: "Profile",
+    href: "/client/profile",
+    icon: UserCog,
+  },
   { name: "Tableau de bord", href: "/client/dashboard", icon: Grid3x3Icon },
   {
     name: "Abonnés",
