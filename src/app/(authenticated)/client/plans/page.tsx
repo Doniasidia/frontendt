@@ -611,7 +611,7 @@ export default function Page() {
   return (
     <main>
       <Breadcrumbs
-        breadcrumbs={[{ label: "Subscription Plans", href: "/client/plans" }]}
+        breadcrumbs={[{ label: "Plans d'abonnements", href: "/client/plans" }]}
       />
         <Plans/>
     </main>

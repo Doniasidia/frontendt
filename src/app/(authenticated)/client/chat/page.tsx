@@ -110,7 +110,7 @@ export default function Page() {
                 </Avatar>
                 <div className="flex-1">
                     <div className="font-medium">{username}</div> {/* Use the dynamically retrieved username */}
-                    <div className="text-sm text-gray-500">Online</div>
+                    <div className="text-sm text-gray-500">En ligne</div>
                 </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -185,7 +185,7 @@ export default function Page() {
                     <div className="relative">
                         <Textarea
                             className="min-h-[48px] rounded-2xl resize-none p-4 border border-gray-200 shadow-sm pr-16"
-                            placeholder="Type your message..."
+                            placeholder="Ecrire votre message..."
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                         />

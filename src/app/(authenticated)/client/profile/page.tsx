@@ -99,7 +99,7 @@ const Profile = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Téléphone</label>
+          <label className="block text-sm font-medium text-gray-700">Lien</label>
           <Input
             type="text"
             name="lien"
@@ -110,7 +110,7 @@ const Profile = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Téléphone</label>
+          <label className="block text-sm font-medium text-gray-700">Description</label>
           <Input
             type="text"
             name="description"
@@ -120,7 +120,7 @@ const Profile = () => {
             required
           />
         </div>
-        <Button type="submit" className="mr-2">Enregistrer</Button>
+        <Button type="submit" className="bg-sky-900 mr-2">Enregistrer</Button>
       </form>
     </div>
   );
@@ -130,7 +130,7 @@ export default function Page() {
   return (
     <main>
       <Breadcrumbs
-        breadcrumbs={[{ label: "Profile", href: "/client/profile" }]}
+        breadcrumbs={[{ label: "Mon profile", href: "/client/profile" }]}
       />
       <Profile />
     </main>

@@ -1025,7 +1025,7 @@ export default function Page() {
     return (
         <main>
             <Breadcrumbs
-                breadcrumbs={[{label: "Subscribers", href: "/client/suscribers"}]}
+                breadcrumbs={[{label: "Abonnés", href: "/client/suscribers"}]}
             />
             <Subscribers/>
         </main>

@@ -108,7 +108,7 @@ const Profile = () => {
             required
           />
         </div>
-        <Button type="submit" className="mr-2">Enregistrer</Button>
+        <Button type="submit" className="bg-sky-900 mr-2">Enregistrer</Button>
       </form>
     </div>
   );
@@ -118,7 +118,7 @@ export default function Page() {
   return (
     <main>
       <Breadcrumbs
-        breadcrumbs={[{ label: "Profile", href: "/subs/profile" }]}
+        breadcrumbs={[{ label: "Mon profile", href: "/subs/profile" }]}
       />
       <Profile />
     </main>

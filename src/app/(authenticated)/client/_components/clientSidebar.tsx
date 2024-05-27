@@ -19,7 +19,7 @@ import NavLinks, {NavItem} from "@/components/nav-links";
 
 const links: NavItem[] = [
   {
-    name: "Profile",
+    name: "Mon profile",
     href: "/client/profile",
     icon: UserCog,
   },

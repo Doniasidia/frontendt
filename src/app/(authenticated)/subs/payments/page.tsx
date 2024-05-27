@@ -205,7 +205,7 @@ export default function Page() {
     return (
         <main>
             <Breadcrumbs
-                breadcrumbs={[{label: "Paiements", href: "/subs/payments"}]}
+                breadcrumbs={[{label: "Paiement", href: "/subs/payments"}]}
             />
             <Paiement/>
 
