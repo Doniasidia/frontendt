@@ -2,8 +2,8 @@
 import Breadcrumbs from "@/components/breadcrumbs";
 import Cookies from "js-cookie";
 import axios from "axios";
-import {INVOICES_API, NOTIFICATION_API} from "@/utils/apiUtil";
-import React, {useEffect, useState} from "react";
+import { INVOICES_API, NOTIFICATION_API } from "@/utils/apiUtil";
+import React, { useEffect, useState } from "react";
 
 interface Invoice {
     id: number;
@@ -12,7 +12,9 @@ interface Invoice {
     amount: number;
     createdAt: string;
     dueDate: string;
-    // Add other properties as needed
+    status: string;
+    paymentMethod?: string;
+    paymentDate?: string;
 }
 
 interface Notification {
@@ -23,11 +25,11 @@ interface Notification {
 
 const TdStyle = {
     ThStyle:
-        "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-slate-500",
+        "border-l border-transparent py-2 px-3 text-white font-medium bg-slate-500",
     TdStyle:
-        "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
+        "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7  text-center text-sm font-medium",
     TdButton:
-        "inline-block bg-blue-300 px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
+        "inline-block bg-blue-300  border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
 };
 
 const NotificationPopup: React.FC<{ notifications: Notification[], onClose: () => void }> = ({ notifications, onClose }) => (
@@ -56,6 +58,7 @@ const Paiements = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [showPopupPayment, setShowPopupPayment] = useState(false);
     const [selectedSubscriberId, setSelectedSubscriberId] = useState<number | null>(null);
+    const [selectedInvoiceId, setSelectedInvoiceId] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchInvoices = async () => {
@@ -92,12 +95,14 @@ const Paiements = () => {
         setShowPopupNotifications(true);
     };
 
-    const openPopupPayment = () => {
+    const openPopupPayment = (invoiceId: number) => {
+        setSelectedInvoiceId(invoiceId);
         setShowPopupPayment(true);
     };
 
     const closePopupPayment = () => {
         setShowPopupPayment(false);
+        setSelectedInvoiceId(null);
     };
 
     const closePopupNotifications = () => {
@@ -108,8 +113,28 @@ const Paiements = () => {
         setSelectedPaymentMethod(event.target.value);
     };
 
-    const handlePaymentSubmit = () => {
-        console.log("Payment method:", selectedPaymentMethod);
+    const handlePaymentSubmit = async () => {
+        if (selectedInvoiceId) {
+            try {
+                const cookie = Cookies.get("session") || "{}";
+                const session: { access_token: string } = JSON.parse(cookie);
+                const headers = {
+                    Authorization: `Bearer ${session.access_token}`,
+                };
+                await axios.patch(`${INVOICES_API}/${selectedInvoiceId}/payment`, {
+                    status: 'paid',
+                    paymentMethod : selectedPaymentMethod,
+                    paymentDate: new Date().toISOString().split('T')[0] ,
+                }, { headers });
+
+                // Update invoice status in the state
+                setInvoices(invoices.map(invoice =>
+                    invoice.id === selectedInvoiceId ? { ...invoice, status: 'paid', paymentMethod: selectedPaymentMethod, paymentDate: new Date().toISOString().split('T')[0] } : invoice
+                ));
+            } catch (error) {
+                console.error('Error updating invoice status:', error);
+            }
+        }
         closePopupPayment();
     };
 
@@ -139,14 +164,16 @@ const Paiements = () => {
                                     <td className={TdStyle.TdStyle}>{invoice.amount}</td>
                                     <td className={TdStyle.TdStyle}>{invoice.createdAt}</td>
                                     <td className={TdStyle.TdStyle}>{invoice.dueDate}</td>
-                                    <td className={TdStyle.TdStyle}>payé</td>
-                                    <td className={TdStyle.TdStyle}>en ligne</td>
-                                    <td className={TdStyle.TdStyle}>2024-05-28</td>
+                                    <td className={TdStyle.TdStyle}>{invoice.status === 'paid' ? 'Payé' : 'En attente'}</td>
+                                    <td className={TdStyle.TdStyle}>{invoice.paymentMethod || '-'}</td>
+                                    <td className={TdStyle.TdStyle}>{invoice.paymentDate || '-'}</td>
                                     <td className={TdStyle.TdStyle}>
-                                        <button onClick={openPopupPayment} className="bg-green-500 text-white px-3 py-1 rounded-md mr-2">Payer</button>
+                                        {invoice.status === 'pending' && (
+                                            <button onClick={() => openPopupPayment(invoice.id)} className="bg-sky-900 text-white px-3 py-1 rounded-md mr-2">Payer</button>
+                                        )}
                                     </td>
                                     <td className={TdStyle.TdStyle}>
-                                        <button onClick={() => openPopupNotification(invoice.subscriberId)} className="bg-blue-500 text-white px-3 py-1 rounded-md">Notification</button>
+                                        <button onClick={() => openPopupNotification(invoice.subscriberId)} className="bg-sky-900 text-white px-3 py-1 rounded-md">Notification</button>
                                         {showPopupNotifications && selectedSubscriberId === invoice.subscriberId && (
                                             <NotificationPopup notifications={notifications} onClose={closePopupNotifications} />
                                         )}
@@ -163,8 +190,9 @@ const Paiements = () => {
                     <div className="bg-white p-8 rounded-xl shadow-lg">
                         <h2 className="text-lg font-bold mb-4 text-center">Sélectionner la méthode de paiement</h2>
                         <select value={selectedPaymentMethod} onChange={handlePaymentMethodChange} className="block w-full bg-gray-100 border border-gray-300 px-4 py-2 rounded-md mb-4 focus:outline-none focus:ring focus:ring-blue-400">
-                            <option value="cash">Payé en cash</option>
-                            <option value="cheque">Payé par chèque</option>
+                            <option value="cash">Payer en cash</option>
+                            <option value="cheque">Payer par chèque</option>
+                            <option value="card">Payer avec carte bancaire</option>
                         </select>
                         <div className="flex justify-center">
                             <button onClick={handlePaymentSubmit} className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400">Valider</button>
@@ -175,15 +203,15 @@ const Paiements = () => {
             )}
         </>
     );
-}
+};
 
 export default function Page() {
-  return (
-    <main>
-      <Breadcrumbs
-        breadcrumbs={[{ label: "Payments", href: "/client/paiements" }]}
-      />
-        <Paiements />
-    </main>
-  );
+    return (
+        <main>
+            <Breadcrumbs
+                breadcrumbs={[{ label: "Payments", href: "/client/paiements" }]}
+            />
+            <Paiements />
+        </main>
+    );
 }

@@ -29,7 +29,7 @@ const TdStyle = {
     TdStyle:
         'py-3 px-6 text-sm font-medium text-gray-700 bg-white border-b border-gray-200',
     TdButton:
-        'bg-green-500 text-white px-3 py-1 rounded-md shadow-sm hover:bg-slate-500 transition-colors duration-300',
+        'bg-sky-900 text-white px-3 py-1 rounded-md shadow-sm hover:bg-slate-500 transition-colors duration-300',
 };
 
 const Abonner = () => {
@@ -116,7 +116,7 @@ const Abonner = () => {
 
             console.log("Subscription created successfully:", response.data);
             setShowConfirmation(false);
-            window.location.href = `paiement/`;
+            window.location.href = `payments/`;
         } catch (error) {
             console.error("Error creating subscription or invoice:", error);
         }

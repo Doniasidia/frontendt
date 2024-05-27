@@ -315,8 +315,7 @@ const Groups = () => {
                             </div>
 
                             <h2
-                                className="text-lg font-bold mb-4 text-center"
-                                style={{color: "#083344"}}
+                                className="text-lg text-cyan-900 font-bold mb-4 text-center"
                             >Ajouter un groupe</h2>
 
                             <div className="mb-2">
@@ -361,7 +360,7 @@ const Groups = () => {
 
                             <div className="flex justify-end">
                                 <button
-                                    className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
+                                    className="bg-sky-900 text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
                                     type="submit"
                                 >
                                     Ajouter
@@ -392,7 +391,7 @@ const Groups = () => {
 
                 <div className="fixed bottom-6 right-8 mb-0.5 mr-4 mt-40 flex flex-column items-center">
                     <button onClick={toggleForm}
-                            className="flex items-center button-color font-bold text-white rounded-xl px-4 py-2 mb-2">
+                            className="flex items-center bg-sky-900 font-bold text-white rounded-xl px-4 py-2 mb-2">
                         <span className="mr-2">Ajouter groupe</span>
                         <Image src='/add.svg' alt='addGroup' width={20} height={20} color="white"></Image>
                     </button>

@@ -658,8 +658,8 @@ const Clients = () => {
                             </div>
 
                             <h2
-                                className="text-lg font-bold mb-4"
-                                style={{ color: "#083344" }}
+                                className="text-lg text-cyan-900  font-bold mb-4"
+                                
                             >
                                 Ajouter client :
                             </h2>
@@ -794,7 +794,7 @@ const Clients = () => {
                             </div>
                             <div className="flex justify-end">
                                 <button
-                                    className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
+                                    className="bg-sky-900 text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
                                     type="submit"
                                 >
                                     Ajouter
@@ -810,7 +810,7 @@ const Clients = () => {
                 <div className="fixed bottom-6 right-8 mb-4 mr-4">
                     <button
                         onClick={toggleForm}
-                        className="flex items-center button-color font-bold text-white rounded-xl px-4 py-2"
+                        className="flex items-center bg-sky-900 font-bold text-white rounded-xl px-4 py-2"
                     >
                         <span className="mr-2">Ajouter client</span>
                         <Image

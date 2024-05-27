@@ -23,7 +23,7 @@ const links: NavItem[] = [
     href: "/client/profile",
     icon: UserCog,
   },
-  { name: "Tableau de bord", href: "/client/dashboard", icon: Grid3x3Icon },
+  { name: "tableau de bord", href: "/client/dashboard", icon: Grid3x3Icon },
   {
     name: "Abonnés",
     href: "/client/subscribers",

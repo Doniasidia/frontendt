@@ -1,4 +1,4 @@
-import { fetchCardData } from "@/app/lib/data";
+import { fetchCardData } from "@/app/lib/client/data";
 import { lusitana } from "@/components/fonts";
 
 import {
@@ -24,11 +24,11 @@ export default async function CardWrapper() {
   } =await fetchCardData();
   return (
     <>
-        <Card title="Collected" value={totalPaidInvoices} type="collected" />
-        <Card title="Pending" value={totalPendingInvoices} type="pending" />
-        <Card title="Total Invoices" value={numberOfInvoices} type="invoices" />
+        <Card title="Montant collecté" value={totalPaidInvoices} type="collected" />
+        <Card title="En attente" value={totalPendingInvoices} type="pending" />
+        <Card title="Total des factures" value={numberOfInvoices} type="invoices" />
         <Card
-            title="Total Customers"
+            title="Total des abonnés"
             value={numberOfCustomers}
             type="customers"
         />

@@ -31,6 +31,7 @@ export default function Page() {
     const [selectedSubscriber, setSelectedSubscriber] = useState<Subscriber | null>(null);
     const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
     const [socket, setSocket] = useState<Socket | null>(null);
+    const [username, setUsername] = useState<string>('');
 
     useEffect(() => {
         const userIdString = Cookies.get('userId');
@@ -66,6 +67,8 @@ export default function Page() {
             }
         };
         fetchSubscribers();
+        const usernameFromCookie = Cookies.get('username');
+        setUsername(usernameFromCookie || '');
     }, []);
 
     const handleSendMessage = () => {
@@ -99,16 +102,16 @@ export default function Page() {
 
     return (
         <main className="min-h-screen">
-            <div className="fixed w-full top-0 py-[30px] bg-white border-b border-gray-200">
-                <div className="flex items-center gap-4">
-                    <Avatar className="w-10 h-10">
-                        <AvatarImage alt="John Doe" src="/placeholder-user.jpg" />
-                        <AvatarFallback>JD</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                        <div className="font-medium">Ecole privé Exellence</div>
-                        <div className="text-sm text-gray-500">En ligne</div>
-                    </div>
+        <div className="fixed w-full top-0 py-[30px] bg-white border-b border-gray-200">
+            <div className="flex items-center gap-4">
+                <Avatar className="w-10 h-10">
+                    <AvatarImage alt={username} src="/placeholder-user.jpg" /> {/* Use the dynamically retrieved username */}
+                    <AvatarFallback>{username[0]}</AvatarFallback> {/* Use the dynamically retrieved username */}
+                </Avatar>
+                <div className="flex-1">
+                    <div className="font-medium">{username}</div> {/* Use the dynamically retrieved username */}
+                    <div className="text-sm text-gray-500">Online</div>
+                </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button size="icon" variant="ghost">

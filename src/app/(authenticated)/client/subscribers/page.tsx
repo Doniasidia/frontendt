@@ -793,8 +793,8 @@ const Subscribers = () => {
                             />
                         </div>
                         <h2
-                            className="text-lg font-bold mb-4 text-center"
-                            style={{ color: "#083344" }}
+                            className="text-lg font-bold text-cyan-900  mb-4 text-center"
+                            
                         >Ajouter abonné</h2>
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div>
@@ -969,7 +969,7 @@ const Subscribers = () => {
                             )}
                             <div className="flex justify-end mt-6">
                                 <button
-                                    className="bg-blue-500 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline hover:bg-blue-600 transition duration-300"
+                                    className="bg-sky-900 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline hover:bg-blue-600 transition duration-300"
                                     type="submit"
                                 >
                                     Ajouter
@@ -999,7 +999,7 @@ const Subscribers = () => {
                 <div className="fixed bottom-6 right-8 mb-4 mr-4">
                     <button
                         onClick={toggleForm}
-                        className="flex items-center button-color font-bold text-white rounded-xl px-4 py-2">
+                        className="flex items-center bg-sky-900	 font-bold text-white rounded-xl px-4 py-2">
                         <span className="mr-2">Ajouter abonné</span>
                         <Image
                             src="/Add User Male.svg"
