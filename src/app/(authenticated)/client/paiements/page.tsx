@@ -8,13 +8,17 @@ import React, { useEffect, useState } from "react";
 interface Invoice {
     id: number;
     subscriberName: string;
-    subscriberId: number;
+    subscriber : Subscriber;
     amount: number;
     createdAt: string;
     dueDate: string;
     status: string;
     paymentMethod?: string;
     paymentDate?: string;
+}
+interface Subscriber {
+    id : number
+
 }
 
 interface Notification {
@@ -77,24 +81,19 @@ const Paiements = () => {
         fetchInvoices();
     }, []);
 
-    const fetchNotifications = async (subscriberId: number) => {
+    const openPopupNotification = async (subscriberId: number) => {
+        setSelectedSubscriberId(subscriberId);
         try {
             const cookie = Cookies.get('session') || '{}';
             const session: { access_token: string } = JSON.parse(cookie);
             const headers = { Authorization: `Bearer ${session.access_token}` };
-            const response = await axios.get(`${NOTIFICATION_API}/${subscriberId}`, { headers });
+            const response = await axios.get(`${NOTIFICATION_API}?subscriberId=${subscriberId}`, { headers });
             setNotifications(response.data);
+            setShowPopupNotifications(true);
         } catch (error) {
             console.error('Error fetching notifications:', error);
         }
     };
-
-    const openPopupNotification = async (subscriberId: number) => {
-        setSelectedSubscriberId(subscriberId);
-        await fetchNotifications(subscriberId);
-        setShowPopupNotifications(true);
-    };
-
     const openPopupPayment = (invoiceId: number) => {
         setSelectedInvoiceId(invoiceId);
         setShowPopupPayment(true);
@@ -173,8 +172,8 @@ const Paiements = () => {
                                         )}
                                     </td>
                                     <td className={TdStyle.TdStyle}>
-                                        <button onClick={() => openPopupNotification(invoice.subscriberId)} className="bg-sky-900 text-white px-3 py-1 rounded-md">Notification</button>
-                                        {showPopupNotifications && selectedSubscriberId === invoice.subscriberId && (
+                                        <button onClick={() => openPopupNotification(invoice.subscriber.id)} className="bg-sky-900 text-white px-3 py-1 rounded-md">Notification</button>
+                                        {showPopupNotifications && selectedSubscriberId === invoice.subscriber.id && (
                                             <NotificationPopup notifications={notifications} onClose={closePopupNotifications} />
                                         )}
                                     </td>

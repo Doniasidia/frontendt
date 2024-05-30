@@ -1,4 +1,3 @@
-// Profile.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -14,9 +13,10 @@ const Profile = () => {
     username: '',
     email: '',
     telephone: '',
-    addressLine : '',
-    description : '',
+    addressLine: '',
+    description: '',
   });
+  const [successMessage, setSuccessMessage] = useState(''); // State to track success message
 
   useEffect(() => {
     const fetchClientData = async () => {
@@ -56,6 +56,7 @@ const Profile = () => {
     try {
       const response = await axios.patch(`${CLIENTS_API}/${loggedInUserId}`, client);
       setClient(response.data);
+      setSuccessMessage('Modifications enregistrées avec succès!'); // Set success message
     } catch (error) {
       console.error("Error updating client data:", error);
     }
@@ -63,7 +64,10 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Modifier vos informations </h1>
+      <h1 className="text-2xl font-bold mb-4">Modifier vos informations</h1>
+      {successMessage && (
+        <div className="mb-4 text-green-500 font-bold">{successMessage}</div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Nom d'établissemnt</label>
@@ -102,7 +106,7 @@ const Profile = () => {
           <label className="block text-sm font-medium text-gray-700">Lien</label>
           <Input
             type="text"
-            name="lien"
+            name="addressLine"
             value={client.addressLine}
             className="w-72"
             onChange={handleInputChange}

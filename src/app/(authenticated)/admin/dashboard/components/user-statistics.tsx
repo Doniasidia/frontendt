@@ -44,7 +44,7 @@ async function fetchClientsAndSubscribers() {
 }
 
 function aggregateData(items: { createdAt: string }[]): DataPoint[] {
-    const counts: { [key: string]: number } = {};
+  const counts: { [key: string]: number } = {};
 
   items.forEach(item => {
     const date = new Date(item.createdAt).toISOString().split('T')[0];
@@ -62,6 +62,7 @@ function aggregateData(items: { createdAt: string }[]): DataPoint[] {
     cumulativeCounts.push({ date, count: cumulativeSum });
   });
 
+  console.log("Aggregated Data:", cumulativeCounts); // Debugging line
   return cumulativeCounts;
 }
 
@@ -70,7 +71,24 @@ async function prepareChartData() {
   const clientData = aggregateData(clients);
   const subscriberData = aggregateData(subscribers);
 
-  return { clientData, subscriberData };
+  // Combine and sort all unique dates
+  const allDates = Array.from(new Set([...clientData.map(item => item.date), ...subscriberData.map(item => item.date)])).sort();
+
+  // Create unified labels
+  const labels = allDates.map(date => DateFormat.getFormattedDate(date));
+
+  // Align data points with unified labels
+  const clientCounts = allDates.map(date => {
+    const dataPoint = clientData.find(item => item.date === date);
+    return dataPoint ? dataPoint.count : 0;
+  });
+
+  const subscriberCounts = allDates.map(date => {
+    const dataPoint = subscriberData.find(item => item.date === date);
+    return dataPoint ? dataPoint.count : 0;
+  });
+
+  return { labels, clientCounts, subscriberCounts };
 }
 
 export default function ClientSubscriberChart() {
@@ -92,11 +110,11 @@ export default function ClientSubscriberChart() {
 
   useEffect(() => {
     async function fetchData() {
-      const { clientData, subscriberData } = await prepareChartData();
+      const { labels, clientCounts, subscriberCounts } = await prepareChartData();
 
-      const labels = clientData.map(item => DateFormat.getFormattedDate(item.date));
-      const clientCounts = clientData.map(item => item.count);
-      const subscriberCounts = subscriberData.map(item => item.count);
+      console.log("Formatted Labels:", labels); // Debugging line
+      console.log("Client Counts:", clientCounts); // Debugging line
+      console.log("Subscriber Counts:", subscriberCounts); // Debugging line
 
       setChartData({
         labels,

@@ -24,12 +24,9 @@ interface Client {
 }
 
 const TdStyle = {
-    ThStyle:
-        'py-4 px-6 text-base font-medium text-white bg-slate-500',
-    TdStyle:
-        'py-3 px-6 text-sm font-medium text-gray-700 bg-white border-b border-gray-200',
-    TdButton:
-        'bg-sky-900 text-white px-3 py-1 rounded-md shadow-sm hover:bg-slate-500 transition-colors duration-300',
+    ThStyle: 'py-4 px-6 text-base font-medium text-white bg-slate-500',
+    TdStyle: 'py-3 px-6 text-sm font-medium text-gray-700 bg-white border-b border-gray-200',
+    TdButton: 'bg-sky-900 text-white px-3 py-1 rounded-md shadow-sm hover:bg-slate-500 transition-colors duration-300',
 };
 
 const Abonner = () => {
@@ -44,7 +41,7 @@ const Abonner = () => {
     useEffect(() => {
         const fetchPlans = async () => {
             try {
-                const response = await axios.get<Plan[]>(`${PLANS_API}/allplans`);
+                const response = await axios.get<Plan[]>(`${PLANS_API}/allenligneplans`);
                 console.log("Fetched successfully:", response.data);
                 setPlans(response.data);
             } catch (error) {
@@ -101,7 +98,6 @@ const Abonner = () => {
             }
             const amount = Number(selectedPlan.amount); // Ensure amount is a number
 
-
             const response = await axios.post(`${SUBSCRIPTIONS_API}`, {
                 subscriberId: Number(loggedInUserId),
                 amount: amount,
@@ -151,7 +147,7 @@ const Abonner = () => {
                     <FaSearch className="absolute right-4 text-gray-400"/>
                 </div>
             </div>
-            <div className="table-wrapper ">
+            <div className="table-wrapper">
                 <div className='flex justify-center mx-2 w-full'>
                     <div className='w-full max-w-[100%] rounded-xl overflow-hidden shadow-lg'>
                         <table className='w-full table-auto border-collapse'>

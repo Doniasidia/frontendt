@@ -27,13 +27,19 @@ type FormValues = {
 
 const words = [
   {
-    text: "Reset",
+    text: "Réinitialiser",
   },
   {
-    text: "Your",
+    text: "votre",
   },
   {
-    text: "Password",
+    text: "mot",
+  },
+  {
+    text: "de",
+  },
+  {
+    text: "passe",
   },
 ];
 
@@ -95,7 +101,7 @@ export default function ResetPasswordPage() {
               <TypewriterEffect words={words} />
             </h1>
             <p className="text-md text-white">
-              Enter your new password to secure your Usms account.
+            Saisissez votre nouveau mot de passe pour sécuriser votre compte Usms.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-4">
@@ -119,22 +125,22 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-md space-y-6 px-4 py-12 sm:px-6 lg:px-8">
           <div className="space-y-2 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-              Reset Password
+            Réinitialiser votre mot de passe
             </h2>
             <p className="text-gray-700">
-              Enter your new password to secure your Usms account.
+           
             </p>
           </div>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
               <div>
                 <Label className="text-gray-900" htmlFor="password">
-                  New Password
+                Nouveau mot de passe :
                 </Label>
                 <PasswordInput
                     className="mt-1 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-[#00a8e8] focus:ring-[#00a8e8]"
                     id="password"
-                    placeholder="Enter a new password"
+                    placeholder=""
                     {...register("password", {
                       required: "this is required",
                       maxLength: 16,
@@ -152,12 +158,12 @@ export default function ResetPasswordPage() {
               </div>
               <div>
                 <Label className="text-gray-900" htmlFor="confirm-password">
-                  Confirm Password
+                 Confirmer nouveau mot de passe : 
                 </Label>
                 <PasswordInput
                     className="mt-1 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-[#00a8e8] focus:ring-[#00a8e8]"
                     id="confirm-password"
-                    placeholder="Confirm your new password"
+                    placeholder=""
                     {...register("confirmPassword", {
                       required: "this is required",
                       maxLength: 16,
@@ -178,21 +184,13 @@ export default function ResetPasswordPage() {
                   className="w-full bg-[#00a8e8] text-white hover:bg-[#0077b6]"
                   type="submit"
               >
-                Reset Password
+                Confirmer
               </Button>
-              <div className="text-center text-gray-700">
-                Remember your password?
-                <Link
-                    className="text-[#00a8e8] ml-2 hover:underline"
-                    href="/login"
-                >
-                  Sign in
-                </Link>
-              </div>
+             
             </div>
           </form>
         </div>
       </div>
-    </div>
+    </div>
 );
 }

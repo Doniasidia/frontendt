@@ -73,6 +73,7 @@ const EmailInput: React.FC<
 interface Group {
     id: number;
     name: string;
+    nbrabonne: number;
   }
   
   interface Plan {
@@ -123,7 +124,7 @@ const Subscribers = () => {
     const [showSuccessNotification, setShowSuccessNotification] = useState(false);
     const [telephoneError, setTelephoneError] = useState<string>("");
     const [plans, setPlans] = useState<{ id: number; name: string }[]>([]);
-    const [groups, setGroups] = useState<{ id: number; name: string }[]>([]);
+    const [groups, setGroups] = useState<{ id: number; name: string, nbrabonne:number }[]>([]);
     const [subscribersToDisplay, setSubscribersToDisplay] = useState<Subscriber[]>([]);
     const [selectedPlan, setSelectedPlan] = useState<string>("");
     const [selectedGroup, setSelectedGroup] = useState<string>("");
@@ -331,6 +332,7 @@ const Subscribers = () => {
         setFormSubmitted(false);
         setEmailIsValid(true);
         setTelephoneIsValid(true);
+        setSelectedOption(""); 
     };
 
 
@@ -415,11 +417,18 @@ const Subscribers = () => {
                         {headers}
                     );
 
-                    // Update local state with newly created subscriber
-                    setSubscribers([...subscribers, response.data]);
+                    const newSubscriber = response.data;
+                    setSubscribers([...subscribers, newSubscriber]);
                     setShowForm(false);
+    
+                    // Increment nbrabonne property of the selected group
+                    await axios.patch(
+                        `${GROUPS_API}/${selectedGroup}/increment-nbrabonne`,
+                        { headers }
+                    );
                 }
-
+    
+                // Show success notification
                 setFormValid(true);
                 setShowSuccessNotification(true);
                 setShowSuccessNotificationContent(
@@ -429,7 +438,7 @@ const Subscribers = () => {
                 console.error("Error creating/modifying subscriber:", error);
             }
         }
-
+    
         setFormSubmitted(true);
     };
 
@@ -471,7 +480,7 @@ const Subscribers = () => {
             </div>
             <div className="table-wrapper ">
                 <div className='flex justify-center mx-2 w-full'>
-                    <div className='w-full max-w-[90%] rounded-xl overflow-hidden shadow-lg'>
+                    <div className='w-full max-w-[100%] rounded-xl overflow-hidden shadow-lg'>
                         <table className='w-full table-auto border-collapse'>
                             <thead className='text-center'>
                             <tr>
@@ -510,12 +519,12 @@ const Subscribers = () => {
                                         <td className={TdStyle.TdStyle}>
                   {subscriber.groups && subscriber.groups.length > 0
                     ? subscriber.groups.map(group => group.name).join(', ')
-                    : 'N/A'}
+                    : '-'}
                 </td>
                 <td className={TdStyle.TdStyle}>
                   {subscriber.plans && subscriber.plans.length > 0
                     ? subscriber.plans.map(plan => plan.name).join(', ')
-                    : 'N/A'}
+                    : '-'}
                 </td>
 
                                         <td className={TdStyle.TdStyle}></td>
@@ -555,8 +564,8 @@ const Subscribers = () => {
                                                                     className="cursor-pointer"
                                                                 /></div>
                                                             <h2
-                                                                className="text-lg font-bold mb-4 text-center"
-                                                                style={{color: "rgb(27, 158, 246)"}}
+                                                                className="text-lg font-bold mb-4 text-center text-cyan-900"
+                                                                
                                                             >
                                                                 Modifier abonné :
                                                             </h2>
@@ -653,7 +662,7 @@ const Subscribers = () => {
                                                                 <input
                                                                     type="radio"
                                                                     value="group"
-                                                                    checked={selectedOption === "group"}
+                                                                    checked={selectedOption === "group" && selectedGroup !== ""}
                                                                     onChange={handleOptionChange}
                                                                 />
                                                                 <label htmlFor="group">Groupe</label>
@@ -662,7 +671,7 @@ const Subscribers = () => {
                                                                 <input
                                                                     type="radio"
                                                                     value="plan"
-                                                                    checked={selectedOption === "plan"}
+                                                                    checked={selectedOption === "plan" || selectedGroup === ""}
                                                                     onChange={handleOptionChange}
                                                                 />
                                                                 <label htmlFor="plan">Plan</label>
@@ -691,7 +700,7 @@ const Subscribers = () => {
                                                                             Sélectionner un groupe
                                                                         </option>
                                                                         {groups.map((group) => (
-                                                                            <option key={group.id} value={group.id}>
+                                                                            <option key={group.id} value={selectedGroup}>
                                                                                 {group.name}
                                                                             </option>
                                                                         ))}
@@ -713,19 +722,17 @@ const Subscribers = () => {
                                                                         onChange={(e) => {
                                                                             setSelectedPlan(e.target.value);
                                                                             setSelectedGroup(""); // Reset selected group when selecting a plan
-                                                                            handlePlanSelect(
-                                                                                Number(e.target.value)
-                                                                            );
                                                                             handleTypeChange;
+
+                                                                          
                                                                         }}
                                                                         className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline "
                                                                     >
                                                                         <option value="">
                                                                             Sélectionner un plan
                                                                         </option>
-                                                                        {/* Render your plan options here */}
                                                                         {plans.map((plan) => (
-                                                                            <option key={plan.id} value={plan.id}>
+                                                                            <option key={plan.id} value={selectedPlan}>
                                                                                 {plan.name}
                                                                             </option>
                                                                         ))}
@@ -741,7 +748,7 @@ const Subscribers = () => {
                                                             )}
                                                             <div className="flex justify-end">
                                                                 <button
-                                                                    className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
+                                                                    className="bg-sky-900 text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
                                                                     type="submit"
                                                                 >
                                                                     Modifier

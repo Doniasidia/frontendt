@@ -30,6 +30,7 @@ interface Group {
     plan: string;
     status: string;
     planId: number;
+ nbrabonne : number;
 }
 
 
@@ -109,7 +110,6 @@ const Groups = () => {
             }
         };
 
-        // Fetch  from the API when the component mounts
         fetchGroups();
     }, []);
 
@@ -292,7 +292,7 @@ const Groups = () => {
 
                                         <td className={TdStyle.TdStyle}>{group.name}</td>
                                         <td className={TdStyle.TdStyle}>{plans.find(plan => plan.id === group.planId)?.name}</td>
-                                        <td className={TdStyle.TdStyle}>20</td>
+                                        <td className={TdStyle.TdStyle}>{group.nbrabonne}</td>
 
                                     </tr>
                                 ))}

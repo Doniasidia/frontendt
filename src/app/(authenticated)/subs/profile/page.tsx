@@ -16,6 +16,8 @@ const Profile = () => {
     email: '',
     telephone: '',
   });
+  const [successMessage, setSuccessMessage] = useState(''); // State to track success message
+
 
   useEffect(() => {
     const fetchSubscriberData = async () => {
@@ -28,6 +30,7 @@ const Profile = () => {
       try {
         const response = await axios.get(`${SUBSCRIBERS_API}/${loggedInUserId}`);
         setSubscriber(response.data);
+
       } catch (error) {
         console.error("Error fetching subscriber data:", error);
       }
@@ -55,6 +58,8 @@ const Profile = () => {
     try {
       const response = await axios.patch(`${SUBSCRIBERS_API}/${loggedInUserId}`, subscriber);
       setSubscriber(response.data);
+      setSuccessMessage('Modifications enregistrées avec succès!'); // Set success message
+
     } catch (error) {
       console.error("Error updating subscriber data:", error);
     }
@@ -63,6 +68,9 @@ const Profile = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Modifier vos informations </h1>
+      {successMessage && (
+        <div className="mb-4 text-green-500 font-bold">{successMessage}</div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Nom</label>
