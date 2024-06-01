@@ -29,7 +29,7 @@ export default function Page() {
     const [message, setMessage] = useState('');
     const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
     const [selectedSubscriber, setSelectedSubscriber] = useState<Subscriber | null>(null);
-    const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+    const [messagesBySubscriber, setMessagesBySubscriber] = useState<{ [key: number]: Message[] }>({});
     const [socket, setSocket] = useState<Socket | null>(null);
     const [username, setUsername] = useState<string>('');
 
@@ -41,9 +41,28 @@ export default function Page() {
             const newSocket = io('http://localhost:5000', {
                 query: { role: 'client', userId },
             });
-
             newSocket.on('chat-message', (message: Message) => {
-                setReceivedMessages((prevMessages) => [...prevMessages, message]);
+                setMessagesBySubscriber((prevMessages) => {
+                    const recipientId = message.senderId === userId ? message.recipientId : message.senderId;
+                    return {
+                        ...prevMessages,
+                        [recipientId]: [...(prevMessages[recipientId] || []), message],
+                    };
+                });
+            });
+
+            newSocket.on('past-messages', (messages: Message[]) => {
+                setMessagesBySubscriber((prevMessages) => {
+                    const messagesBySubscriber = { ...prevMessages };
+                    messages.forEach((message) => {
+                        const recipientId = message.senderId === userId ? message.recipientId : message.senderId;
+                        if (!messagesBySubscriber[recipientId]) {
+                            messagesBySubscriber[recipientId] = [];
+                        }
+                        messagesBySubscriber[recipientId].push(message);
+                    });
+                    return messagesBySubscriber;
+                });
             });
 
             setSocket(newSocket);
@@ -88,7 +107,10 @@ export default function Page() {
         };
 
         socket.emit('chat-message', newMessage);
-        setReceivedMessages((prevMessages) => [...prevMessages, newMessage]);
+        setMessagesBySubscriber((prevMessages) => ({
+            ...prevMessages,
+            [selectedSubscriber.id]: [...(prevMessages[selectedSubscriber.id] || []), newMessage],
+        }));
         setMessage('');
     };
 
@@ -100,18 +122,20 @@ export default function Page() {
         subscriber.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const currentMessages = selectedSubscriber ? messagesBySubscriber[selectedSubscriber.id] || [] : [];
+
     return (
         <main className="min-h-screen">
-        <div className="fixed w-full top-0 py-[30px] bg-white border-b border-gray-200">
-            <div className="flex items-center gap-4">
-                <Avatar className="w-10 h-10">
-                    <AvatarImage alt={username} src="/placeholder-user.jpg" /> {/* Use the dynamically retrieved username */}
-                    <AvatarFallback>{username[0]}</AvatarFallback> {/* Use the dynamically retrieved username */}
-                </Avatar>
-                <div className="flex-1">
-                    <div className="font-medium">{username}</div> {/* Use the dynamically retrieved username */}
-                    <div className="text-sm text-gray-500">En ligne</div>
-                </div>
+            <div className="fixed w-full top-0 py-[30px] bg-white border-b border-gray-200">
+                <div className="flex items-center gap-4">
+                    <Avatar className="w-10 h-10">
+                        <AvatarImage alt={username} src="/placeholder-user.jpg" />
+                        <AvatarFallback>{username[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                        <div className="font-medium">{username}</div>
+                        <div className="text-sm text-gray-500">En ligne</div>
+                    </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button size="icon" variant="ghost">
@@ -130,7 +154,7 @@ export default function Page() {
             <div className="flex flex-col pt-16 pb-36 max-w-2xl">
                 <div className="flex-1 overflow-auto p-4">
                     <div className="grid gap-4">
-                        {receivedMessages.map((msg: Message, index) => (
+                        {currentMessages.map((msg: Message, index) => (
                             <div
                                 key={index}
                                 className={`flex items-start gap-4 ${msg.senderType === 'client' ? 'justify-end' : ''}`}

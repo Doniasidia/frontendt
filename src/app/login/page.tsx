@@ -78,14 +78,16 @@ export default function LoginPage() {
             );
 
             console.log("Login successful!", response.data);
-            toast.success("Login successful! Welcome back, " + username + "!");
+            toast.success("Connexion réussie ! Bienvenue de retour, " + username + " !");
+
             await new Promise((resolve) => setTimeout(()=>{
                 router.push(redirectTo);
             }, 1000));
         } catch (error) {
             console.error("Login failed:", error);
             toast.error(
-                "Unable to login: Please check your email and password and try again."
+                "Impossible de se connecter : Veuillez vérifier votre email et votre mot de passe, puis réessayez."
+
             );
         }
     };
@@ -98,7 +100,8 @@ export default function LoginPage() {
         const email = getValues("email");
 
         if (!email) {
-            toast.error("Please enter your email address to reset your password.");
+            toast.error("Veuillez entrer votre adresse email pour réinitialiser votre mot de passe.");
+
             return;
         }
 
@@ -106,10 +109,12 @@ export default function LoginPage() {
             // Send a request to your backend to initiate password reset
             const response = await axios.get(`${FORGOT_PASSWORD_API}/${email}`);
             console.log("Forgot Password Request Sent:", response.data);
-            toast.success("A password reset link has been sent to your email.");
+            toast.success("Un lien de réinitialisation du mot de passe a été envoyé à votre adresse e-mail.");
+
         } catch (error) {
             console.error("Forgot Password Request Failed:", error);
-            toast.error("Failed to initiate password reset. Please try again.");
+            toast.error("Échec de l'initialisation de la réinitialisation du mot de passe. Veuillez réessayer.");
+
         }
     };
 
@@ -172,10 +177,10 @@ export default function LoginPage() {
                                 type="email"
                                 required
                                 {...register("email", {
-                                    required: "this is required",
+                                    required: "Ce champ est requis",
                                     pattern: {
                                         value: EMAIL_REGEX,
-                                        message: "Invalid email address"
+                                        message: "Adresse e-mail invalide"
                                     }
                                 })}
                             />
@@ -205,11 +210,12 @@ export default function LoginPage() {
                                     errors?.password && "border-red-500"
                                 )}
                                 {...register("password", {
-                                    required: "this is required",
+                                    required: "Ce champ est requis",
                                     maxLength: 16,
                                     pattern: {
                                         value: PASSWORD_REGEX,
-                                        message: "Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+                                        message: "Minimum huit caractères, au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial"
+
                                     }
                                 })}
                             />

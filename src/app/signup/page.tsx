@@ -57,7 +57,9 @@ export default function SignUpPage() {
             console.log("Subscriber created:", response.data);
             if (response.data.success && response.data.code === 1) {
                 toast.success(
-                    "A verification link has been sent to your email address. Please check your email to complete the registration."
+                    "Un lien de vérification a été envoyé à votre adresse e-mail. Veuillez vérifier votre e-mail pour finaliser l'inscription."
+
+
                 );
                 await new Promise((resolve) => setTimeout(()=>{
                     router?.push("/");
@@ -67,7 +69,7 @@ export default function SignUpPage() {
             }
         } catch (error) {
             console.error("Signup failed:", error);
-            toast.error("An error occurred during registration. Please try again.");
+            toast.error("Une erreur s'est produite lors de l'inscription. Veuillez réessayer.");
         }
     };
 
@@ -128,10 +130,10 @@ export default function SignUpPage() {
                                         placeholder="Entrez votre prénom"
                                         type="text"
                                         {...register("firstname", {
-                                            required: "this is a required",
+                                            required: "Ce champ est requis",
                                             minLength: {
                                                 value: 2,
-                                                message: "Min length is 2"
+                                                message: "La longueur minimale est de 2"
                                             }
                                         })}
                                     />
@@ -148,10 +150,10 @@ export default function SignUpPage() {
                                         placeholder="Entrez votre nom"
                                         type="text"
                                         {...register("lastname", {
-                                            required: "this is required",
+                                            required: "Ce champ est requis",
                                             minLength: {
                                                 value: 2,
-                                                message: "Min length is 2"
+                                                message: "La longueur minimale est de 2"
                                             }
                                         })}
                                     />
@@ -166,13 +168,13 @@ export default function SignUpPage() {
                                 <Input
                                     className="mt-1 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-[#00a8e8] focus:ring-[#00a8e8]"
                                     id="email"
-                                    placeholder="Enter your email"
+                                    placeholder="Entrez votre adresse e-mail"
                                     type="email"
                                     {...register("email", {
-                                        required: "this is required",
+                                        required: "Ce champ est requis",
                                         pattern: {
                                             value: EMAIL_REGEX,
-                                            message: "Invalid email address"
+                                            message: "Adresse e-mail invalide"
                                         }
                                     })}
                                 />
@@ -188,7 +190,7 @@ export default function SignUpPage() {
                                     placeholder="Entrez votre téléphone"
                                     type="tel"
                                     {...register("tel", {
-                                        required: "this is required",
+                                        required: "Ce champ est requis",
                                         minLength: 8,
                                         maxLength: 12,
                                         pattern: {

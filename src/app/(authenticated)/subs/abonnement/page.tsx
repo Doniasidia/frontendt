@@ -7,11 +7,19 @@ import axios from "axios";
 import { SUBSCRIPTIONS_API } from "@/utils/apiUtil";
 import PaginationBar from "../../../../../components/PaginationBar";
 
+
 interface Subscription {
   clientName: string;
   planName: string;
   groupName: string | null;
   amount: number;
+  subscriber : Subscriber;
+  status : string;
+
+}
+interface Subscriber{
+  id : number ;
+  slots : string[]
 }
 
 const TdStyle = {
@@ -28,6 +36,8 @@ const Abonnement = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
+  const [showSlotsPopup, setShowSlotsPopup] = useState(false);
+  const [selectedSubscriberSlots, setSelectedSubscriberSlots] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
@@ -50,6 +60,10 @@ const Abonnement = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+  const handleSlotsDisplay = (slots: string[]) => {
+    setSelectedSubscriberSlots(slots);
+    setShowSlotsPopup(true);
   };
 
   const filteredSubscriptions = subscriptions.filter((subscription) =>
@@ -83,18 +97,42 @@ return (
                 <th className={`${TdStyle.ThStyle} border-b border-gray-300`}>Plan</th>
                 <th className={`${TdStyle.ThStyle} border-b border-gray-300`}>Groupe</th>
                 <th className={`${TdStyle.ThStyle} border-b border-gray-300`}>Prix</th>
+                <th className={`${TdStyle.ThStyle} border-b border-gray-300`}></th>
+
               </tr>
             </thead>
             <tbody>
-              {subscriptionsToDisplay.map((subscription: Subscription, index) => (
-                <tr key={index}>
-                  <td className={`${TdStyle.TdStyle} border-b border-gray-200`}>{subscription.clientName}</td>
-                  <td className={`${TdStyle.TdStyle} border-b border-gray-200`}>{subscription.planName}</td>
-                  <td className={`${TdStyle.TdStyle} border-b border-gray-200`}>{subscription.groupName}</td>
-                  <td className={`${TdStyle.TdStyle} border-b border-gray-200`}>{subscription.amount}</td>
-                </tr>
-              ))}
-            </tbody>
+            
+            {subscriptionsToDisplay.map((subscription: Subscription, index) => (
+  <tr 
+    key={index} 
+    style={subscription.status === 'deactivated' ? { backgroundColor: '#f5f5f5', opacity: 0.3 } : {}}
+  >
+    <td className={`${TdStyle.TdStyle} border-b border-gray-200 ${subscription.status === 'deactivated' ? 'text-center deactivated-text' : 'text-left'}`}>
+      {subscription.clientName}
+    </td>
+    <td className={`${TdStyle.TdStyle} border-b border-gray-200 ${subscription.status === 'deactivated' ? 'text-center deactivated-text' : 'text-left'}`}>
+      {subscription.planName}
+    </td>
+    <td className={`${TdStyle.TdStyle} border-b border-gray-200 ${subscription.status === 'deactivated' ? 'text-center deactivated-text' : 'text-left'}`}>
+      {subscription.groupName}
+    </td>
+    <td className={`${TdStyle.TdStyle} border-b border-gray-200 ${subscription.status === 'deactivated' ? 'text-center deactivated-text' : 'text-left'}`}>
+      {subscription.amount}
+    </td>
+    <td className={subscription.status === 'activated' ? TdStyle.TdStyle : ''}>
+      {subscription.status === 'activated' && (
+        <button onClick={() => handleSlotsDisplay(subscription.subscriber.slots)} className="bg-sky-900 text-white px-3 py-1 rounded-md">
+          Horaires des séances
+        </button>
+      )}
+    </td>
+  </tr>
+))}
+
+
+
+</tbody>
           </table>
         </div>
       </div>
@@ -107,6 +145,22 @@ return (
         />
       </div>
     </div>
+    {showSlotsPopup && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-xl shadow-lg">
+                        <h2>Horaires des séances</h2>
+                        <ul>
+                            {selectedSubscriberSlots.map((slot, index) => (
+                                <li key={index}>{slot}</li>
+                            ))}
+                        </ul>
+                        <div />         
+                       <div className="flex justify-center mt-4">
+                        <button onClick={() => setShowSlotsPopup(false)} className="bg-sky-900 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400 ">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            )}
   </>
 );
 };

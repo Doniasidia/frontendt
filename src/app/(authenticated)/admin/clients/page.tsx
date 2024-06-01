@@ -262,7 +262,7 @@ const Clients = () => {
 
         setPack("");
         setAddressLine("");
-        // Reset form validation states as well if needed
+        setdescription("");
         setFormValid(true);
         setFormSubmitted(false);
         setEmailIsValid(true);

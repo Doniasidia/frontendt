@@ -29,27 +29,45 @@ export default function Page() {
     const [message, setMessage] = useState('');
     const [clients, setClients] = useState<Client[]>([]);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-    const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+    const [messagesByClient, setMessagesByClient] = useState<{ [key: number]: Message[] }>({});
     const [socket, setSocket] = useState<Socket | null>(null);
     const [username, setUsername] = useState<string>('');
 
-
     useEffect(() => {
         const userIdString = Cookies.get('userId');
-        
         const userId = userIdString ? parseInt(userIdString) : null;
-
+    
         if (userId) {
             const newSocket = io('http://localhost:5000', {
                 query: { role: 'subscriber', userId },
             });
-
+    
             newSocket.on('chat-message', (message: Message) => {
-                setReceivedMessages((prevMessages) => [...prevMessages, message]);
+                setMessagesByClient((prevMessages) => {
+                    const recipientId = message.senderId === userId ? message.recipientId : message.senderId;
+                    return {
+                        ...prevMessages,
+                        [recipientId]: [...(prevMessages[recipientId] || []), message],
+                    };
+                });
             });
-
+    
+            newSocket.on('past-messages', (messages: Message[]) => {
+                setMessagesByClient((prevMessages) => {
+                    const messagesByClient = { ...prevMessages };
+                    messages.forEach((message) => {
+                        const recipientId = message.senderId === userId ? message.recipientId : message.senderId;
+                        if (!messagesByClient[recipientId]) {
+                            messagesByClient[recipientId] = [];
+                        }
+                        messagesByClient[recipientId].push(message);
+                    });
+                    return messagesByClient;
+                });
+            });
+    
             setSocket(newSocket);
-
+    
             return () => {
                 newSocket.disconnect();
             };
@@ -90,7 +108,10 @@ export default function Page() {
         };
 
         socket.emit('chat-message', newMessage);
-        setReceivedMessages((prevMessages) => [...prevMessages, newMessage]);
+        setMessagesByClient((prevMessages) => ({
+            ...prevMessages,
+            [selectedClient.id]: [...(prevMessages[selectedClient.id] || []), newMessage],
+        }));
         setMessage('');
     };
 
@@ -102,18 +123,20 @@ export default function Page() {
         client.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const currentMessages = selectedClient ? messagesByClient[selectedClient.id] || [] : [];
+
     return (
         <main className="min-h-screen">
-        <div className="fixed w-full top-0 py-[30px] bg-white border-b border-gray-200">
-            <div className="flex items-center gap-4">
-                <Avatar className="w-10 h-10">
-                    <AvatarImage alt={username} src="/placeholder-user.jpg" /> {/* Use the dynamically retrieved username */}
-                    <AvatarFallback>{username[0]}</AvatarFallback> {/* Use the dynamically retrieved username */}
-                </Avatar>
-                <div className="flex-1">
-                    <div className="font-medium">{username}</div> {/* Use the dynamically retrieved username */}
-                    <div className="text-sm text-gray-500">En ligne</div>
-                </div>
+            <div className="fixed w-full top-0 py-[30px] bg-white border-b border-gray-200">
+                <div className="flex items-center gap-4">
+                    <Avatar className="w-10 h-10">
+                        <AvatarImage alt={username} src="/placeholder-user.jpg" />
+                        <AvatarFallback>{username[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                        <div className="font-medium">{username}</div>
+                        <div className="text-sm text-gray-500">En ligne</div>
+                    </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button size="icon" variant="ghost">
@@ -132,7 +155,7 @@ export default function Page() {
             <div className="flex flex-col pt-16 pb-36 max-w-2xl">
                 <div className="flex-1 overflow-auto p-4">
                     <div className="grid gap-4">
-                        {receivedMessages.map((msg: Message, index) => (
+                        {currentMessages.map((msg: Message, index) => (
                             <div
                                 key={index}
                                 className={`flex items-start gap-4 ${msg.senderType === 'subscriber' ? 'justify-end' : ''}`}

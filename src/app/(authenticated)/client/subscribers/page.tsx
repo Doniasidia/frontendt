@@ -95,6 +95,7 @@ interface Group {
     firstname: string;
     groups: Group[]; // Update to hold multiple groups
     plans: Plan[];
+    slots : string[];
   }
   
 
@@ -118,7 +119,7 @@ const Subscribers = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 7;
+    const itemsPerPage = 5;
     const [emailExists, setEmailExists] = useState(false);
     const [telephoneExists, setTelephoneExists] = useState(false);
     const [showSuccessNotification, setShowSuccessNotification] = useState(false);
@@ -131,13 +132,23 @@ const Subscribers = () => {
     const [selectedOption, setSelectedOption] = useState("client");
     const [showCalendar, setShowCalendar] = useState(false);
     const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
-    const [showSuccessNotificationContent, setShowSuccessNotificationContent] =
-        useState<string>("");
+    const [showSuccessNotificationContent, setShowSuccessNotificationContent] =useState<string>("");
+    const [storedSlots, setStoredSlots] = useState<any[]>([]); // State to store selected slots
+    const [showSlotsPopup, setShowSlotsPopup] = useState(false);
+    const [selectedSubscriberSlots, setSelectedSubscriberSlots] = useState<string[]>([]);
+
 
     const handlePlanSelect = (planId: number) => {
         setSelectedPlan(planId.toString());
         setSelectedPlanId(planId);
         setShowCalendar(true);
+    };
+    const handleSlotsSelect = (slots: string[]) => {
+        setStoredSlots(slots);
+    };
+    const handleSlotsDisplay = (slots: string[]) => {
+        setSelectedSubscriberSlots(slots);
+        setShowSlotsPopup(true);
     };
     const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedValue = event.target.value;
@@ -413,6 +424,7 @@ const Subscribers = () => {
                             telephone,
                             groupId: selectedGroup !== "" ? selectedGroup : undefined,
                             planId: selectedPlan !== "" ? selectedPlan : undefined,
+                            slots: storedSlots
                         },
                         {headers}
                     );
@@ -493,6 +505,7 @@ const Subscribers = () => {
                                 <th className={TdStyle.ThStyle}></th>
                                 <th className={TdStyle.ThStyle}></th>
                                 <th className={TdStyle.ThStyle}></th>
+                                
                             </tr>
                             </thead>
                             <tbody>
@@ -527,8 +540,9 @@ const Subscribers = () => {
                     : '-'}
                 </td>
 
-                                        <td className={TdStyle.TdStyle}></td>
-                                        <td className={TdStyle.TdStyle}>
+                <td className={TdStyle.TdStyle} >
+    <button onClick={() => handleSlotsDisplay(subscriber.slots)} className="bg-sky-900 text-white rounded-md">Horaires des séances</button>
+</td>                                                        <td className={TdStyle.TdStyle}>
                                             <div className="flex items-center justify-center">
                                                 <button
                                                     onClick={() => handleClick(subscriber.id, "edit")}
@@ -741,9 +755,10 @@ const Subscribers = () => {
                                                             )}
                                                             {showCalendar && selectedPlanId && (
                                                                 <div className="mb-8">
-                                                                    <MyCalendar
-                                                                        selectedPlanId={selectedPlanId}
-                                                                    />
+                                                                   <MyCalendar
+    onSlotsSelect={handleSlotsSelect}
+    myEventsList={storedSlots}
+/>   
                                                                 </div>
                                                             )}
                                                             <div className="flex justify-end">
@@ -993,7 +1008,10 @@ const Subscribers = () => {
                             className="bg-white p-6  rounded-xl shadow-lg w-[720px]"
                             style={{overflow: "auto", maxHeight: "500px"}}
                         >{" "}
-                            <MyCalendar selectedPlanId={selectedPlanId}/>
+                            <MyCalendar
+    onSlotsSelect={handleSlotsSelect}
+    myEventsList={storedSlots}
+/>  
                             <div className="flex justify-center mt-4">
                                 <button
                                     className="button-color text-white font-bold py-2 px-6 rounded-2xl focus:outline-none focus:shadow-outline"
@@ -1024,6 +1042,22 @@ const Subscribers = () => {
                         currentPage={currentPage}/></div>
             </div>
             {showSuccessNotification && <SuccessNotification/>}
+            {showSlotsPopup && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-xl shadow-lg">
+                        <h2>Horaires des séances :</h2>
+                        <ul>
+                            {selectedSubscriberSlots.map((slot, index) => (
+                                <li key={index}>{slot}</li>
+                            ))}
+                        </ul>
+                        <div />         
+                       <div className="flex justify-center mt-4">
+                        <button onClick={() => setShowSlotsPopup(false)} className="bg-sky-900 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400 ">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
