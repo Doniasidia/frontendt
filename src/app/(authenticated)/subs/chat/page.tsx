@@ -22,6 +22,7 @@ interface Message {
     senderName?: string;
     senderType: string;
     recipientType: string;
+    timestamp: string;
 }
 
 export default function Page() {
@@ -93,11 +94,11 @@ export default function Page() {
 
     const handleSendMessage = () => {
         if (!selectedClient || !message || !socket) return;
-
+    
         const userIdString = Cookies.get('userId');
         const userId = userIdString ? parseInt(userIdString) : null;
         const username = Cookies.get('username');
-
+    
         const newMessage: Message = {
             senderId: userId!,
             recipientId: selectedClient.id,
@@ -105,14 +106,20 @@ export default function Page() {
             senderName: username,
             senderType: 'subscriber',
             recipientType: 'client',
+            timestamp: new Date().toISOString(), 
         };
-
+    
         socket.emit('chat-message', newMessage);
         setMessagesByClient((prevMessages) => ({
             ...prevMessages,
             [selectedClient.id]: [...(prevMessages[selectedClient.id] || []), newMessage],
         }));
         setMessage('');
+    };
+
+    const formatTimestamp = (timestamp: string) => {
+        const date = new Date(timestamp);
+        return date.toLocaleString();
     };
 
     const handleSelectClient = (client: Client) => {
@@ -154,23 +161,32 @@ export default function Page() {
             </div>
             <div className="flex flex-col pt-16 pb-36 max-w-2xl">
                 <div className="flex-1 overflow-auto p-4">
-                    <div className="grid gap-4">
-                        {currentMessages.map((msg: Message, index) => (
-                            <div
-                                key={index}
-                                className={`flex items-start gap-4 ${msg.senderType === 'subscriber' ? 'justify-end' : ''}`}
-                            >
-                                <div className="grid gap-1 text-sm">
-                                    <div className={`font-medium ${msg.senderType === 'subscriber' ? 'text-right' : ''}`}>
-                                        {msg.senderType === 'subscriber' ? 'You' : msg.senderName}
-                                    </div>
-                                    <div className={`p-3 rounded-lg max-w-[100%] ${msg.senderType === 'subscriber' ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                                        {msg.content}
+                    {!selectedClient ? (
+                        <div className="text-center text-gray-500 mt-40">
+                            Sélectionnez un client pour commencer à discuter
+                        </div>
+                    ) : (
+                        <div className="grid gap-4">
+                            {currentMessages.map((msg: Message, index) => (
+                                <div
+                                    key={index}
+                                    className={`flex items-start gap-4 ${msg.senderType === 'subscriber' ? 'justify-end' : ''}`}
+                                >
+                                    <div className="grid gap-1 text-sm">
+                                        <div className={`font-medium ${msg.senderType === 'subscriber' ? 'text-right' : ''}`}>
+                                            {msg.senderType === 'subscriber' ? 'Moi' : msg.senderName}
+                                        </div>
+                                        <div className={`p-3 rounded-lg max-w-[100%] ${msg.senderType === 'subscriber' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                                            {msg.content}
+                                        </div>
+                                        <div className={`text-xs text-gray-500 ${msg.senderType === 'subscriber' ? 'text-right' : ''}`}>
+                                            {formatTimestamp(msg.timestamp)}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="fixed right-0 top-0 min-h-screen w-[300px] bg-gray-100 hidden md:flex flex-col gap-4 p-4 shrink-0">
@@ -206,27 +222,28 @@ export default function Page() {
                 </div>
             </div>
             {selectedClient && (
-                <div className="fixed bottom-0 pb-12 max-w-2xl w-full bg-white p-4 border-t border-gray-200">
-                    <div className="relative">
-                        <Textarea
-                            className="min-h-[48px] rounded-2xl resize-none p-4 border border-gray-200 shadow-sm pr-16"
-                            placeholder="Ecrire votre message..."
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                        />
-                        <Button
-                            className="absolute top-3 right-3 w-8 h-8"
-                            size="icon"
-                            type="submit"
-                            onClick={handleSendMessage}
-                            disabled={!selectedClient || !message}
-                        >
-                            <ArrowUpIcon className="w-4 h-4" />
-                            <span className="sr-only">Send</span>
-                        </Button>
+                        <div className="fixed bottom-0 pb-12 max-w-2xl w-full bg-white p-4 border-t border-gray-200">
+                        <div className="relative">
+                            <Textarea
+                                className="min-h-[48px] rounded-2xl resize-none p-4 border border-gray-200 shadow-sm pr-16"
+                                placeholder="Écrire votre message..."
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                            />
+                            <Button
+                                className="absolute top-3 right-3 w-8 h-8"
+                                size="icon"
+                                type="submit"
+                                onClick={handleSendMessage}
+                                disabled={!selectedClient || !message}
+                            >
+                                <ArrowUpIcon className="w-4 h-4" />
+                                <span className="sr-only">Envoyer</span>
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            )}
-        </main>
-    );
-}
+                )}
+            </main>
+        );
+    }
+    

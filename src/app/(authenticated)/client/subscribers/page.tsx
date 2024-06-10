@@ -16,7 +16,7 @@ const TdStyle = {
     ThStyle:
         "border-l border-transparent py-2 px-3 text-white font-medium lg:py-4 lg:px-4 bg-slate-500",
     TdStyle:
-        "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1 px-3 text-center text-sm font-medium",
+        "text-dark border-b border-l border-transparent border-[#E8E8E8] bg-white dark:border-dark dark:text-dark-7 py-1  text-center text-sm font-medium",
     TdButton:
         "inline-block bg-blue-300 px-6 py-2.5 border rounded-md border-primary text-primary hover:bg-primary hover:text-white font-medium",
 };
@@ -491,8 +491,8 @@ const Subscribers = () => {
                 </div>
             </div>
             <div className="table-wrapper ">
-                <div className='flex justify-center mx-2 w-full'>
-                    <div className='w-full max-w-[100%] rounded-xl overflow-hidden shadow-lg'>
+                <div className='flex justify-center  w-full'>
+                    <div className='ww-full max-w-[100%] rounded-xl overflow-hidden shadow-lg'>
                         <table className='w-full table-auto border-collapse'>
                             <thead className='text-center'>
                             <tr>
@@ -501,7 +501,7 @@ const Subscribers = () => {
                                 <th className={TdStyle.ThStyle}> Téléphone</th>
                                 <th className={TdStyle.ThStyle}> Email</th>
                                 <th className={TdStyle.ThStyle}> Groupe</th>
-                                <th className={TdStyle.ThStyle}>Plans</th>
+                                <th className={TdStyle.ThStyle}>Plan d&#39;abonnement</th>
                                 <th className={TdStyle.ThStyle}></th>
                                 <th className={TdStyle.ThStyle}></th>
                                 <th className={TdStyle.ThStyle}></th>
@@ -541,8 +541,13 @@ const Subscribers = () => {
                 </td>
 
                 <td className={TdStyle.TdStyle} >
-    <button onClick={() => handleSlotsDisplay(subscriber.slots)} className="bg-sky-900 text-white rounded-md">Horaires des séances</button>
-</td>                                                        <td className={TdStyle.TdStyle}>
+                {subscriber.status === "activated" && (
+    <button onClick={() => handleSlotsDisplay(subscriber.slots)} className="bg-sky-900 text-white rounded-md">Horaires des séances :</button> 
+)}
+</td>                                                       
+ <td >
+{subscriber.status === "activated" && (
+
                                             <div className="flex items-center justify-center">
                                                 <button
                                                     onClick={() => handleClick(subscriber.id, "edit")}
@@ -554,6 +559,7 @@ const Subscribers = () => {
                                                         height={20}
                                                     />
                                                 </button>
+
                                                 {showEditForm && selectedSubscriber && (
                                                     <div
                                                         className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg overflow-y-auto"
@@ -588,7 +594,7 @@ const Subscribers = () => {
                                                                     htmlFor="username"
                                                                     className="block text-gray-700 text-sm font-bold mb-2"
                                                                 >
-                                                                    Nom *:
+                                                                    Nom :
                                                                 </label>
                                                                 <input
                                                                     type="text"
@@ -614,7 +620,7 @@ const Subscribers = () => {
                                                                     htmlFor="prenom"
                                                                     className="block text-gray-700 text-sm font-bold mb-2"
                                                                 >
-                                                                    Prénom * :
+                                                                    Prénom  :
                                                                 </label>
                                                                 <input
                                                                     type="text"
@@ -641,7 +647,7 @@ const Subscribers = () => {
                                                                     htmlFor="telephone"
                                                                     className="block text-gray-700 text-sm font-bold mb-6"
                                                                 >
-                                                                    Téléphone * :
+                                                                    Téléphone  :
                                                                 </label>
                                                                 <div className="relative flex items-center">
                                                                     <PhoneInput
@@ -773,7 +779,9 @@ const Subscribers = () => {
                                                     </div>
                                                 )}
                                             </div>
+)}
                                         </td>
+                                            
                                         <td className={TdStyle.TdStyle}>
                                             <div className="flex items-center justify-center">
                                                 <button
@@ -824,7 +832,7 @@ const Subscribers = () => {
                                     htmlFor="username"
                                     className="block text-gray-700 text-sm font-bold mb-2"
                                 >
-                                    Nom *
+                                    Nom 
                                 </label>
                                 <input
                                     type="text"
@@ -848,7 +856,7 @@ const Subscribers = () => {
                                     htmlFor="firstname"
                                     className="block text-gray-700 text-sm font-bold mb-2"
                                 >
-                                    Prénom *
+                                    Prénom 
                                 </label>
                                 <input
                                     type="text"

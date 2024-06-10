@@ -231,12 +231,12 @@ export default function LoginPage() {
                         >
                            se connecter
                         </Button>
-                       <h4>si vous n'avez pas de compte
+                       <h4>si vous n&#39;avez pas de compte
  <Link
               className=" items-center justify-center px-6 py-3 bg-transparent    hover:text-blue text-blue-500 font-medium rounded-md transition-colors duration-300"
               href="/signup"
             >
-             S'inscrire
+             S&#39;inscrire
             </Link> </h4>
                     </form>
                 </div>

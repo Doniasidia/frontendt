@@ -22,6 +22,7 @@ interface Message {
     senderName?: string;
     senderType: string;
     recipientType: string;
+    timestamp: string;
 }
 
 export default function Page() {
@@ -104,6 +105,7 @@ export default function Page() {
             senderName: username,
             senderType: 'client',
             recipientType: 'subscriber',
+            timestamp: new Date().toISOString(),
         };
 
         socket.emit('chat-message', newMessage);
@@ -112,6 +114,11 @@ export default function Page() {
             [selectedSubscriber.id]: [...(prevMessages[selectedSubscriber.id] || []), newMessage],
         }));
         setMessage('');
+    };
+
+    const formatTimestamp = (timestamp: string) => {
+        const date = new Date(timestamp);
+        return date.toLocaleString();
     };
 
     const handleSelectSubscriber = (subscriber: Subscriber) => {
@@ -154,21 +161,30 @@ export default function Page() {
             <div className="flex flex-col pt-16 pb-36 max-w-2xl">
                 <div className="flex-1 overflow-auto p-4">
                     <div className="grid gap-4">
-                        {currentMessages.map((msg: Message, index) => (
-                            <div
-                                key={index}
-                                className={`flex items-start gap-4 ${msg.senderType === 'client' ? 'justify-end' : ''}`}
-                            >
-                                <div className="grid gap-1 text-sm">
-                                    <div className={`font-medium ${msg.senderType === 'client' ? 'text-right' : ''}`}>
-                                        {msg.senderType === 'client' ? 'You' : msg.senderName}
-                                    </div>
-                                    <div className={`p-3 rounded-lg max-w-[100%] ${msg.senderType === 'client' ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                                        {msg.content}
+                        {!selectedSubscriber ? (
+                            <div className="text-gray-500 text-center mt-40">
+                                Sélectionnez un abonné pour commencer à discuter
+                            </div>
+                        ) : (
+                            currentMessages.map((msg: Message, index) => (
+                                <div
+                                    key={index}
+                                    className={`flex items-start gap-4 ${msg.senderType === 'client' ? 'justify-end' : ''}`}
+                                >
+                                    <div className="grid gap-1 text-sm">
+                                        <div className={`font-medium ${msg.senderType === 'client' ? 'text-right' : ''}`}>
+                                            {msg.senderType === 'client' ? 'Moi' : msg.senderName}
+                                        </div>
+                                        <div className={`p-3 rounded-lg max-w-[100%] ${msg.senderType === 'client' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                                            {msg.content}
+                                        </div>
+                                        <div className={`text-xs text-gray-500 ${msg.senderType === 'client' ? 'text-right' : ''}`}>
+                                            {formatTimestamp(msg.timestamp)}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
@@ -207,7 +223,7 @@ export default function Page() {
             {selectedSubscriber && (
                 <div className="fixed bottom-0 pb-12 max-w-2xl w-full bg-white p-4 border-t border-gray-200">
                     <div className="relative">
-                        <Textarea
+                    <Textarea
                             className="min-h-[48px] rounded-2xl resize-none p-4 border border-gray-200 shadow-sm pr-16"
                             placeholder="Ecrire votre message..."
                             value={message}
@@ -229,3 +245,4 @@ export default function Page() {
         </main>
     );
 }
+

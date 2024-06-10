@@ -167,7 +167,7 @@ const Paiement = () => {
             type="text"
             value={searchQuery}
             onChange={handleSearchQueryChange}
-            placeholder="Rechercher par nom d'établissement"
+            placeholder="Rechercher par nom d'abonné"
             className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96 shadow-sm"
           />
           <FaSearch className="absolute right-4 text-gray-400" />
@@ -180,7 +180,7 @@ const Paiement = () => {
               <thead className='text-center'>
                 <tr>
                   <th className={TdStyle.ThStyle}>Abonné</th>
-                  <th className={TdStyle.ThStyle}>{"Prix d'abonnement"}</th>
+                  <th className={TdStyle.ThStyle}>Prix (DNT) </th>
                   <th className={TdStyle.ThStyle}>Date de création de facture</th>
                   <th className={TdStyle.ThStyle}>{"Date d'échéance de la facture"}</th>
                   <th className={TdStyle.ThStyle}>Status de paiement</th>

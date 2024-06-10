@@ -205,7 +205,7 @@ export default function SignUpPage() {
                                 className="w-full bg-[#00a8e8] text-white hover:bg-[#0077b6]"
                                 type="submit"
                             >
-                                S'inscrire
+                                S&#39;inscrire
                             </Button>
                             <div className="text-center text-gray-700">
                             Vous avez déjà un compte?

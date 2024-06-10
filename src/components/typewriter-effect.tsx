@@ -1,5 +1,5 @@
-"use client";
 
+"use client";
 import { cn } from "@/utils/tailwindUtil";
 import { motion, stagger, useAnimate, useInView } from "framer-motion";
 import { useEffect } from "react";
@@ -26,6 +26,7 @@ export const TypewriterEffect = ({
 
   const [scope, animate] = useAnimate();
   const isInView = useInView(scope);
+
   useEffect(() => {
     if (isInView) {
       animate(
@@ -42,7 +43,7 @@ export const TypewriterEffect = ({
         }
       );
     }
-  }, [isInView]);
+  }, [isInView, animate]);  // Ajoutez 'animate' dans le tableau des dépendances
 
   const renderWords = () => {
     return (

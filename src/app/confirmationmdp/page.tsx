@@ -1,5 +1,6 @@
 "use client";
 
+import {Suspense} from "react";
 import {Spotlight} from "@/components/spotlight";
 import {TypewriterEffect} from "@/components/typewriter-effect";
 import {Button} from "@/components/ui/button";
@@ -40,7 +41,7 @@ type FormValues = {
     confirmPassword: string;
 };
 
-export default function ConfirmPasswordPage() {
+const ConfirmationMDP = () => {
     const {
         getValues,
         register,
@@ -85,7 +86,7 @@ export default function ConfirmPasswordPage() {
             }
         };
 
-        verifyEmail().then(()=> console.log("verification process completed"));
+        verifyEmail().then(() => console.log("verification process completed"));
     });
 
     const onSubmit: SubmitHandler<FormValues> = async (data, event) => {
@@ -107,8 +108,8 @@ export default function ConfirmPasswordPage() {
                     response.status === 200 &&
                     response.data.email === params?.get("email")
                 ) {
-                    toast.success("Password added successfully!");
-                    await new Promise((resolve) => setTimeout(()=>{
+                    toast.success("Mot de passe ajouté avec succès!");
+                    await new Promise((resolve) => setTimeout(() => {
                         router?.push("/login");
                     }, 1000));
                 } else {
@@ -135,7 +136,7 @@ export default function ConfirmPasswordPage() {
                             <TypewriterEffect words={words}/>
                         </h1>
                         <p className="text-md text-white">
-                        Saisissez votre  mot de passe pour sécuriser votre compte Usms.
+                            Saisissez votre mot de passe pour sécuriser votre compte Usms.
                         </p>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
@@ -159,17 +160,17 @@ export default function ConfirmPasswordPage() {
                 <div className="w-full max-w-md space-y-6 px-4 py-12 sm:px-6 lg:px-8">
                     <div className="space-y-2 text-center">
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-                        Définir un mot de passe
+                            Définir un mot de passe
                         </h2>
                         <p className="text-gray-700">
-                        Saisissez votre  mot de passe pour sécuriser votre compte Usms.
+                            Saisissez votre mot de passe pour sécuriser votre compte Usms.
                         </p>
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="space-y-4">
                             <div>
                                 <Label className="text-gray-900" htmlFor="password">
-                                Mot de passe :
+                                    Mot de passe :
                                 </Label>
                                 <PasswordInput
                                     className="mt-1 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-[#00a8e8] focus:ring-[#00a8e8]"
@@ -192,7 +193,7 @@ export default function ConfirmPasswordPage() {
                             </div>
                             <div>
                                 <Label className="text-gray-900" htmlFor="confirm-password">
-                                Confirmer mot de passe : 
+                                    Confirmer mot de passe :
                                 </Label>
                                 <PasswordInput
                                     className="mt-1 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-[#00a8e8] focus:ring-[#00a8e8]"
@@ -220,11 +221,19 @@ export default function ConfirmPasswordPage() {
                             >
                                 Confirmer
                             </Button>
-                            
+
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
-    );
+        </div>
+    );
 }
+
+const ConfirmationMDPWrapper = () => (
+    <Suspense fallback={<div>Loading...</div>}>
+        <ConfirmationMDP />
+    </Suspense>
+);
+
+export default ConfirmationMDPWrapper;

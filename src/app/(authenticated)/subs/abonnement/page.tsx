@@ -15,11 +15,11 @@ interface Subscription {
   amount: number;
   subscriber : Subscriber;
   status : string;
+  slots : string[]
 
 }
 interface Subscriber{
   id : number ;
-  slots : string[]
 }
 
 const TdStyle = {
@@ -82,7 +82,7 @@ return (
           type="text"
           value={searchQuery}
           onChange={handleSearchQueryChange}
-          placeholder="rechercher par nom d'établissement"
+          placeholder="Rechercher par nom d'établissement"
           className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-96"
         />
       </div>
@@ -94,9 +94,9 @@ return (
             <thead className='text-center'>
               <tr>
                 <th className={`${TdStyle.ThStyle} border-b border-gray-300`}>Établissement</th>
-                <th className={`${TdStyle.ThStyle} border-b border-gray-300`}>Plan</th>
+                <th className={`${TdStyle.ThStyle} border-b border-gray-300`}>Plan d&#39;abonnement</th>
                 <th className={`${TdStyle.ThStyle} border-b border-gray-300`}>Groupe</th>
-                <th className={`${TdStyle.ThStyle} border-b border-gray-300`}>Prix</th>
+                <th className={`${TdStyle.ThStyle} border-b border-gray-300`}>Prix (DNT)</th>
                 <th className={`${TdStyle.ThStyle} border-b border-gray-300`}></th>
 
               </tr>
@@ -122,7 +122,7 @@ return (
     </td>
     <td className={subscription.status === 'activated' ? TdStyle.TdStyle : ''}>
       {subscription.status === 'activated' && (
-        <button onClick={() => handleSlotsDisplay(subscription.subscriber.slots)} className="bg-sky-900 text-white px-3 py-1 rounded-md">
+        <button onClick={() => handleSlotsDisplay(subscription.slots)} className="bg-sky-900 text-white px-3 py-1 rounded-md">
           Horaires des séances
         </button>
       )}

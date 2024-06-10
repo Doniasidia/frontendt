@@ -107,7 +107,7 @@ export default function LandingPage() {
               className="inline-flex items-center justify-center px-6 py-3 bg-transparent border border-blue-500 hover:bg-blue-500 hover:text-white text-blue-500 font-medium rounded-md transition-colors duration-300"
               href="/signup"
             >
-             S'inscrire
+             S&#39;inscrire
             </Link>
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function LandingPage() {
             <WalletIcon className="h-8 w-8 text-blue-500 mb-4" />
             <h3 className="text-xl font-bold mb-2">Factures</h3>
             <p className="text-gray-600">
-              Facilitez la gestion de vos paiements d'abonnement et recevez des alertes lorsque vous approchez de votre limite.
+              Facilitez la gestion de vos paiements d&#39;abonnement et recevez des alertes lorsque vous approchez de votre limite.
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -167,7 +167,7 @@ export default function LandingPage() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <SignalIcon className="h-8 w-8 text-blue-500 mb-4" />
             <h3 className="text-xl font-bold mb-2">
-              Alertes d'abonnements
+              Alertes d&#39;abonnements
             </h3>
             <p className="text-gray-600">
               Recevez des notifications en temps opportun sur les renouvellements à venir, abonnements expirant, et plus encore.
@@ -243,7 +243,7 @@ export default function LandingPage() {
       <section className="py-16 md:py-20 lg:py-24 bg-gray-100">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 text-center">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
-          Si vous êtes abonné, vous pouvez créer un compte.
+          Si vous êtes un abonné, vous pouvez créer un compte.
           </h2>
          
           <div className="flex justify-center gap-4">
@@ -257,7 +257,7 @@ export default function LandingPage() {
               className="inline-flex items-center justify-center px-6 py-3 bg-transparent border border-blue-500 hover:bg-blue-500 hover:text-white text-blue-500 font-medium rounded-md transition-colors duration-300"
               href="/signup"
             >
-              S'inscrire
+              S&#39;inscrire
             </Link>
           </div>
         </div>
@@ -267,7 +267,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-4xl">
             <div className="space-y-6 text-center">
               <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-              Si vous êtes un propriétaire d'établissement et que vous souhaitez créer un compte, veuillez nous contacter.
+              Si vous êtes un propriétaire d&#39;établissement et que vous souhaitez créer un compte, veuillez nous contacter.
               </h2>
              
             </div>
@@ -276,7 +276,7 @@ export default function LandingPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500 text-2xl text-white">
                   <PhoneIcon className="h-6 w-6" />
                 </div>
-                <h3 className="mt-4 text-xl font-bold text-gray-900">Phone</h3>
+                <h3 className="mt-4 text-xl font-bold text-gray-900">Numéro de téléphone</h3>
                 <p className="mt-2 text-gray-600">
                   <a className="hover:underline" href="#" target="_blank">
                     (+216) 22 222 111
@@ -287,14 +287,14 @@ export default function LandingPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500 text-2xl text-white">
                   <MailIcon className="h-6 w-6" />
                 </div>
-                <h3 className="mt-4 text-xl font-bold text-gray-900">Email</h3>
+                <h3 className="mt-4 text-xl font-bold text-gray-900">Adresse e-mail</h3>
                 <p className="mt-2 text-gray-600">
                   <Link
                     className="hover:underline"
-                    href="mailto:sales@usms.com"
+                    href="mailto:usmsusms17@usms.com"
                     target="_blank"
                   >
-                    sales@usms.com
+                    usmsusms17@gmail.com
                   </Link>
                 </p>
               </div>
@@ -303,14 +303,14 @@ export default function LandingPage() {
                   <MapPinIcon className="h-6 w-6" />
                 </div>
                 <h3 className="mt-4 text-xl font-bold text-gray-900">
-                  Address
+                  Adresse
                 </h3>
                 <Link
                   href={"1 rue palestine, Tunisie"}
                   target="_blank"
                   className="mt-2 text-gray-600"
                 >
-                  1 rue palestine, Tunisie
+                  1 Rue de Palestine, Tunis 1002, Tunisie
                 </Link>
               </div>
             </div>
@@ -340,13 +340,13 @@ export default function LandingPage() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-bold text-gray-900 ">
-                      Jane Doe
+                     Zayati Moncef
                     </h3>
-                    <p className="text-sm text-gray-600 ">CEO, Acme Inc.</p>
+                    <p className="text-sm text-gray-600 ">Directeur de la salle de sport</p>
                   </div>
                 </div>
                 <p className="mt-4 text-gray-600 ">
-                  { "USMS a révolutionné notre entreprise. Il nous a aidés à gérer nos abonnements efficacement."}
+                {"USMS a révolutionné notre entreprise. Il nous a aidés à gérer nos abonnements efficacement et à améliorer la satisfaction de nos membres."}
                 </p>
               </div>
               <div className="rounded-lg bg-white p-6 shadow-sm ">
@@ -356,13 +356,13 @@ export default function LandingPage() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-bold text-gray-900 ">
-                      John Smith
+                      Miladi Farah 
                     </h3>
-                    <p className="text-sm text-gray-600 ">CTO, Globex Inc.</p>
+                    <p className="text-sm text-gray-600 ">Directrice de l&#39;école privée</p>
                   </div>
                 </div>
                 <p className="mt-4 text-gray-600 ">
-                  {"J'aime la façon dont USMS garde tous mes abonnements organisés et accessibles."}
+                {"USMS a simplifié la gestion de nos abonnements et nous permet de nous concentrer davantage sur la qualité de l&#39;éducation que nous offrons."}
                 </p>
               </div>
               <div className="rounded-lg bg-white p-6 shadow-sm ">
@@ -372,13 +372,13 @@ export default function LandingPage() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-bold text-gray-900 ">
-                      Sarah Lee
+                    Sidia Donia
                     </h3>
-                    <p className="text-sm text-gray-600 ">Founder, Startup X</p>
+                    <p className="text-sm text-gray-600 ">Abonnée fidèle</p>
                   </div>
                 </div>
                 <p className="mt-4 text-gray-600 ">
-                  {"USMS a été une bouée de sauvetage pour notre petite entreprise. Cela nous a aidé à rester maître de nos abonnements ."}
+                {"En tant qu&#39;abonnée fidèle, j&#39;apprécie la façon dont USMS me permet de suivre facilement mes abonnements et de ne jamais manquer une échéance."}
                 </p>
               </div>
             </div>

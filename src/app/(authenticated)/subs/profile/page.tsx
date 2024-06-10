@@ -126,7 +126,7 @@ export default function Page() {
   return (
     <main>
       <Breadcrumbs
-        breadcrumbs={[{ label: "Mon profile", href: "/subs/profile" }]}
+        breadcrumbs={[{ label: "Mon profil", href: "/subs/profile" }]}
       />
       <Profile />
     </main>

@@ -7,6 +7,7 @@ import { INVOICES_API } from "@/utils/apiUtil";
 import { FaSearch } from "react-icons/fa";
 import PaginationBar from "../../../../../components/PaginationBar";
 import CardComponent from "../../../../../components/Card";
+import Breadcrumbs from "@/components/breadcrumbs";
 
 interface Invoice {
   id: number;
@@ -123,7 +124,7 @@ const Paiement = () => {
               <thead className='text-center'>
                 <tr>
                   <th className={TdStyle.ThStyle}>Établissement</th>
-                  <th className={TdStyle.ThStyle}>{"Prix d'abonnement"}</th>
+                  <th className={TdStyle.ThStyle}>Prix (DNT) </th>
                   <th className={TdStyle.ThStyle}>Date de création de facture</th>
                   <th className={TdStyle.ThStyle}>{"Date d'échéance de la facture"}</th>
                   <th className={TdStyle.ThStyle}>Status de paiement</th>
@@ -151,8 +152,8 @@ const Paiement = () => {
       {invoice.dueDate}
     </td>
     <td className={`${TdStyle.TdStyle} border-b border-gray-200 ${invoice.status === 'expired' ? 'text-center deactivated-text' : 'text-left'}`}>
-      {invoice.status === 'paid' ? 'Payé' : 'En attente'}
-    </td>
+  {invoice.status === 'paid' ? 'Payé' : invoice.status === 'expired' ? 'Expirée' : 'En attente'}
+</td>
     <td className={`${TdStyle.TdStyle} border-b border-gray-200 ${invoice.status === 'expired' ? 'text-center deactivated-text' : 'text-left'}`}>
       {invoice.paymentDate || '-'}
     </td>
@@ -200,4 +201,13 @@ const Paiement = () => {
   );
 };
 
-export default Paiement;
+export default function Page() {
+  return (
+      <main>
+          <Breadcrumbs
+              breadcrumbs={[{label: "Paiements", href: "/subs/payments"}]}
+          />
+          <Paiement/>
+      </main>
+  );
+}

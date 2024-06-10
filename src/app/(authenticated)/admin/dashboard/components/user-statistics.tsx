@@ -24,6 +24,7 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
 type DataPoint = { date: string, count: number };
 
 async function fetchClientsAndSubscribers() {
@@ -39,7 +40,7 @@ async function fetchClientsAndSubscribers() {
     };
   } catch (error) {
     console.error('Error fetching data:', error);
-    return { clients: [], abonnés: [] };
+    return { clients: [], subscribers: [] };
   }
 }
 
@@ -47,22 +48,22 @@ function aggregateData(items: { createdAt: string }[]): DataPoint[] {
   const counts: { [key: string]: number } = {};
 
   items.forEach(item => {
-    const date = new Date(item.createdAt).toISOString().split('T')[0];
-    if (!counts[date]) {
-      counts[date] = 0;
+    const date = new Date(item.createdAt);
+    const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    if (!counts[monthYear]) {
+      counts[monthYear] = 0;
     }
-    counts[date]++;
+    counts[monthYear]++;
   });
 
   const cumulativeCounts: DataPoint[] = [];
   let cumulativeSum = 0;
 
-  Object.keys(counts).sort().forEach(date => {
-    cumulativeSum += counts[date];
-    cumulativeCounts.push({ date, count: cumulativeSum });
+  Object.keys(counts).sort().forEach(monthYear => {
+    cumulativeSum += counts[monthYear];
+    cumulativeCounts.push({ date: monthYear, count: cumulativeSum });
   });
 
-  console.log("Aggregated Data:", cumulativeCounts); // Debugging line
   return cumulativeCounts;
 }
 
@@ -71,11 +72,11 @@ async function prepareChartData() {
   const clientData = aggregateData(clients);
   const subscriberData = aggregateData(subscribers);
 
-  // Combine and sort all unique dates
+  // Combine and sort all unique month-year
   const allDates = Array.from(new Set([...clientData.map(item => item.date), ...subscriberData.map(item => item.date)])).sort();
 
   // Create unified labels
-  const labels = allDates.map(date => DateFormat.getFormattedDate(date));
+  const labels = allDates.map(date => DateFormat.getFormattedMonthYear(date));
 
   // Align data points with unified labels
   const clientCounts = allDates.map(date => {
@@ -101,7 +102,7 @@ export default function ClientSubscriberChart() {
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
       },
       {
-        label: 'abonnés',
+        label: 'Abonnés',
         data: [] as number[],
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
       },
@@ -125,7 +126,7 @@ export default function ClientSubscriberChart() {
             backgroundColor: 'rgba(54, 162, 235, 0.6)',
           },
           {
-            label: 'abonnés',
+            label: 'Abonnés',
             data: subscriberCounts,
             backgroundColor: 'rgba(75, 192, 192, 0.6)',
           },

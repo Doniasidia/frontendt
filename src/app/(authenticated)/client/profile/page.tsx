@@ -70,7 +70,7 @@ const Profile = () => {
       )}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Nom d'établissemnt</label>
+          <label className="block text-sm font-medium text-gray-700">Nom d&#39;établissemnt</label>
           <Input
             type="text"
             name="username"
@@ -134,7 +134,7 @@ export default function Page() {
   return (
     <main>
       <Breadcrumbs
-        breadcrumbs={[{ label: "Mon profile", href: "/client/profile" }]}
+        breadcrumbs={[{ label: "Mon profil", href: "/client/profile" }]}
       />
       <Profile />
     </main>
